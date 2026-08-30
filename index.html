@@ -62,7 +62,6 @@
                     </select>
                 </div>
 
-                <!-- VALUES UPDATED TO DEFAULT AT 25%, 55%, AND 9% -->
                 <div class="slider-group">
                     <div class="slider-header"><label>ALL FONT SIZE</label><span id="val-global-fs">25%</span></div>
                     <input type="range" id="global-fs" min="50" max="450" value="150">
@@ -82,7 +81,6 @@
             </div>
             
             <div class="accordion-container">
-                <!-- Poster 1 -->
                 <details id="panel-1" open class="poster-controls">
                     <summary>POSTER 1</summary>
                     <div class="controls-wrapper">
@@ -113,7 +111,6 @@
                     </div>
                 </details>
 
-                <!-- Poster 2 -->
                 <details id="panel-2" class="poster-controls">
                     <summary>POSTER 2</summary>
                     <div class="controls-wrapper">
@@ -144,7 +141,6 @@
                     </div>
                 </details>
 
-                <!-- Poster 3 -->
                 <details id="panel-3" class="poster-controls">
                     <summary>POSTER 3</summary>
                     <div class="controls-wrapper">
@@ -175,7 +171,6 @@
                     </div>
                 </details>
 
-                <!-- Poster 4 -->
                 <details id="panel-4" class="poster-controls">
                     <summary>POSTER 4</summary>
                     <div class="controls-wrapper">
@@ -235,6 +230,19 @@
                     <div class="slider-header"><label>BASE THICKNESS / পুরুত্ব</label><span id="val-thick">25PX</span></div>
                     <input type="range" id="eng-thick" min="1" max="100" value="25">
                 </div>
+                
+                <div class="slider-group">
+                    <div class="slider-header"><label>AMPLITUDE / স্কেল</label><span id="val-amp">100%</span></div>
+                    <input type="range" id="eng-amp" min="10" max="300" value="100">
+                </div>
+                <div class="slider-group">
+                    <div class="slider-header"><label>PHASE SHIFT / ফেজ</label><span id="val-phase">0°</span></div>
+                    <input type="range" id="eng-phase" min="0" max="360" value="0">
+                </div>
+                <div class="slider-group">
+                    <div class="slider-header"><label>CHAOS / বিশৃঙ্খলা</label><span id="val-chaos">0%</span></div>
+                    <input type="range" id="eng-chaos" min="0" max="150" value="0">
+                </div>
             </div>
 
             <button id="downloadBtn" class="download-btn">DOWNLOAD SVG</button>
@@ -249,7 +257,6 @@
                 
                 <rect width="100%" height="100%" fill="transparent" />
 
-                <!-- Poster 1: Default SVG Text updated -->
                 <g id="art-1" transform="translate(0, 0)" clip-path="url(#posterClip)">
                     <rect id="svg-p1-bg" x="200" width="1630" height="2520" fill="#e3e1db" />
                     <rect width="200" height="2520" fill="#f0efeb" />
@@ -257,7 +264,6 @@
                     <path id="svg-p1-line" d="" fill="none" stroke="#111827" stroke-width="80" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#artClip)"/>
                 </g>
 
-                <!-- Poster 2: Default SVG Text updated -->
                 <g id="art-2" transform="translate(2030, 0)" clip-path="url(#posterClip)">
                     <rect id="svg-p2-bg" x="200" width="1630" height="2520" fill="#e61f26" />
                     <rect width="200" height="2520" fill="#d91d24" />
@@ -265,7 +271,6 @@
                     <path id="svg-p2-line" d="" fill="none" stroke="#111827" stroke-width="80" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#artClip)"/>
                 </g>
 
-                <!-- Poster 3: Default SVG Text updated -->
                 <g id="art-3" transform="translate(4060, 0)" clip-path="url(#posterClip)">
                     <rect id="svg-p3-bg" x="200" width="1630" height="2520" fill="#181d27" />
                     <rect width="200" height="2520" fill="#c3e000" />
@@ -273,7 +278,6 @@
                     <path id="svg-p3-line" d="" fill="none" stroke="#c3e000" stroke-width="40" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#artClip)"/>
                 </g>
 
-                <!-- Poster 4: Default SVG Text updated -->
                 <g id="art-4" transform="translate(6090, 0)" clip-path="url(#posterClip)">
                     <rect id="svg-p4-bg" x="200" width="1630" height="2520" fill="#362222" />
                     <rect width="200" height="2520" fill="#4a2e2e" />
