@@ -71,7 +71,9 @@ function generateDynamicArt() {
     
     let p1Path = "", p2Path = "", p3Path = "", p4Path = "";
 
+    // ----------------------------------------------------
     // MODE 1: GEOMETRIC
+    // ----------------------------------------------------
     if (mode === 'geometric') {
         document.getElementById('svg-p1-line').setAttribute('stroke-width', thick * 0.15); 
         document.getElementById('svg-p2-line').setAttribute('stroke-width', thick * 0.4);  
@@ -103,7 +105,9 @@ function generateDynamicArt() {
             }
         }
     }
+    // ----------------------------------------------------
     // MODE 2: RETRO WAVES
+    // ----------------------------------------------------
     else if (mode === 'retro') {
         document.getElementById('svg-p1-line').setAttribute('stroke-width', thick * 0.4); 
         document.getElementById('svg-p2-line').setAttribute('stroke-width', thick * 0.5);  
@@ -127,7 +131,9 @@ function generateDynamicArt() {
             p4Path += `M ${startX},${startY} C ${startX+500},${startY} ${endX-500},${endY} ${endX},${endY} `;
         }
     }
+    // ----------------------------------------------------
     // MODE 3: COMPLEX TOPOLOGY
+    // ----------------------------------------------------
     else if (mode === 'topology') {
         document.getElementById('svg-p1-line').setAttribute('stroke-width', thick * 0.2); 
         document.getElementById('svg-p2-line').setAttribute('stroke-width', thick * 0.25);  
@@ -150,6 +156,83 @@ function generateDynamicArt() {
                 if (n4 > height) n4 = height; if (n4 < 0) n4 = 0;
 
                 p1Path += `L ${x},${n1} `; p2Path += `L ${x},${n2} `; p3Path += `L ${x},${n3} `; p4Path += `L ${x},${n4} `;
+            }
+        }
+    }
+    // ----------------------------------------------------
+    // MODE 4: MANDALA (Radial Symmetry)
+    // ----------------------------------------------------
+    else if (mode === 'mandala') {
+        document.getElementById('svg-p1-line').setAttribute('stroke-width', thick * 0.2); 
+        document.getElementById('svg-p2-line').setAttribute('stroke-width', thick * 0.3);  
+        document.getElementById('svg-p3-line').setAttribute('stroke-width', thick * 0.4);  
+        document.getElementById('svg-p4-line').setAttribute('stroke-width', thick * 0.6);
+
+        let centerX = midX;
+        let centerY = height / 2;
+        let layers = Math.floor(density / 3) + 4; 
+        let petals = Math.floor(freq / 3) + 6;    
+
+        // Poster 1: Spiky Abstract Mandala
+        for(let i=1; i<=layers; i++) {
+            let rBase = (1200 / layers) * i;
+            for(let j=0; j<=petals; j++) {
+                let angle = (j / petals) * Math.PI * 2;
+                let spike = (j % 2 === 0) ? (freq * 1.5) : -(freq * 1.5);
+                let x = centerX + Math.cos(angle) * (rBase + spike);
+                let y = centerY + Math.sin(angle) * (rBase + spike);
+                if (j === 0) p1Path += `M ${x},${y} `;
+                else p1Path += `L ${x},${y} `;
+            }
+        }
+
+        // Poster 2: Smooth Floral Petal Mandala
+        for(let i=1; i<=layers; i++) {
+            let rBase = (1200 / layers) * i;
+            for(let j=0; j<petals; j++) {
+                let angle1 = (j / petals) * Math.PI * 2;
+                let angle2 = ((j + 0.5) / petals) * Math.PI * 2;
+                let angle3 = ((j + 1) / petals) * Math.PI * 2;
+
+                let x1 = centerX + Math.cos(angle1) * rBase;
+                let y1 = centerY + Math.sin(angle1) * rBase;
+                let x2 = centerX + Math.cos(angle2) * (rBase + freq * 3);
+                let y2 = centerY + Math.sin(angle2) * (rBase + freq * 3);
+                let x3 = centerX + Math.cos(angle3) * rBase;
+                let y3 = centerY + Math.sin(angle3) * rBase;
+
+                p2Path += `M ${x1},${y1} Q ${x2},${y2} ${x3},${y3} `;
+            }
+        }
+
+        // Poster 3: Geometric Polygon Mandala
+        let sides = Math.floor(freq / 8) + 3; 
+        for(let i=1; i<=density; i++) {
+            let r = (1200 / density) * i;
+            let offset = (i % 2 === 0) ? 0 : (Math.PI / sides);
+            for(let j=0; j<=sides; j++) {
+                let angle = (j / sides) * Math.PI * 2 + offset;
+                let x = centerX + Math.cos(angle) * r;
+                let y = centerY + Math.sin(angle) * r;
+                if (j === 0) p3Path += `M ${x},${y} `;
+                else p3Path += `L ${x},${y} `;
+            }
+        }
+
+        // Poster 4: Minimalist Orbiting Arcs
+        let dashCount = Math.floor(freq / 5) + 3;
+        for(let i=1; i<=density; i++) {
+            let r = (1200 / density) * i;
+            for(let j=0; j<dashCount; j++) {
+                let startAngle = (j / dashCount) * Math.PI * 2 + (i * 0.1);
+                let endAngle = startAngle + (Math.PI * 2 / dashCount) * 0.6; 
+                
+                let x1 = centerX + Math.cos(startAngle) * r;
+                let y1 = centerY + Math.sin(startAngle) * r;
+                let x2 = centerX + Math.cos(endAngle) * r;
+                let y2 = centerY + Math.sin(endAngle) * r;
+                
+                p4Path += `M ${x1},${y1} A ${r} ${r} 0 0 1 ${x2},${y2} `;
             }
         }
     }
@@ -179,7 +262,7 @@ modeSelect.addEventListener('change', generateDynamicArt);
 // RANDOMIZATION ENGINE (AUTO SHUFFLE)
 // ==========================================
 function randomizeEngine() {
-    const modes = ['geometric', 'retro', 'topology'];
+    const modes = ['geometric', 'retro', 'topology', 'mandala'];
     const randomMode = modes[Math.floor(Math.random() * modes.length)];
     
     const randomDensity = Math.floor(Math.random() * (150 - 10 + 1)) + 10;
@@ -205,7 +288,6 @@ if (shuffleBtn) {
 
 // Initialize on page load
 randomizeEngine();
-
 
 // Master SVG Download Logic
 document.getElementById('downloadBtn').addEventListener('click', () => {
