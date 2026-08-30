@@ -33,21 +33,11 @@ for (let i = 1; i <= 4; i++) {
 // ==========================================
 // GLOBAL TEXT CONTROLS LOGIC
 // ==========================================
-const globalText = document.getElementById('global-text');
 const globalFont = document.getElementById('global-font');
 const globalFs = document.getElementById('global-fs');
 const globalPos = document.getElementById('global-pos');
 const globalPosX = document.getElementById('global-pos-x');
 
-globalText.addEventListener('input', (e) => {
-    let val = e.target.value;
-    for (let i = 1; i <= 4; i++) {
-        if(val.trim() !== "") {
-            document.getElementById(`svg-p${i}-title`).textContent = val;
-            document.getElementById(`p${i}-title`).value = val; 
-        }
-    }
-});
 
 globalFont.addEventListener('change', (e) => {
     let val = e.target.value;
@@ -95,7 +85,6 @@ function generateDynamicArt() {
     const thick = parseInt(thickSlider.value);     
     const mode = modeSelect.value;
 
-    // Adjusted coordinates based on the minimized text strip (200px)
     const startX = 200; const endX = 1830; const midX = 1015; const height = 2520;
     
     let p1Path = "", p2Path = "", p3Path = "", p4Path = "";
@@ -199,7 +188,7 @@ function generateDynamicArt() {
 
         let centerX = midX; let centerY = height / 2;
         let layers = Math.floor(density / 3) + 4; let petals = Math.floor(freq / 3) + 6;    
-        let maxRadius = 1000; // Scaled down to fit beautifully inside the new boundaries
+        let maxRadius = 1000; 
 
         for(let i=1; i<=layers; i++) {
             let rBase = (maxRadius / layers) * i;
