@@ -30,14 +30,18 @@ function updatePercentLabel(sliderId, labelId) {
     }
 }
 
-// Map the 4 posters' individual inputs
+// Map the 4 posters' individual inputs (Now including BG and Line Gradient Color Stops)
 for (let i = 1; i <= 4; i++) {
     linkInputToSVG(`p${i}-title`, `svg-p${i}-title`, 'text');
     linkInputToSVG(`p${i}-font`, `svg-p${i}-title`, 'font-family');
-    linkInputToSVG(`p${i}-bg`, `svg-p${i}-bg`, 'fill');
-    linkInputToSVG(`p${i}-line`, `svg-p${i}-line`, 'stroke');
     linkInputToSVG(`p${i}-text`, `svg-p${i}-title`, 'fill');
     
+    // NEW: Map the gradient dual-colors to the SVG <stop> elements
+    linkInputToSVG(`p${i}-bg1`, `p${i}-bg1-stop`, 'stop-color');
+    linkInputToSVG(`p${i}-bg2`, `p${i}-bg2-stop`, 'stop-color');
+    linkInputToSVG(`p${i}-line1`, `p${i}-line1-stop`, 'stop-color');
+    linkInputToSVG(`p${i}-line2`, `p${i}-line2-stop`, 'stop-color');
+
     linkInputToSVG(`p${i}-fs`, `svg-p${i}-title`, 'font-size');
     linkInputToSVG(`p${i}-pos`, `svg-p${i}-title`, 'x');
     linkInputToSVG(`p${i}-pos-x`, `svg-p${i}-title`, 'y');
@@ -152,7 +156,6 @@ const ampSlider = document.getElementById('eng-amp');
 const phaseSlider = document.getElementById('eng-phase');
 const chaosSlider = document.getElementById('eng-chaos');
 
-// Pseudo-random noise function for deterministic chaos
 function getJitter(seed, chaosLevel) {
     let noise = (Math.sin(seed * 12.9898 + seed * 78.233) * 43758.5453) % 1;
     return noise * chaosLevel * 5; 
@@ -162,18 +165,15 @@ function generateDynamicArt() {
     const density = parseInt(densitySlider.value); 
     const freq = parseInt(freqSlider.value);       
     const thick = parseInt(thickSlider.value);     
-    const amp = parseInt(ampSlider.value) / 100;    // Scale multiplier: 0.1 to 3.0
-    const phase = parseInt(phaseSlider.value);      // Offset: 0 to 360
-    const chaos = parseInt(chaosSlider.value);      // Jitter multiplier: 0 to 150
+    const amp = parseInt(ampSlider.value) / 100;    
+    const phase = parseInt(phaseSlider.value);      
+    const chaos = parseInt(chaosSlider.value);      
     const mode = modeSelect.value;
 
     const startX = 200; const endX = 1830; const midX = 1015; const height = 2520;
     
     let p1Path = "", p2Path = "", p3Path = "", p4Path = "";
 
-    // ----------------------------------------------------
-    // MODE 1: GEOMETRIC
-    // ----------------------------------------------------
     if (mode === 'geometric') {
         document.getElementById('svg-p1-line').setAttribute('stroke-width', thick * 0.15); 
         document.getElementById('svg-p2-line').setAttribute('stroke-width', thick * 0.4);  
@@ -214,9 +214,6 @@ function generateDynamicArt() {
             }
         }
     }
-    // ----------------------------------------------------
-    // MODE 2: RETRO WAVES
-    // ----------------------------------------------------
     else if (mode === 'retro') {
         document.getElementById('svg-p1-line').setAttribute('stroke-width', thick * 0.4); 
         document.getElementById('svg-p2-line').setAttribute('stroke-width', thick * 0.5);  
@@ -248,9 +245,6 @@ function generateDynamicArt() {
             p4Path += `M ${startX},${startY+j} C ${startX+500},${startY+j} ${endX-500},${endY+j} ${endX},${endY+j} `;
         }
     }
-    // ----------------------------------------------------
-    // MODE 3: COMPLEX TOPOLOGY
-    // ----------------------------------------------------
     else if (mode === 'topology') {
         document.getElementById('svg-p1-line').setAttribute('stroke-width', thick * 0.2); 
         document.getElementById('svg-p2-line').setAttribute('stroke-width', thick * 0.25);  
@@ -264,7 +258,7 @@ function generateDynamicArt() {
             p3Path += `M ${startX},${yBase+jStart} `; p4Path += `M ${startX},${yBase+jStart} `;
             
             for(let x = startX; x <= endX; x += 80) {
-                let px = x + (phase * 2); // Phase shifting horizontally for noise
+                let px = x + (phase * 2);
                 let j = getJitter(x*i, chaos);
 
                 let n1 = yBase + Math.sin((px * 0.005) + (i * 0.1)) * (freq * 3 * amp) + Math.cos(px * 0.01) * 50 * amp;
@@ -281,9 +275,6 @@ function generateDynamicArt() {
             }
         }
     }
-    // ----------------------------------------------------
-    // MODE 4: MANDALA 
-    // ----------------------------------------------------
     else if (mode === 'mandala') {
         document.getElementById('svg-p1-line').setAttribute('stroke-width', thick * 0.2); 
         document.getElementById('svg-p2-line').setAttribute('stroke-width', thick * 0.3);  
@@ -293,7 +284,7 @@ function generateDynamicArt() {
         let centerX = midX; let centerY = height / 2;
         let layers = Math.floor(density / 3) + 4; let petals = Math.floor(freq / 3) + 6;    
         let maxRadius = 1000 * amp; 
-        let phaseRad = phase * (Math.PI / 180); // convert deg to radians
+        let phaseRad = phase * (Math.PI / 180); 
 
         for(let i=1; i<=layers; i++) {
             let rBase = (maxRadius / layers) * i;
@@ -356,20 +347,48 @@ function generateDynamicArt() {
 }
 
 // ==========================================
-// BACKGROUND RANDOMIZATION ENGINE
+// BACKGROUND & LINE GRADIENT SHUFFLE ENGINE
 // ==========================================
-function randomizeBackgrounds() {
-    const palettes = [
-        '#1a1a24', '#e61f26', '#c3e000', '#362222', '#e3e1db', 
-        '#0f172a', '#4c1d95', '#be123c', '#047857', '#b45309', 
-        '#171717', '#f8fafc', '#3b82f6', '#14b8a6', '#f43f5e', 
-        '#ff9800', '#673ab7', '#009688', '#e91e63', '#212121'
+function randomizeColors() {
+    // Professional Dark Gradients for Backgrounds
+    const bgGradients = [
+        ['#0f2027', '#203a43'], // Deep space
+        ['#2c3e50', '#000000'], // Dark slate
+        ['#141e30', '#243b55'], // Midnight
+        ['#23074d', '#cc5333'], // Purple-orange dark
+        ['#1a2a6c', '#b21f1f'], // Deep blue to red
+        ['#000000', '#434343'], // Black to grey
+        ['#111111', '#111111'], // Solid dark
+        ['#3E5151', '#DECBA4']  // Sand to slate
+    ];
+
+    // High-Contrast Bright Gradients for Lines
+    const lineGradients = [
+        ['#00c6ff', '#0072ff'], // Cyan blue
+        ['#f12711', '#f5af19'], // Fire orange
+        ['#fc4a1a', '#f7b733'], // Warm gradient
+        ['#7F00FF', '#E100FF'], // Purple neon
+        ['#11998e', '#38ef7d'], // Mint green
+        ['#ff0084', '#33001b'], // Hot pink dark
+        ['#00d2ff', '#3a7bd5'], // Electric blue
+        ['#f85032', '#e73827']  // Crimson
     ];
     
     for (let i = 1; i <= 4; i++) {
-        let randomBg = palettes[Math.floor(Math.random() * palettes.length)];
-        document.getElementById(`svg-p${i}-bg`).setAttribute('fill', randomBg);
-        document.getElementById(`p${i}-bg`).value = randomBg;
+        let randomBg = bgGradients[Math.floor(Math.random() * bgGradients.length)];
+        let randomLine = lineGradients[Math.floor(Math.random() * lineGradients.length)];
+        
+        // Apply to SVG <stop> elements
+        document.getElementById(`p${i}-bg1-stop`).setAttribute('stop-color', randomBg[0]);
+        document.getElementById(`p${i}-bg2-stop`).setAttribute('stop-color', randomBg[1]);
+        document.getElementById(`p${i}-line1-stop`).setAttribute('stop-color', randomLine[0]);
+        document.getElementById(`p${i}-line2-stop`).setAttribute('stop-color', randomLine[1]);
+
+        // Sync with UI sidebar color pickers
+        document.getElementById(`p${i}-bg1`).value = randomBg[0];
+        document.getElementById(`p${i}-bg2`).value = randomBg[1];
+        document.getElementById(`p${i}-line1`).value = randomLine[0];
+        document.getElementById(`p${i}-line2`).value = randomLine[1];
     }
 }
 
@@ -385,9 +404,8 @@ function randomizeBackgrounds() {
     });
 });
 
-
 modeSelect.addEventListener('change', () => {
-    randomizeBackgrounds();
+    randomizeColors();
     generateDynamicArt();
 });
 
@@ -402,10 +420,9 @@ function randomizeEngine() {
     const randomFreq = Math.floor(Math.random() * 100) + 1;
     const randomThick = Math.floor(Math.random() * 100) + 1;
     
-    // New Randoms
     const randomAmp = Math.floor(Math.random() * (200 - 50 + 1)) + 50; 
     const randomPhase = Math.floor(Math.random() * 360);
-    const randomChaos = Math.floor(Math.random() * 30); // Keep chaos generally low for good design
+    const randomChaos = Math.floor(Math.random() * 30); 
 
     modeSelect.value = randomMode;
     densitySlider.value = randomDensity;
@@ -422,7 +439,7 @@ function randomizeEngine() {
     document.getElementById('val-phase').innerText = randomPhase + '°';
     document.getElementById('val-chaos').innerText = randomChaos + '%';
 
-    randomizeBackgrounds();
+    randomizeColors();
     generateDynamicArt();
 }
 
