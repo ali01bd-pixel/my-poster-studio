@@ -48,3 +48,44 @@ document.getElementById('downloadBtn').addEventListener('click', () => {
     downloadLink.click();
     document.body.removeChild(downloadLink);
 });
+
+// ==========================================
+// WAVE GENERATOR ENGINE
+// ==========================================
+
+const waveSlider = document.getElementById('waveFrequency');
+
+function drawWaves() {
+    const frequency = waveSlider.value; // Get the slider value
+    const width = 1830;                 // Width of a single poster
+    const height = 2520;                // Height of a single poster
+    const amplitude = 150;              // How tall the wave peaks are
+    const yCenter = 1900;               // Vertical position of the wave
+
+    // 1. Calculate the math for the wave path
+    // M = Move to starting point, L = Draw Line to next point
+    let pathData = `M 0,${height} L 0,${yCenter}`;
+    
+    // Create the smooth curve using Sine math (step by 10 pixels)
+    for (let x = 0; x <= width; x += 10) {
+        let y = yCenter + Math.sin((x / width) * Math.PI * 2 * frequency) * amplitude;
+        pathData += ` L ${x},${y}`;
+    }
+    
+    // Close the shape at the bottom right corner
+    pathData += ` L ${width},${height} Z`;
+
+    // 2. Inject this path into all 4 posters
+    for (let i = 1; i <= 4; i++) {
+        const waveElement = document.getElementById(`svg-p${i}-wave`);
+        if (waveElement) {
+            waveElement.setAttribute('d', pathData);
+        }
+    }
+}
+
+// 3. Listen for slider movement to redraw instantly
+waveSlider.addEventListener('input', drawWaves);
+
+// 4. Draw the initial wave as soon as the page loads
+drawWaves();
