@@ -57,6 +57,16 @@
                             <label>MAIN TEXT</label>
                             <input type="color" id="p1-text" value="#1a202c">
                         </div>
+
+                        <!-- NEW: Font Controls -->
+                        <div class="slider-group" style="margin-top: 15px; padding: 0 5px;">
+                            <div class="slider-header"><label>FONT SIZE</label></div>
+                            <input type="range" id="p1-fs" min="50" max="350" value="180">
+                        </div>
+                        <div class="slider-group" style="padding: 0 5px;">
+                            <div class="slider-header"><label>TEXT POSITION (Y)</label></div>
+                            <input type="range" id="p1-pos" min="-2400" max="-100" value="-1800">
+                        </div>
                     </div>
                 </details>
 
@@ -83,6 +93,16 @@
                         <div class="control-group color-input-group">
                             <label>MAIN TEXT</label>
                             <input type="color" id="p2-text" value="#ffffff">
+                        </div>
+
+                        <!-- NEW: Font Controls -->
+                        <div class="slider-group" style="margin-top: 15px; padding: 0 5px;">
+                            <div class="slider-header"><label>FONT SIZE</label></div>
+                            <input type="range" id="p2-fs" min="50" max="350" value="180">
+                        </div>
+                        <div class="slider-group" style="padding: 0 5px;">
+                            <div class="slider-header"><label>TEXT POSITION (Y)</label></div>
+                            <input type="range" id="p2-pos" min="-2400" max="-100" value="-1800">
                         </div>
                     </div>
                 </details>
@@ -111,6 +131,16 @@
                             <label>MAIN TEXT</label>
                             <input type="color" id="p3-text" value="#1a202c">
                         </div>
+
+                        <!-- NEW: Font Controls -->
+                        <div class="slider-group" style="margin-top: 15px; padding: 0 5px;">
+                            <div class="slider-header"><label>FONT SIZE</label></div>
+                            <input type="range" id="p3-fs" min="50" max="350" value="180">
+                        </div>
+                        <div class="slider-group" style="padding: 0 5px;">
+                            <div class="slider-header"><label>TEXT POSITION (Y)</label></div>
+                            <input type="range" id="p3-pos" min="-2400" max="-100" value="-1800">
+                        </div>
                     </div>
                 </details>
 
@@ -137,6 +167,16 @@
                         <div class="control-group color-input-group">
                             <label>MAIN TEXT</label>
                             <input type="color" id="p4-text" value="#ffffff">
+                        </div>
+
+                        <!-- NEW: Font Controls -->
+                        <div class="slider-group" style="margin-top: 15px; padding: 0 5px;">
+                            <div class="slider-header"><label>FONT SIZE</label></div>
+                            <input type="range" id="p4-fs" min="50" max="350" value="180">
+                        </div>
+                        <div class="slider-group" style="padding: 0 5px;">
+                            <div class="slider-header"><label>TEXT POSITION (Y)</label></div>
+                            <input type="range" id="p4-pos" min="-2400" max="-100" value="-1800">
                         </div>
                     </div>
                 </details>
@@ -177,45 +217,50 @@
 
         <main class="canvas-container">
             <svg id="masterCanvas" viewBox="0 0 7320 2520" xmlns="http://www.w3.org/2000/svg">
+                <!-- NEW: Clip Path to prevent art bleeding outside boundaries -->
+                <defs>
+                    <clipPath id="posterClip">
+                        <rect width="1830" height="2520" />
+                    </clipPath>
+                </defs>
+
                 <!-- Wrapper for white background -->
                 <rect width="100%" height="100%" fill="#ffffff" />
 
                 <!-- Poster 1 -->
-                <g transform="translate(0, 0)">
+                <g transform="translate(0, 0)" clip-path="url(#posterClip)">
                     <rect id="svg-p1-bg" x="350" width="1480" height="2520" fill="#e3e1db" />
-                    <!-- Left Strip -->
                     <rect width="350" height="2520" fill="#f0efeb" />
                     <rect id="svg-p1-box" x="80" y="200" width="100" height="100" fill="none" stroke="#111827" stroke-width="8" />
                     <text id="svg-p1-title" x="-1800" y="160" transform="rotate(-90)" font-family="'Segoe UI', Arial, sans-serif" font-size="180" fill="#1a202c" font-weight="900" letter-spacing="10">ABSTRACT</text>
-                    <!-- Art Placeholder -->
-                    <path id="svg-p1-line" d="M 350,1260 Q 1090,2000 1830,1260" fill="none" stroke="#111827" stroke-width="80" />
+                    <path id="svg-p1-line" d="" fill="none" stroke="#111827" stroke-width="80" />
                 </g>
 
                 <!-- Poster 2 -->
-                <g transform="translate(1830, 0)">
+                <g transform="translate(1830, 0)" clip-path="url(#posterClip)">
                     <rect id="svg-p2-bg" x="350" width="1480" height="2520" fill="#e61f26" />
                     <rect width="350" height="2520" fill="#d91d24" />
                     <rect id="svg-p2-box" x="80" y="200" width="100" height="100" fill="none" stroke="#000000" stroke-width="8" />
                     <text id="svg-p2-title" x="-1800" y="160" transform="rotate(-90)" font-family="'Segoe UI', Arial, sans-serif" font-size="180" fill="#ffffff" font-weight="900" letter-spacing="10">IPSUM</text>
-                    <path id="svg-p2-line" d="M 350,1260 Q 1090,520 1830,1260" fill="none" stroke="#111827" stroke-width="80" />
+                    <path id="svg-p2-line" d="" fill="none" stroke="#111827" stroke-width="80" />
                 </g>
 
                 <!-- Poster 3 -->
-                <g transform="translate(3660, 0)">
+                <g transform="translate(3660, 0)" clip-path="url(#posterClip)">
                     <rect id="svg-p3-bg" x="350" width="1480" height="2520" fill="#181d27" />
                     <rect width="350" height="2520" fill="#c3e000" />
                     <rect id="svg-p3-box" x="80" y="200" width="100" height="100" fill="none" stroke="#1a202c" stroke-width="8" />
                     <text id="svg-p3-title" x="-1800" y="160" transform="rotate(-90)" font-family="'Segoe UI', Arial, sans-serif" font-size="180" fill="#1a202c" font-weight="900" letter-spacing="10">STUDIO</text>
-                    <path id="svg-p3-line" d="M 350,2000 L 1090,2520 L 1830,2000" fill="none" stroke="#c3e000" stroke-width="40" />
+                    <path id="svg-p3-line" d="" fill="none" stroke="#c3e000" stroke-width="40" />
                 </g>
 
                 <!-- Poster 4 -->
-                <g transform="translate(5490, 0)">
+                <g transform="translate(5490, 0)" clip-path="url(#posterClip)">
                     <rect id="svg-p4-bg" x="350" width="1480" height="2520" fill="#362222" />
                     <rect width="350" height="2520" fill="#4a2e2e" />
                     <rect id="svg-p4-box" x="80" y="200" width="100" height="100" fill="none" stroke="#ffffff" stroke-width="8" />
                     <text id="svg-p4-title" x="-1800" y="160" transform="rotate(-90)" font-family="'Segoe UI', Arial, sans-serif" font-size="180" fill="#ffffff" font-weight="900" letter-spacing="10">MINIMAL</text>
-                    <path id="svg-p4-line" d="M 350,1260 L 1830,1260 M 350,1400 L 1500,1400 M 500,1540 L 1830,1540" fill="none" stroke="#ffffff" stroke-width="40" />
+                    <path id="svg-p4-line" d="" fill="none" stroke="#ffffff" stroke-width="40" />
                 </g>
             </svg>
         </main>
