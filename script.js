@@ -241,6 +241,30 @@ function generateDynamicArt() {
     document.getElementById('svg-p4-line').setAttribute('d', p4Path);
 }
 
+// ==========================================
+// BACKGROUND RANDOMIZATION ENGINE
+// ==========================================
+function randomizeBackgrounds() {
+    // A curated palette of professional, bold, and minimal poster colors
+    const palettes = [
+        '#1a1a24', '#e61f26', '#c3e000', '#362222', '#e3e1db', 
+        '#0f172a', '#4c1d95', '#be123c', '#047857', '#b45309', 
+        '#171717', '#f8fafc', '#3b82f6', '#14b8a6', '#f43f5e', 
+        '#ff9800', '#673ab7', '#009688', '#e91e63', '#212121'
+    ];
+    
+    for (let i = 1; i <= 4; i++) {
+        let randomBg = palettes[Math.floor(Math.random() * palettes.length)];
+        
+        // Update the SVG Canvas
+        document.getElementById(`svg-p${i}-bg`).setAttribute('fill', randomBg);
+        
+        // Update the Sidebar Color Picker so it matches the canvas
+        document.getElementById(`p${i}-bg`).value = randomBg;
+    }
+}
+
+
 // Listeners to trigger manual redesign
 densitySlider.addEventListener('input', (e) => {
     document.getElementById('val-density').innerText = e.target.value;
@@ -254,7 +278,12 @@ thickSlider.addEventListener('input', (e) => {
     document.getElementById('val-thick').innerText = e.target.value + 'PX';
     generateDynamicArt();
 });
-modeSelect.addEventListener('change', generateDynamicArt);
+
+// Changing the mode triggers new art AND new background colors
+modeSelect.addEventListener('change', () => {
+    randomizeBackgrounds();
+    generateDynamicArt();
+});
 
 // ==========================================
 // RANDOMIZATION ENGINE (AUTO SHUFFLE)
@@ -276,6 +305,10 @@ function randomizeEngine() {
     document.getElementById('val-freq').innerText = randomFreq + '%';
     document.getElementById('val-thick').innerText = randomThick + 'PX';
 
+    // Shuffle the background colors
+    randomizeBackgrounds();
+    
+    // Generate the art
     generateDynamicArt();
 }
 
@@ -284,7 +317,7 @@ if (shuffleBtn) {
     shuffleBtn.addEventListener('click', randomizeEngine);
 }
 
-// Initialize on page load
+// Initialize on page load (This is what makes it randomize when you re-enter the site)
 randomizeEngine();
 
 // Master SVG Download Logic
