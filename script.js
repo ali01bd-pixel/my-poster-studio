@@ -31,7 +31,7 @@ globalFs.addEventListener('input', (e) => {
     let val = e.target.value;
     for (let i = 1; i <= 4; i++) {
         document.getElementById(`svg-p${i}-title`).setAttribute('font-size', val);
-        document.getElementById(`p${i}-fs`).value = val; // Sync individual slider
+        document.getElementById(`p${i}-fs`).value = val; 
     }
 });
 
@@ -39,13 +39,12 @@ globalPos.addEventListener('input', (e) => {
     let val = e.target.value;
     for (let i = 1; i <= 4; i++) {
         document.getElementById(`svg-p${i}-title`).setAttribute('x', val);
-        document.getElementById(`p${i}-pos`).value = val; // Sync individual slider
+        document.getElementById(`p${i}-pos`).value = val; 
     }
 });
 
-
 // ==========================================
-// DYNAMIC PATTERN GENERATOR ENGINE (3 MODES)
+// DYNAMIC PATTERN GENERATOR ENGINE
 // ==========================================
 const densitySlider = document.getElementById('eng-density');
 const freqSlider = document.getElementById('eng-freq');
@@ -62,9 +61,7 @@ function generateDynamicArt() {
     
     let p1Path = "", p2Path = "", p3Path = "", p4Path = "";
 
-    // ----------------------------------------------------
-    // MODE 1: GEOMETRIC (The Original Angular Style)
-    // ----------------------------------------------------
+    // MODE 1: GEOMETRIC
     if (mode === 'geometric') {
         document.getElementById('svg-p1-line').setAttribute('stroke-width', thick * 0.15); 
         document.getElementById('svg-p2-line').setAttribute('stroke-width', thick * 0.4);  
@@ -96,107 +93,115 @@ function generateDynamicArt() {
             }
         }
     }
-
-    // ----------------------------------------------------
-    // MODE 2: RETRO WAVES (70s/80s Smooth Curving Lines)
-    // ----------------------------------------------------
+    // MODE 2: RETRO WAVES
     else if (mode === 'retro') {
         document.getElementById('svg-p1-line').setAttribute('stroke-width', thick * 0.4); 
         document.getElementById('svg-p2-line').setAttribute('stroke-width', thick * 0.5);  
         document.getElementById('svg-p3-line').setAttribute('stroke-width', thick * 0.3);  
         document.getElementById('svg-p4-line').setAttribute('stroke-width', thick * 0.8);
 
-        // Continuous Flowing Sine Waves
         for (let i = 0; i < density; i++) {
-            let y = (height / density) * i;
-            let amp = freq * 5;
+            let y = (height / density) * i; let amp = freq * 5;
             p1Path += `M ${startX},${y} C ${startX+250},${y-amp} ${midX-250},${y+amp} ${midX},${y} C ${midX+250},${y-amp} ${endX-250},${y+amp} ${endX},${y} `;
         }
-        // Sunburst Arcs
         for (let i = 0; i < density; i++) {
-            let y = height - (i * (height / density));
-            let arch = freq * 12;
+            let y = height - (i * (height / density)); let arch = freq * 12;
             p2Path += `M ${startX},${height} Q ${midX},${y - arch} ${endX},${height} `;
         }
-        // Concentric Corner Ripples
         for (let i = 0; i < density * 1.5; i++) {
-            let r = i * (1200 / density);
-            let waveOffset = Math.sin(i * 0.2) * (freq * 2);
+            let r = i * (1200 / density); let waveOffset = Math.sin(i * 0.2) * (freq * 2);
             p3Path += `M ${startX},${height - r} A ${r+waveOffset} ${r+waveOffset} 0 0 1 ${startX + r},${height} `;
         }
-        // Sweeping Diagonal Ribbons
         for (let i = 0; i < density; i++) {
-            let startY = (height / density) * i;
-            let endY = startY - (freq * 15);
+            let startY = (height / density) * i; let endY = startY - (freq * 15);
             p4Path += `M ${startX},${startY} C ${startX+500},${startY} ${endX-500},${endY} ${endX},${endY} `;
         }
     }
-
-    // ----------------------------------------------------
-    // MODE 3: COMPLEX TOPOLOGY (Organic Topographic Map)
-    // ----------------------------------------------------
+    // MODE 3: COMPLEX TOPOLOGY
     else if (mode === 'topology') {
         document.getElementById('svg-p1-line').setAttribute('stroke-width', thick * 0.2); 
         document.getElementById('svg-p2-line').setAttribute('stroke-width', thick * 0.25);  
         document.getElementById('svg-p3-line').setAttribute('stroke-width', thick * 0.3);  
         document.getElementById('svg-p4-line').setAttribute('stroke-width', thick * 0.4);
 
-        // Topo map fake perlin noise loops
         for (let i = 0; i < density; i++) {
             let yBase = (height / density) * i;
-            p1Path += `M ${startX},${yBase} `;
-            p2Path += `M ${startX},${yBase} `;
-            p3Path += `M ${startX},${yBase} `;
-            p4Path += `M ${startX},${yBase} `;
+            p1Path += `M ${startX},${yBase} `; p2Path += `M ${startX},${yBase} `; p3Path += `M ${startX},${yBase} `; p4Path += `M ${startX},${yBase} `;
             
             for(let x = startX; x <= endX; x += 80) {
-                // Different math interference for each poster
                 let n1 = yBase + Math.sin((x * 0.005) + (i * 0.1)) * (freq * 3) + Math.cos(x * 0.01) * 50;
                 let n2 = yBase + Math.sin(x * 0.01) * (freq * 5) * Math.cos(i * 0.05);
                 let n3 = yBase + Math.sin((x * 0.008) - (i * 0.2)) * (freq * 4) + Math.tan(x * 0.001) * 20;
                 let n4 = yBase + Math.sin(x * 0.003) * (freq * 8) + Math.sin(i * 0.1) * 100;
                 
-                // Keep points inside bounds
                 if (n1 > height) n1 = height; if (n1 < 0) n1 = 0;
                 if (n2 > height) n2 = height; if (n2 < 0) n2 = 0;
                 if (n3 > height) n3 = height; if (n3 < 0) n3 = 0;
                 if (n4 > height) n4 = height; if (n4 < 0) n4 = 0;
 
-                p1Path += `L ${x},${n1} `;
-                p2Path += `L ${x},${n2} `;
-                p3Path += `L ${x},${n3} `;
-                p4Path += `L ${x},${n4} `;
+                p1Path += `L ${x},${n1} `; p2Path += `L ${x},${n2} `; p3Path += `L ${x},${n3} `; p4Path += `L ${x},${n4} `;
             }
         }
     }
 
-    // Inject paths into DOM
     document.getElementById('svg-p1-line').setAttribute('d', p1Path);
     document.getElementById('svg-p2-line').setAttribute('d', p2Path);
     document.getElementById('svg-p3-line').setAttribute('d', p3Path);
     document.getElementById('svg-p4-line').setAttribute('d', p4Path);
 }
 
-// Listeners to trigger redesign
+// Listeners to trigger manual redesign
 densitySlider.addEventListener('input', (e) => {
     document.getElementById('val-density').innerText = e.target.value;
     generateDynamicArt();
 });
-
 freqSlider.addEventListener('input', (e) => {
     document.getElementById('val-freq').innerText = e.target.value + '%';
     generateDynamicArt();
 });
-
 thickSlider.addEventListener('input', (e) => {
     document.getElementById('val-thick').innerText = e.target.value + 'PX';
     generateDynamicArt();
 });
-
 modeSelect.addEventListener('change', generateDynamicArt);
 
-// Initial Load
-generateDynamicArt();
+// ==========================================
+// RANDOMIZATION ENGINE (AUTO SHUFFLE)
+// ==========================================
+function randomizeEngine() {
+    // 1. Pick a random mode
+    const modes = ['geometric', 'retro', 'topology'];
+    const randomMode = modes[Math.floor(Math.random() * modes.length)];
+    
+    // 2. Pick random slider values
+    const randomDensity = Math.floor(Math.random() * (150 - 10 + 1)) + 10;
+    const randomFreq = Math.floor(Math.random() * 100) + 1;
+    const randomThick = Math.floor(Math.random() * 100) + 1;
+
+    // 3. Update the inputs in the sidebar
+    modeSelect.value = randomMode;
+    densitySlider.value = randomDensity;
+    freqSlider.value = randomFreq;
+    thickSlider.value = randomThick;
+
+    // 4. Update the text labels in the sidebar
+    document.getElementById('val-density').innerText = randomDensity;
+    document.getElementById('val-freq').innerText = randomFreq + '%';
+    document.getElementById('val-thick').innerText = randomThick + 'PX';
+
+    // 5. Draw the random art
+    generateDynamicArt();
+}
+
+// Link the SHUFFLE button in the header
+const shuffleBtn = document.querySelector('.btn-shuffle');
+if (shuffleBtn) {
+    shuffleBtn.addEventListener('click', randomizeEngine);
+}
+
+// Generate random art immediately when the page loads
+randomizeEngine();
+
 
 // Master SVG Download Logic
 document.getElementById('downloadBtn').addEventListener('click', () => {
