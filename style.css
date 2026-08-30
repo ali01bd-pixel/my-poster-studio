@@ -4,137 +4,219 @@
     padding: 0;
 }
 
+:root {
+    --bg-dark: #070709;
+    --header-bg: #0b0b0e;
+    --sidebar-bg: #121215;
+    --border-color: #222;
+    --accent-pink: #ff2a5f;
+    --text-main: #f3f3f3;
+    --text-muted: #888;
+    --input-bg: #1a1a1e;
+    --cyan: #00d2ff;
+}
+
 body, html {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #0d0d12;
-    color: #e0e0e0;
+    background-color: var(--bg-dark);
+    color: var(--text-main);
     height: 100vh;
     display: flex;
     flex-direction: column;
-}
-
-/* Header */
-.top-bar {
-    background-color: #16161e;
-    border-bottom: 1px solid #2a2a35;
-    padding: 10px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 14px;
-}
-.logo { font-weight: bold; color: #00e5ff; }
-.logo span { color: #888; font-weight: normal; margin-left: 10px; }
-.alert { background: #4a3f00; color: #ffd700; padding: 4px 12px; border-radius: 4px; font-size: 12px; }
-
-/* Main Workspace */
-.main-workspace {
-    display: flex;
-    flex: 1;
     overflow: hidden;
 }
 
-/* Sidebar */
-.sidebar {
-    width: 320px;
-    background-color: #121218;
-    border-right: 1px solid #2a2a35;
-    overflow-y: auto;
+/* --- HEADER --- */
+.top-bar {
+    background-color: var(--header-bg);
+    border-bottom: 1px solid var(--border-color);
+    height: 60px;
     display: flex;
-    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
 }
+.logo { font-weight: 900; font-size: 16px; letter-spacing: 1px; display: flex; align-items: center; gap: 8px;}
+.logo .icon { color: var(--accent-pink); font-size: 18px; }
+.logo .subtitle { color: var(--text-muted); font-size: 11px; font-weight: normal; margin-left: 10px; }
 
-.panel-section {
-    padding: 15px;
-    border-bottom: 1px solid #2a2a35;
-}
-.panel-section h3 {
-    font-size: 12px;
-    color: #888;
-    margin-bottom: 15px;
-}
-
-/* Accordions */
-details.poster-controls {
-    background: #1a1a24;
-    border: 1px solid #2a2a35;
+.alert-box {
+    border: 1px solid #ff2a5f;
+    background-color: rgba(255, 42, 95, 0.05);
+    padding: 6px 15px;
     border-radius: 4px;
-    margin-bottom: 10px;
+    text-align: center;
+    min-width: 400px;
 }
-details.poster-controls summary {
-    padding: 10px;
-    cursor: pointer;
-    font-weight: bold;
-    font-size: 13px;
-    outline: none;
-}
-details.poster-controls div {
-    padding: 10px;
-    border-top: 1px solid #2a2a35;
+.alert-title { color: #ff2a5f; font-weight: bold; font-size: 10px; letter-spacing: 1px; margin-bottom: 2px;}
+.alert-desc { color: var(--text-main); font-size: 10px; }
+
+.top-actions { display: flex; align-items: center; gap: 15px; }
+.user-profile { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; }
+.avatar { width: 24px; height: 24px; border-radius: 50%; background: #d4a373; display: flex; justify-content: center; align-items: center; color: #fff; font-size: 12px; font-weight: bold; }
+
+.btn-pro { background-color: var(--cyan); color: #000; border: none; padding: 8px 16px; border-radius: 4px; font-weight: 800; font-size: 11px; cursor: pointer; letter-spacing: 0.5px;}
+.btn-shuffle { background-color: #1a1a1e; color: #fff; border: 1px solid #333; padding: 8px 16px; border-radius: 4px; font-weight: 800; font-size: 11px; cursor: pointer; }
+
+/* --- MAIN WORKSPACE --- */
+.main-workspace {
+    display: flex;
+    flex: 1;
+    height: calc(100vh - 60px);
 }
 
-/* Inputs */
-.control-group { margin-bottom: 12px; }
-.control-group label {
-    display: block;
-    font-size: 12px;
-    margin-bottom: 5px;
-    color: #aaa;
-}
-.control-group input[type="text"], .control-group input[type="range"] {
-    width: 100%;
-    padding: 8px;
-    background: #0d0d12;
-    border: 1px solid #333;
-    color: white;
-    border-radius: 4px;
-}
-.control-group input[type="color"] {
-    width: 100%;
-    height: 35px;
-    border: none;
-    background: none;
-    cursor: pointer;
-}
-
-/* Download Section */
-.download-section p { font-size: 11px; color: #888; margin-bottom: 10px; }
-#downloadBtn {
-    width: 100%;
-    background-color: #00e5ff;
-    color: #000;
-    border: none;
-    padding: 12px;
-    font-weight: bold;
-    cursor: pointer;
-    border-radius: 4px;
-}
-#downloadBtn:hover { background-color: #00b3cc; }
-
-/* Canvas Area */
+/* Grid Background */
 .canvas-container {
     flex: 1;
-    background-color: #0a0a0f;
+    background-color: #070709;
+    background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 40px;
     overflow: auto;
 }
+
 #masterCanvas {
-    max-width: 100%;
-    max-height: 100%;
+    height: 90%;
+    max-height: 800px;
     background-color: #fff;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.8);
 }
 
-/* Footer */
-.bottom-bar {
-    background-color: #16161e;
-    border-top: 1px solid #2a2a35;
-    padding: 8px 20px;
+/* --- SIDEBAR --- */
+.sidebar {
+    width: 320px;
+    background-color: var(--sidebar-bg);
+    border-right: 2px solid var(--accent-pink);
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.panel-section-title {
+    color: var(--accent-pink);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.pink-dot { width: 8px; height: 8px; background-color: var(--accent-pink); border-radius: 50%; display: inline-block; }
+
+/* Accordions */
+details.poster-controls {
+    margin-bottom: 8px;
+}
+details.poster-controls summary {
+    background: #000;
+    padding: 12px 15px;
+    cursor: pointer;
+    font-weight: 800;
+    font-size: 11px;
+    outline: none;
+    list-style: none;
     display: flex;
     justify-content: space-between;
-    font-size: 12px;
-    color: #666;
+    align-items: center;
+    letter-spacing: 0.5px;
 }
+details.poster-controls summary::-webkit-details-marker { display: none; }
+details.poster-controls summary::after { content: "▼"; color: var(--accent-pink); font-size: 9px;}
+details[open].poster-controls summary::after { content: "▲"; }
+
+.controls-wrapper {
+    padding: 15px 0;
+}
+
+/* Inputs Layout */
+.control-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    background: var(--input-bg);
+    padding: 5px;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+}
+
+.text-input-group { flex-direction: column; align-items: flex-start; padding: 10px; }
+.text-input-group label { margin-bottom: 8px; }
+.text-input-group input { width: 100%; padding: 8px; background: #000; border: 1px solid #333; color: white; }
+
+.control-group label {
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    padding-left: 5px;
+}
+
+/* Color Pickers Box */
+.color-input-group input[type="color"] {
+    width: 30px;
+    height: 30px;
+    border: 1px solid #444;
+    padding: 0;
+    background: none;
+    cursor: pointer;
+    border-radius: 3px;
+}
+.color-input-group input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+.color-input-group input[type="color"]::-webkit-color-swatch { border: none; border-radius: 2px;}
+
+/* Sliders */
+.engine-controls { margin-top: 10px; }
+.slider-group { margin-bottom: 20px; }
+.slider-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+}
+.slider-header span { color: var(--text-main); }
+
+input[type=range] {
+    -webkit-appearance: none;
+    width: 100%;
+    background: transparent;
+}
+input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 12px;
+    width: 12px;
+    border-radius: 0;
+    background: var(--accent-pink);
+    cursor: pointer;
+    margin-top: -5px;
+}
+input[type=range]::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 2px;
+    cursor: pointer;
+    background: #333;
+}
+
+/* Download Button */
+.download-btn {
+    margin-top: auto;
+    width: 100%;
+    background: var(--accent-pink);
+    color: white;
+    border: none;
+    padding: 15px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    cursor: pointer;
+}
+.download-btn:hover { background: #e61f4c; }
