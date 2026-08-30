@@ -30,11 +30,6 @@
                 <span class="pink-dot">🔠</span> গ্লোবাল টেক্সট (GLOBAL TEXT)
             </div>
             <div class="engine-controls" style="margin-bottom: 25px; background: #1a1a1e; padding: 15px; border-radius: 6px; border: 1px solid #333;">
-                
-                <div class="control-group text-input-group" style="margin-bottom: 15px; background: #070709; border: 1px solid #444;">
-                    <label style="color: #ff2a5f;">ALL TEXT / টাইটেল</label>
-                    <input type="text" id="global-text" placeholder="Type here to change all posters...">
-                </div>
 
                 <div class="control-group text-input-group" style="margin-bottom: 20px; background: #070709; border: 1px solid #444;">
                     <label style="color: #ff2a5f;">ALL FONT / ফন্ট স্টাইল</label>
@@ -224,7 +219,6 @@
             <svg id="masterCanvas" viewBox="0 0 7920 2520" xmlns="http://www.w3.org/2000/svg">
                 <defs>
                     <clipPath id="posterClip"><rect width="1830" height="2520" /></clipPath>
-                    <!-- NEW: Strict Art Clipping Mask starting exactly at x=200 -->
                     <clipPath id="artClip"><rect x="200" y="0" width="1630" height="2520" /></clipPath>
                 </defs>
                 
@@ -235,7 +229,6 @@
                     <rect id="svg-p1-bg" x="200" width="1630" height="2520" fill="#e3e1db" />
                     <rect width="200" height="2520" fill="#f0efeb" />
                     <text id="svg-p1-title" x="-1800" y="130" transform="rotate(-90)" font-family="'Segoe UI', Arial, sans-serif" font-size="180" fill="#1a202c" font-weight="900" letter-spacing="10">ABSTRACT</text>
-                    <!-- Clip path applied directly to the line art -->
                     <path id="svg-p1-line" d="" fill="none" stroke="#111827" stroke-width="80" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#artClip)"/>
                 </g>
 
