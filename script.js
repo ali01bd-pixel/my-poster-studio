@@ -1,37 +1,11 @@
-// Function to dynamically attach and scale the box relative to the text
-function syncBoxToText(i) {
-    const title = document.getElementById(`svg-p${i}-title`);
-    const box = document.getElementById(`svg-p${i}-box`);
-    if (!title || !box) return;
-
-    const fontSize = parseFloat(title.getAttribute('font-size')) || 180;
-    const textX = parseFloat(title.getAttribute('x')) || -1800;
-    const textY = parseFloat(title.getAttribute('y')) || 160;
-
-    // Box size and stroke thickness scale automatically with the font
-    const boxSize = fontSize * 0.55; 
-    const strokeW = fontSize * 0.045;
-
-    // Position it perfectly right before the text starts
-    const boxX = textX - boxSize - (fontSize * 0.25);
-    const boxY = textY - boxSize + (fontSize * 0.1); 
-
-    box.setAttribute('width', boxSize);
-    box.setAttribute('height', boxSize);
-    box.setAttribute('stroke-width', strokeW);
-    box.setAttribute('x', boxX);
-    box.setAttribute('y', boxY);
-}
-
 // Function to map sidebar inputs to SVG attributes
-function linkInputToSVG(inputId, svgElementId, attribute, callback) {
+function linkInputToSVG(inputId, svgElementId, attribute) {
     const inputElement = document.getElementById(inputId);
     const svgElement = document.getElementById(svgElementId);
     if (inputElement && svgElement) {
         inputElement.addEventListener('input', (event) => {
             if (attribute === 'text') svgElement.textContent = event.target.value;
             else svgElement.setAttribute(attribute, event.target.value);
-            if (callback) callback(); // Trigger box sync if provided
         });
     }
 }
@@ -41,13 +15,11 @@ for (let i = 1; i <= 4; i++) {
     linkInputToSVG(`p${i}-title`, `svg-p${i}-title`, 'text');
     linkInputToSVG(`p${i}-bg`, `svg-p${i}-bg`, 'fill');
     linkInputToSVG(`p${i}-line`, `svg-p${i}-line`, 'stroke');
-    linkInputToSVG(`p${i}-box`, `svg-p${i}-box`, 'stroke');
     linkInputToSVG(`p${i}-text`, `svg-p${i}-title`, 'fill');
     
-    // Add the callback so the box follows when these change
-    linkInputToSVG(`p${i}-fs`, `svg-p${i}-title`, 'font-size', () => syncBoxToText(i));
-    linkInputToSVG(`p${i}-pos`, `svg-p${i}-title`, 'x', () => syncBoxToText(i));
-    linkInputToSVG(`p${i}-pos-x`, `svg-p${i}-title`, 'y', () => syncBoxToText(i));
+    linkInputToSVG(`p${i}-fs`, `svg-p${i}-title`, 'font-size');
+    linkInputToSVG(`p${i}-pos`, `svg-p${i}-title`, 'x');
+    linkInputToSVG(`p${i}-pos-x`, `svg-p${i}-title`, 'y');
 }
 
 // ==========================================
@@ -62,7 +34,6 @@ globalFs.addEventListener('input', (e) => {
     for (let i = 1; i <= 4; i++) {
         document.getElementById(`svg-p${i}-title`).setAttribute('font-size', val);
         document.getElementById(`p${i}-fs`).value = val; 
-        syncBoxToText(i); // Sync the box
     }
 });
 
@@ -71,7 +42,6 @@ globalPos.addEventListener('input', (e) => {
     for (let i = 1; i <= 4; i++) {
         document.getElementById(`svg-p${i}-title`).setAttribute('x', val);
         document.getElementById(`p${i}-pos`).value = val; 
-        syncBoxToText(i); // Sync the box
     }
 });
 
@@ -80,7 +50,6 @@ globalPosX.addEventListener('input', (e) => {
     for (let i = 1; i <= 4; i++) {
         document.getElementById(`svg-p${i}-title`).setAttribute('y', val);
         document.getElementById(`p${i}-pos-x`).value = val; 
-        syncBoxToText(i); // Sync the box
     }
 });
 
@@ -236,7 +205,6 @@ if (shuffleBtn) {
 
 // Initialize on page load
 randomizeEngine();
-for(let i=1; i<=4; i++) syncBoxToText(i);
 
 
 // Master SVG Download Logic
