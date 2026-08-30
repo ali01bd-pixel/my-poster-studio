@@ -26,10 +26,30 @@
     <div class="main-workspace">
         <aside class="sidebar">
             
+            <!-- GLOBAL TEXT CONTROLS -->
             <div class="panel-section-title">
                 <span class="pink-dot">🔠</span> গ্লোবাল টেক্সট (GLOBAL TEXT)
             </div>
             <div class="engine-controls" style="margin-bottom: 25px; background: #1a1a1e; padding: 15px; border-radius: 6px; border: 1px solid #333;">
+                
+                <!-- NEW: GLOBAL TEXT INPUT -->
+                <div class="control-group text-input-group" style="margin-bottom: 15px; background: #070709; border: 1px solid #444;">
+                    <label style="color: #ff2a5f;">ALL TEXT / টাইটেল</label>
+                    <input type="text" id="global-text" placeholder="Type here to change all posters...">
+                </div>
+
+                <!-- NEW: GLOBAL FONT STYLE -->
+                <div class="control-group text-input-group" style="margin-bottom: 20px; background: #070709; border: 1px solid #444;">
+                    <label style="color: #ff2a5f;">ALL FONT / ফন্ট স্টাইল</label>
+                    <select id="global-font">
+                        <option value="'Segoe UI', Arial, sans-serif">Modern Sans (Default)</option>
+                        <option value="Georgia, serif">Elegant Serif</option>
+                        <option value="'Courier New', monospace">Retro Monospace</option>
+                        <option value="Impact, sans-serif">Bold Impact</option>
+                        <option value="'Times New Roman', Times, serif">Classic Times</option>
+                    </select>
+                </div>
+
                 <div class="slider-group">
                     <div class="slider-header"><label>ALL FONT SIZE</label></div>
                     <input type="range" id="global-fs" min="50" max="450" value="180">
@@ -44,6 +64,7 @@
                 </div>
             </div>
 
+            <!-- INDIVIDUAL PANELS -->
             <div class="panel-section-title">
                 <span class="pink-dot"></span> কাস্টমাইজেশন (CUSTOMIZE PANELS)
             </div>
@@ -54,6 +75,16 @@
                     <summary>POSTER 1 (FAR LEFT)</summary>
                     <div class="controls-wrapper">
                         <div class="control-group text-input-group"><label>TITLE</label><input type="text" id="p1-title" value="ABSTRACT"></div>
+                        <div class="control-group text-input-group">
+                            <label>FONT STYLE</label>
+                            <select id="p1-font">
+                                <option value="'Segoe UI', Arial, sans-serif">Modern Sans</option>
+                                <option value="Georgia, serif">Elegant Serif</option>
+                                <option value="'Courier New', monospace">Retro Monospace</option>
+                                <option value="Impact, sans-serif">Bold Impact</option>
+                                <option value="'Times New Roman', Times, serif">Classic Times</option>
+                            </select>
+                        </div>
                         <div class="control-group color-input-group"><label>BACKGROUND</label><input type="color" id="p1-bg" value="#e3e1db"></div>
                         <div class="control-group color-input-group"><label>LINE & SHAPE</label><input type="color" id="p1-line" value="#111827"></div>
                         <div class="control-group color-input-group"><label>MAIN TEXT</label><input type="color" id="p1-text" value="#1a202c"></div>
@@ -74,6 +105,16 @@
                     <summary>POSTER 2 (CENTER LEFT)</summary>
                     <div class="controls-wrapper">
                         <div class="control-group text-input-group"><label>TITLE</label><input type="text" id="p2-title" value="IPSUM"></div>
+                        <div class="control-group text-input-group">
+                            <label>FONT STYLE</label>
+                            <select id="p2-font">
+                                <option value="'Segoe UI', Arial, sans-serif">Modern Sans</option>
+                                <option value="Georgia, serif">Elegant Serif</option>
+                                <option value="'Courier New', monospace">Retro Monospace</option>
+                                <option value="Impact, sans-serif">Bold Impact</option>
+                                <option value="'Times New Roman', Times, serif">Classic Times</option>
+                            </select>
+                        </div>
                         <div class="control-group color-input-group"><label>BACKGROUND</label><input type="color" id="p2-bg" value="#e61f26"></div>
                         <div class="control-group color-input-group"><label>LINE & SHAPE</label><input type="color" id="p2-line" value="#111827"></div>
                         <div class="control-group color-input-group"><label>MAIN TEXT</label><input type="color" id="p2-text" value="#ffffff"></div>
@@ -94,6 +135,16 @@
                     <summary>POSTER 3 (CENTER RIGHT)</summary>
                     <div class="controls-wrapper">
                         <div class="control-group text-input-group"><label>TITLE</label><input type="text" id="p3-title" value="STUDIO"></div>
+                        <div class="control-group text-input-group">
+                            <label>FONT STYLE</label>
+                            <select id="p3-font">
+                                <option value="'Segoe UI', Arial, sans-serif">Modern Sans</option>
+                                <option value="Georgia, serif">Elegant Serif</option>
+                                <option value="'Courier New', monospace">Retro Monospace</option>
+                                <option value="Impact, sans-serif">Bold Impact</option>
+                                <option value="'Times New Roman', Times, serif">Classic Times</option>
+                            </select>
+                        </div>
                         <div class="control-group color-input-group"><label>BACKGROUND</label><input type="color" id="p3-bg" value="#c3e000"></div>
                         <div class="control-group color-input-group"><label>LINE & SHAPE</label><input type="color" id="p3-line" value="#1a202c"></div>
                         <div class="control-group color-input-group"><label>MAIN TEXT</label><input type="color" id="p3-text" value="#1a202c"></div>
@@ -114,6 +165,16 @@
                     <summary>POSTER 4 (FAR RIGHT)</summary>
                     <div class="controls-wrapper">
                         <div class="control-group text-input-group"><label>TITLE</label><input type="text" id="p4-title" value="MINIMAL"></div>
+                        <div class="control-group text-input-group">
+                            <label>FONT STYLE</label>
+                            <select id="p4-font">
+                                <option value="'Segoe UI', Arial, sans-serif">Modern Sans</option>
+                                <option value="Georgia, serif">Elegant Serif</option>
+                                <option value="'Courier New', monospace">Retro Monospace</option>
+                                <option value="Impact, sans-serif">Bold Impact</option>
+                                <option value="'Times New Roman', Times, serif">Classic Times</option>
+                            </select>
+                        </div>
                         <div class="control-group color-input-group"><label>BACKGROUND</label><input type="color" id="p4-bg" value="#362222"></div>
                         <div class="control-group color-input-group"><label>LINE & SHAPE</label><input type="color" id="p4-line" value="#ffffff"></div>
                         <div class="control-group color-input-group"><label>MAIN TEXT</label><input type="color" id="p4-text" value="#ffffff"></div>
