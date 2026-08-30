@@ -5,7 +5,8 @@ function linkInputToSVG(inputId, svgElementId, attribute) {
     if (inputElement && svgElement) {
         if (inputElement.tagName === 'SELECT' || inputElement.type === 'color' || inputElement.type === 'range' || inputElement.type === 'text') {
             inputElement.addEventListener('input', (event) => {
-                svgElement.setAttribute(attribute, event.target.value);
+                if (attribute === 'text') svgElement.textContent = event.target.value;
+                else svgElement.setAttribute(attribute, event.target.value);
             });
             if(inputElement.tagName === 'SELECT') {
                  inputElement.addEventListener('change', (event) => {
@@ -29,13 +30,37 @@ function updatePercentLabel(sliderId, labelId) {
     }
 }
 
-// Map the 4 posters' background and line colors
+// Map the 4 posters' individual inputs (Now including BG and Line Gradient Color Stops)
 for (let i = 1; i <= 4; i++) {
+    linkInputToSVG(`p${i}-title`, `svg-p${i}-title`, 'text');
+    linkInputToSVG(`p${i}-font`, `svg-p${i}-title`, 'font-family');
+    linkInputToSVG(`p${i}-text`, `svg-p${i}-title`, 'fill');
+    
+    // NEW: Map the gradient dual-colors to the SVG <stop> elements
     linkInputToSVG(`p${i}-bg1`, `p${i}-bg1-stop`, 'stop-color');
     linkInputToSVG(`p${i}-bg2`, `p${i}-bg2-stop`, 'stop-color');
     linkInputToSVG(`p${i}-line1`, `p${i}-line1-stop`, 'stop-color');
     linkInputToSVG(`p${i}-line2`, `p${i}-line2-stop`, 'stop-color');
+
+    linkInputToSVG(`p${i}-fs`, `svg-p${i}-title`, 'font-size');
+    linkInputToSVG(`p${i}-pos`, `svg-p${i}-title`, 'x');
+    linkInputToSVG(`p${i}-pos-x`, `svg-p${i}-title`, 'y');
+
+    ['fs', 'pos', 'pos-x'].forEach(prop => {
+        document.getElementById(`p${i}-${prop}`).addEventListener('input', () => {
+            updatePercentLabel(`p${i}-${prop}`, `val-p${i}-${prop}`);
+        });
+        updatePercentLabel(`p${i}-${prop}`, `val-p${i}-${prop}`);
+    });
 }
+
+['global-fs', 'global-pos', 'global-pos-x'].forEach(id => {
+    document.getElementById(id).addEventListener('input', () => {
+        updatePercentLabel(id, `val-${id}`);
+    });
+    updatePercentLabel(id, `val-${id}`); 
+});
+
 
 // ==========================================
 // DYNAMIC ARTBOARD COUNT SELECTOR
@@ -44,8 +69,7 @@ const posterCountSelect = document.getElementById('poster-count');
 
 function updatePosterCount() {
     let count = parseInt(posterCountSelect.value);
-    // Adjusted widths based on 1080px wide panels + 20px gap spacing
-    let canvasWidths = { 1: 1080, 2: 2180, 3: 3280, 4: 4380 };
+    let canvasWidths = { 1: 1830, 2: 3860, 3: 5890, 4: 7920 };
     
     for (let i = 1; i <= 4; i++) {
         const sidebarPanel = document.getElementById(`panel-${i}`);
@@ -60,11 +84,66 @@ function updatePosterCount() {
     }
     
     let newWidth = canvasWidths[count];
-    document.getElementById('masterCanvas').setAttribute('viewBox', `0 0 ${newWidth} 1350`);
-    document.getElementById('footer-size').innerText = `Master Artboard: ${newWidth} x 1350 px`;
+    document.getElementById('masterCanvas').setAttribute('viewBox', `0 0 ${newWidth} 2520`);
+    document.getElementById('footer-size').innerText = `Master Artboard: ${newWidth} x 2520 px`;
 }
 
 posterCountSelect.addEventListener('change', updatePosterCount);
+
+
+// ==========================================
+// GLOBAL TEXT CONTROLS LOGIC
+// ==========================================
+const globalText = document.getElementById('global-text');
+const globalFont = document.getElementById('global-font');
+const globalFs = document.getElementById('global-fs');
+const globalPos = document.getElementById('global-pos');
+const globalPosX = document.getElementById('global-pos-x');
+
+globalText.addEventListener('input', (e) => {
+    let val = e.target.value;
+    for (let i = 1; i <= 4; i++) {
+        if(val.trim() !== "") {
+            document.getElementById(`svg-p${i}-title`).textContent = val;
+            document.getElementById(`p${i}-title`).value = val; 
+        }
+    }
+});
+
+globalFont.addEventListener('change', (e) => {
+    let val = e.target.value;
+    for (let i = 1; i <= 4; i++) {
+        document.getElementById(`svg-p${i}-title`).setAttribute('font-family', val);
+        document.getElementById(`p${i}-font`).value = val; 
+    }
+});
+
+globalFs.addEventListener('input', (e) => {
+    let val = e.target.value;
+    for (let i = 1; i <= 4; i++) {
+        document.getElementById(`svg-p${i}-title`).setAttribute('font-size', val);
+        document.getElementById(`p${i}-fs`).value = val; 
+        updatePercentLabel(`p${i}-fs`, `val-p${i}-fs`); 
+    }
+});
+
+globalPos.addEventListener('input', (e) => {
+    let val = e.target.value;
+    for (let i = 1; i <= 4; i++) {
+        document.getElementById(`svg-p${i}-title`).setAttribute('x', val);
+        document.getElementById(`p${i}-pos`).value = val; 
+        updatePercentLabel(`p${i}-pos`, `val-p${i}-pos`); 
+    }
+});
+
+globalPosX.addEventListener('input', (e) => {
+    let val = e.target.value;
+    for (let i = 1; i <= 4; i++) {
+        document.getElementById(`svg-p${i}-title`).setAttribute('y', val);
+        document.getElementById(`p${i}-pos-x`).value = val; 
+        updatePercentLabel(`p${i}-pos-x`, `val-p${i}-pos-x`); 
+    }
+});
 
 // ==========================================
 // ADVANCED PATTERN GENERATOR ENGINE
@@ -91,8 +170,7 @@ function generateDynamicArt() {
     const chaos = parseInt(chaosSlider.value);      
     const mode = modeSelect.value;
 
-    // Rescaled to exactly 1080x1350 Standard Size Canvas
-    const startX = 0; const endX = 1080; const midX = 540; const height = 1350; const halfH = height / 2;
+    const startX = 200; const endX = 1830; const midX = 1015; const height = 2520;
     
     let p1Path = "", p2Path = "", p3Path = "", p4Path = "";
 
@@ -108,8 +186,8 @@ function generateDynamicArt() {
             let yShift = phase * 5;
             let j1 = getJitter(i, chaos); let j2 = getJitter(i+100, chaos);
             
-            p1Path += `M ${startX},${halfH - yOffset + yShift + j1} Q ${midX + j2},${halfH - yOffset + controlDrop + yShift} ${endX},${halfH - yOffset + yShift + j1} `;
-            p1Path += `M ${startX},${halfH + yOffset + yShift + j1} Q ${midX - j2},${halfH + yOffset - controlDrop + yShift} ${endX},${halfH + yOffset + yShift + j1} `;
+            p1Path += `M ${startX},${1260 - yOffset + yShift + j1} Q ${midX + j2},${1260 - yOffset + controlDrop + yShift} ${endX},${1260 - yOffset + yShift + j1} `;
+            p1Path += `M ${startX},${1260 + yOffset + yShift + j1} Q ${midX - j2},${1260 + yOffset - controlDrop + yShift} ${endX},${1260 + yOffset + yShift + j1} `;
         }
         for (let i = 0; i < density * 2; i++) {
             let y = ((height / (density * 2)) * i) + (phase * 5); 
@@ -146,7 +224,7 @@ function generateDynamicArt() {
             let y = ((height / density) * i) + (phase * 5); 
             let a = freq * 5 * amp;
             let j = getJitter(i, chaos);
-            p1Path += `M ${startX},${y+j} C ${startX+150+j},${y-a} ${midX-150-j},${y+a} ${midX},${y+j} C ${midX+150+j},${y-a} ${endX-150-j},${y+a} ${endX},${y+j} `;
+            p1Path += `M ${startX},${y+j} C ${startX+250+j},${y-a} ${midX-250-j},${y+a} ${midX},${y+j} C ${midX+250+j},${y-a} ${endX-250-j},${y+a} ${endX},${y+j} `;
         }
         for (let i = 0; i < density; i++) {
             let y = height - (i * (height / density)) + (phase * 5); 
@@ -155,7 +233,7 @@ function generateDynamicArt() {
             p2Path += `M ${startX},${height+j} Q ${midX+j},${y - arch} ${endX},${height+j} `;
         }
         for (let i = 0; i < density * 1.5; i++) {
-            let r = i * (halfH / density) * amp; 
+            let r = i * (1200 / density) * amp; 
             let waveOffset = Math.sin((i+phase) * 0.2) * (freq * 2);
             let j = getJitter(i, chaos);
             p3Path += `M ${startX},${height - r + j} A ${r+waveOffset+j} ${r+waveOffset+j} 0 0 1 ${startX + r + j},${height} `;
@@ -164,7 +242,7 @@ function generateDynamicArt() {
             let startY = ((height / density) * i) + (phase * 5); 
             let endY = startY - (freq * 15 * amp);
             let j = getJitter(i, chaos);
-            p4Path += `M ${startX},${startY+j} C ${startX+300},${startY+j} ${endX-300},${endY+j} ${endX},${endY+j} `;
+            p4Path += `M ${startX},${startY+j} C ${startX+500},${startY+j} ${endX-500},${endY+j} ${endX},${endY+j} `;
         }
     }
     else if (mode === 'topology') {
@@ -179,7 +257,7 @@ function generateDynamicArt() {
             p1Path += `M ${startX},${yBase+jStart} `; p2Path += `M ${startX},${yBase+jStart} `; 
             p3Path += `M ${startX},${yBase+jStart} `; p4Path += `M ${startX},${yBase+jStart} `;
             
-            for(let x = startX; x <= endX; x += 50) {
+            for(let x = startX; x <= endX; x += 80) {
                 let px = x + (phase * 2);
                 let j = getJitter(x*i, chaos);
 
@@ -205,7 +283,7 @@ function generateDynamicArt() {
 
         let centerX = midX; let centerY = height / 2;
         let layers = Math.floor(density / 3) + 4; let petals = Math.floor(freq / 3) + 6;    
-        let maxRadius = 500 * amp; 
+        let maxRadius = 1000 * amp; 
         let phaseRad = phase * (Math.PI / 180); 
 
         for(let i=1; i<=layers; i++) {
@@ -272,27 +350,41 @@ function generateDynamicArt() {
 // BACKGROUND & LINE GRADIENT SHUFFLE ENGINE
 // ==========================================
 function randomizeColors() {
+    // Professional Dark Gradients for Backgrounds
     const bgGradients = [
-        ['#0f2027', '#203a43'], ['#2c3e50', '#000000'], ['#141e30', '#243b55'],
-        ['#23074d', '#cc5333'], ['#1a2a6c', '#b21f1f'], ['#000000', '#434343'],
-        ['#111111', '#111111'], ['#3E5151', '#DECBA4']
+        ['#0f2027', '#203a43'], // Deep space
+        ['#2c3e50', '#000000'], // Dark slate
+        ['#141e30', '#243b55'], // Midnight
+        ['#23074d', '#cc5333'], // Purple-orange dark
+        ['#1a2a6c', '#b21f1f'], // Deep blue to red
+        ['#000000', '#434343'], // Black to grey
+        ['#111111', '#111111'], // Solid dark
+        ['#3E5151', '#DECBA4']  // Sand to slate
     ];
 
+    // High-Contrast Bright Gradients for Lines
     const lineGradients = [
-        ['#00c6ff', '#0072ff'], ['#f12711', '#f5af19'], ['#fc4a1a', '#f7b733'],
-        ['#7F00FF', '#E100FF'], ['#11998e', '#38ef7d'], ['#ff0084', '#33001b'],
-        ['#00d2ff', '#3a7bd5'], ['#f85032', '#e73827']
+        ['#00c6ff', '#0072ff'], // Cyan blue
+        ['#f12711', '#f5af19'], // Fire orange
+        ['#fc4a1a', '#f7b733'], // Warm gradient
+        ['#7F00FF', '#E100FF'], // Purple neon
+        ['#11998e', '#38ef7d'], // Mint green
+        ['#ff0084', '#33001b'], // Hot pink dark
+        ['#00d2ff', '#3a7bd5'], // Electric blue
+        ['#f85032', '#e73827']  // Crimson
     ];
     
     for (let i = 1; i <= 4; i++) {
         let randomBg = bgGradients[Math.floor(Math.random() * bgGradients.length)];
         let randomLine = lineGradients[Math.floor(Math.random() * lineGradients.length)];
         
+        // Apply to SVG <stop> elements
         document.getElementById(`p${i}-bg1-stop`).setAttribute('stop-color', randomBg[0]);
         document.getElementById(`p${i}-bg2-stop`).setAttribute('stop-color', randomBg[1]);
         document.getElementById(`p${i}-line1-stop`).setAttribute('stop-color', randomLine[0]);
         document.getElementById(`p${i}-line2-stop`).setAttribute('stop-color', randomLine[1]);
 
+        // Sync with UI sidebar color pickers
         document.getElementById(`p${i}-bg1`).value = randomBg[0];
         document.getElementById(`p${i}-bg2`).value = randomBg[1];
         document.getElementById(`p${i}-line1`).value = randomLine[0];
@@ -323,9 +415,11 @@ modeSelect.addEventListener('change', () => {
 function randomizeEngine() {
     const modes = ['geometric', 'retro', 'topology', 'mandala'];
     const randomMode = modes[Math.floor(Math.random() * modes.length)];
+    
     const randomDensity = Math.floor(Math.random() * (150 - 10 + 1)) + 10;
     const randomFreq = Math.floor(Math.random() * 100) + 1;
     const randomThick = Math.floor(Math.random() * 100) + 1;
+    
     const randomAmp = Math.floor(Math.random() * (200 - 50 + 1)) + 50; 
     const randomPhase = Math.floor(Math.random() * 360);
     const randomChaos = Math.floor(Math.random() * 30); 
@@ -350,11 +444,14 @@ function randomizeEngine() {
 }
 
 const shuffleBtn = document.querySelector('.btn-shuffle');
-if (shuffleBtn) shuffleBtn.addEventListener('click', randomizeEngine);
+if (shuffleBtn) {
+    shuffleBtn.addEventListener('click', randomizeEngine);
+}
 
 // INITIALIZE ON PAGE LOAD
 randomizeEngine();
 updatePosterCount();
+
 
 // Master SVG Download Logic
 document.getElementById('downloadBtn').addEventListener('click', () => {
