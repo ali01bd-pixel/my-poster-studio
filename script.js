@@ -8,7 +8,6 @@ function linkInputToSVG(inputId, svgElementId, attribute) {
                 if (attribute === 'text') svgElement.textContent = event.target.value;
                 else svgElement.setAttribute(attribute, event.target.value);
             });
-            // Select dropdowns also need a 'change' listener sometimes
             if(inputElement.tagName === 'SELECT') {
                  inputElement.addEventListener('change', (event) => {
                     svgElement.setAttribute(attribute, event.target.value);
@@ -21,7 +20,7 @@ function linkInputToSVG(inputId, svgElementId, attribute) {
 // Map the 4 posters' individual inputs
 for (let i = 1; i <= 4; i++) {
     linkInputToSVG(`p${i}-title`, `svg-p${i}-title`, 'text');
-    linkInputToSVG(`p${i}-font`, `svg-p${i}-title`, 'font-family'); // NEW Font dropdown map
+    linkInputToSVG(`p${i}-font`, `svg-p${i}-title`, 'font-family');
     linkInputToSVG(`p${i}-bg`, `svg-p${i}-bg`, 'fill');
     linkInputToSVG(`p${i}-line`, `svg-p${i}-line`, 'stroke');
     linkInputToSVG(`p${i}-text`, `svg-p${i}-title`, 'fill');
@@ -40,11 +39,9 @@ const globalFs = document.getElementById('global-fs');
 const globalPos = document.getElementById('global-pos');
 const globalPosX = document.getElementById('global-pos-x');
 
-// NEW: Global Text Sync
 globalText.addEventListener('input', (e) => {
     let val = e.target.value;
     for (let i = 1; i <= 4; i++) {
-        // Only update if there is text typed, otherwise keep old text
         if(val.trim() !== "") {
             document.getElementById(`svg-p${i}-title`).textContent = val;
             document.getElementById(`p${i}-title`).value = val; 
@@ -52,7 +49,6 @@ globalText.addEventListener('input', (e) => {
     }
 });
 
-// NEW: Global Font Sync
 globalFont.addEventListener('change', (e) => {
     let val = e.target.value;
     for (let i = 1; i <= 4; i++) {
@@ -99,11 +95,14 @@ function generateDynamicArt() {
     const thick = parseInt(thickSlider.value);     
     const mode = modeSelect.value;
 
-    const startX = 350; const endX = 1830; const midX = 1090; const height = 2520;
+    // Adjusted coordinates based on the minimized text strip (200px)
+    const startX = 200; const endX = 1830; const midX = 1015; const height = 2520;
     
     let p1Path = "", p2Path = "", p3Path = "", p4Path = "";
 
+    // ----------------------------------------------------
     // MODE 1: GEOMETRIC
+    // ----------------------------------------------------
     if (mode === 'geometric') {
         document.getElementById('svg-p1-line').setAttribute('stroke-width', thick * 0.15); 
         document.getElementById('svg-p2-line').setAttribute('stroke-width', thick * 0.4);  
@@ -135,7 +134,9 @@ function generateDynamicArt() {
             }
         }
     }
+    // ----------------------------------------------------
     // MODE 2: RETRO WAVES
+    // ----------------------------------------------------
     else if (mode === 'retro') {
         document.getElementById('svg-p1-line').setAttribute('stroke-width', thick * 0.4); 
         document.getElementById('svg-p2-line').setAttribute('stroke-width', thick * 0.5);  
@@ -159,7 +160,9 @@ function generateDynamicArt() {
             p4Path += `M ${startX},${startY} C ${startX+500},${startY} ${endX-500},${endY} ${endX},${endY} `;
         }
     }
+    // ----------------------------------------------------
     // MODE 3: COMPLEX TOPOLOGY
+    // ----------------------------------------------------
     else if (mode === 'topology') {
         document.getElementById('svg-p1-line').setAttribute('stroke-width', thick * 0.2); 
         document.getElementById('svg-p2-line').setAttribute('stroke-width', thick * 0.25);  
@@ -185,7 +188,9 @@ function generateDynamicArt() {
             }
         }
     }
+    // ----------------------------------------------------
     // MODE 4: MANDALA 
+    // ----------------------------------------------------
     else if (mode === 'mandala') {
         document.getElementById('svg-p1-line').setAttribute('stroke-width', thick * 0.2); 
         document.getElementById('svg-p2-line').setAttribute('stroke-width', thick * 0.3);  
@@ -194,9 +199,10 @@ function generateDynamicArt() {
 
         let centerX = midX; let centerY = height / 2;
         let layers = Math.floor(density / 3) + 4; let petals = Math.floor(freq / 3) + 6;    
+        let maxRadius = 1000; // Scaled down to fit beautifully inside the new boundaries
 
         for(let i=1; i<=layers; i++) {
-            let rBase = (1200 / layers) * i;
+            let rBase = (maxRadius / layers) * i;
             for(let j=0; j<=petals; j++) {
                 let angle = (j / petals) * Math.PI * 2; let spike = (j % 2 === 0) ? (freq * 1.5) : -(freq * 1.5);
                 let x = centerX + Math.cos(angle) * (rBase + spike); let y = centerY + Math.sin(angle) * (rBase + spike);
@@ -205,7 +211,7 @@ function generateDynamicArt() {
         }
 
         for(let i=1; i<=layers; i++) {
-            let rBase = (1200 / layers) * i;
+            let rBase = (maxRadius / layers) * i;
             for(let j=0; j<petals; j++) {
                 let angle1 = (j / petals) * Math.PI * 2;
                 let angle2 = ((j + 0.5) / petals) * Math.PI * 2;
@@ -219,7 +225,7 @@ function generateDynamicArt() {
 
         let sides = Math.floor(freq / 8) + 3; 
         for(let i=1; i<=density; i++) {
-            let r = (1200 / density) * i; let offset = (i % 2 === 0) ? 0 : (Math.PI / sides);
+            let r = (maxRadius / density) * i; let offset = (i % 2 === 0) ? 0 : (Math.PI / sides);
             for(let j=0; j<=sides; j++) {
                 let angle = (j / sides) * Math.PI * 2 + offset;
                 let x = centerX + Math.cos(angle) * r; let y = centerY + Math.sin(angle) * r;
@@ -229,7 +235,7 @@ function generateDynamicArt() {
 
         let dashCount = Math.floor(freq / 5) + 3;
         for(let i=1; i<=density; i++) {
-            let r = (1200 / density) * i;
+            let r = (maxRadius / density) * i;
             for(let j=0; j<dashCount; j++) {
                 let startAngle = (j / dashCount) * Math.PI * 2 + (i * 0.1);
                 let endAngle = startAngle + (Math.PI * 2 / dashCount) * 0.6; 
