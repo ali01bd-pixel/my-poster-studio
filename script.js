@@ -31,13 +31,60 @@ for (let i = 1; i <= 4; i++) {
 }
 
 // ==========================================
+// DYNAMIC ARTBOARD COUNT SELECTOR
+// ==========================================
+const posterCountSelect = document.getElementById('poster-count');
+
+function updatePosterCount() {
+    let count = parseInt(posterCountSelect.value);
+    
+    // The total width of the canvas depending on how many posters are visible
+    // 1: 1830 | 2: 3860 | 3: 5890 | 4: 7920
+    let canvasWidths = { 1: 1830, 2: 3860, 3: 5890, 4: 7920 };
+    
+    for (let i = 1; i <= 4; i++) {
+        const sidebarPanel = document.getElementById(`panel-${i}`);
+        const artGroup = document.getElementById(`art-${i}`);
+        
+        if (i <= count) {
+            sidebarPanel.style.display = 'block';
+            artGroup.style.display = 'block';
+        } else {
+            sidebarPanel.style.display = 'none';
+            artGroup.style.display = 'none';
+        }
+    }
+    
+    // Resize the master canvas bounds so downloads are cropped perfectly
+    let newWidth = canvasWidths[count];
+    document.getElementById('masterCanvas').setAttribute('viewBox', `0 0 ${newWidth} 2520`);
+    
+    // Update the UI footer text
+    document.getElementById('footer-size').innerText = `Master Artboard: ${newWidth} x 2520 px`;
+}
+
+// Listen for dropdown changes
+posterCountSelect.addEventListener('change', updatePosterCount);
+
+
+// ==========================================
 // GLOBAL TEXT CONTROLS LOGIC
 // ==========================================
+const globalText = document.getElementById('global-text');
 const globalFont = document.getElementById('global-font');
 const globalFs = document.getElementById('global-fs');
 const globalPos = document.getElementById('global-pos');
 const globalPosX = document.getElementById('global-pos-x');
 
+globalText.addEventListener('input', (e) => {
+    let val = e.target.value;
+    for (let i = 1; i <= 4; i++) {
+        if(val.trim() !== "") {
+            document.getElementById(`svg-p${i}-title`).textContent = val;
+            document.getElementById(`p${i}-title`).value = val; 
+        }
+    }
+});
 
 globalFont.addEventListener('change', (e) => {
     let val = e.target.value;
@@ -245,7 +292,6 @@ function generateDynamicArt() {
 // BACKGROUND RANDOMIZATION ENGINE
 // ==========================================
 function randomizeBackgrounds() {
-    // A curated palette of professional, bold, and minimal poster colors
     const palettes = [
         '#1a1a24', '#e61f26', '#c3e000', '#362222', '#e3e1db', 
         '#0f172a', '#4c1d95', '#be123c', '#047857', '#b45309', 
@@ -255,11 +301,7 @@ function randomizeBackgrounds() {
     
     for (let i = 1; i <= 4; i++) {
         let randomBg = palettes[Math.floor(Math.random() * palettes.length)];
-        
-        // Update the SVG Canvas
         document.getElementById(`svg-p${i}-bg`).setAttribute('fill', randomBg);
-        
-        // Update the Sidebar Color Picker so it matches the canvas
         document.getElementById(`p${i}-bg`).value = randomBg;
     }
 }
@@ -279,7 +321,6 @@ thickSlider.addEventListener('input', (e) => {
     generateDynamicArt();
 });
 
-// Changing the mode triggers new art AND new background colors
 modeSelect.addEventListener('change', () => {
     randomizeBackgrounds();
     generateDynamicArt();
@@ -305,10 +346,7 @@ function randomizeEngine() {
     document.getElementById('val-freq').innerText = randomFreq + '%';
     document.getElementById('val-thick').innerText = randomThick + 'PX';
 
-    // Shuffle the background colors
     randomizeBackgrounds();
-    
-    // Generate the art
     generateDynamicArt();
 }
 
@@ -317,8 +355,10 @@ if (shuffleBtn) {
     shuffleBtn.addEventListener('click', randomizeEngine);
 }
 
-// Initialize on page load (This is what makes it randomize when you re-enter the site)
+// INITIALIZE ON PAGE LOAD
 randomizeEngine();
+updatePosterCount();
+
 
 // Master SVG Download Logic
 document.getElementById('downloadBtn').addEventListener('click', () => {
