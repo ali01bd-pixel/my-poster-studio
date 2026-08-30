@@ -2,47 +2,128 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>My Poster Studio</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Design Dynamic Lab</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="app-container">
-    <!-- LEFT SIDEBAR: Controls -->
-    <aside class="sidebar">
-        <h2>🎨 Customize Panel</h2>
-        
-        <div class="control-group">
-            <label>Background Color:</label>
-            <input type="color" id="bgColor" value="#2c3e50">
-        </div>
+    <header class="top-bar">
+        <div class="logo">🎨 DESIGN DYNAMIC LAB <span>Master Poster Generator</span></div>
+        <div class="alert">⚠️ Adobe Stock / Microstock Alert: Customize designs before uploading!</div>
+        <div class="user-profile"><span>Guest</span></div>
+    </header>
 
-        <div class="control-group">
-            <label>Poster Title:</label>
-            <input type="text" id="titleText" value="DYNAMIC POSTER">
-        </div>
-        
-        <div class="control-group">
-            <label>Font Size:</label>
-            <input type="range" id="fontSize" min="20" max="100" value="50">
-        </div>
+    <div class="main-workspace">
+        <aside class="sidebar">
+            <div class="panel-section">
+                <h3>🎨 কাস্টমাইজেশন (CUSTOMIZE PANELS)</h3>
+                
+                <!-- Poster 1 Controls -->
+                <details open class="poster-controls">
+                    <summary>Poster 1 (Far Left)</summary>
+                    <div class="control-group">
+                        <label>Title / টাইটেল</label>
+                        <input type="text" id="p1-title" value="POSTER ONE">
+                    </div>
+                    <div class="control-group">
+                        <label>Background</label>
+                        <input type="color" id="p1-bg" value="#1a1a24">
+                    </div>
+                </details>
 
-        <button id="downloadBtn">📥 Download Master SVG</button>
-    </aside>
+                <!-- Poster 2 Controls -->
+                <details class="poster-controls">
+                    <summary>Poster 2 (Center Left)</summary>
+                    <div class="control-group">
+                        <label>Title / টাইটেল</label>
+                        <input type="text" id="p2-title" value="POSTER TWO">
+                    </div>
+                    <div class="control-group">
+                        <label>Background</label>
+                        <input type="color" id="p2-bg" value="#2b1a24">
+                    </div>
+                </details>
 
-    <!-- RIGHT MAIN: Canvas Area -->
-    <main class="canvas-area">
-        <!-- The SVG element is our "Canvas" -->
-        <svg id="posterCanvas" width="800" height="600" xmlns="http://www.w3.org/2000/svg">
-            <rect id="bgRect" width="100%" height="100%" fill="#2c3e50" />
-            <text id="mainText" x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" font-size="50" fill="#ffffff">
-                DYNAMIC POSTER
-            </text>
-            <!-- You can add complex SVG shapes, waves, and patterns here -->
-        </svg>
-    </main>
-</div>
+                <!-- Poster 3 Controls -->
+                <details class="poster-controls">
+                    <summary>Poster 3 (Center Right)</summary>
+                    <div class="control-group">
+                        <label>Title / টাইটেল</label>
+                        <input type="text" id="p3-title" value="POSTER THREE">
+                    </div>
+                    <div class="control-group">
+                        <label>Background</label>
+                        <input type="color" id="p3-bg" value="#1a241e">
+                    </div>
+                </details>
 
-<script src="script.js"></script>
+                <!-- Poster 4 Controls -->
+                <details class="poster-controls">
+                    <summary>Poster 4 (Far Right)</summary>
+                    <div class="control-group">
+                        <label>Title / টাইটেল</label>
+                        <input type="text" id="p4-title" value="POSTER FOUR">
+                    </div>
+                    <div class="control-group">
+                        <label>Background</label>
+                        <input type="color" id="p4-bg" value="#241a1a">
+                    </div>
+                </details>
+            </div>
+
+            <div class="panel-section">
+                <h3>⚙️ ইঞ্জিন সেটিংস (ENGINE SETTINGS)</h3>
+                <div class="control-group">
+                    <label>Wave Frequency / ওয়েভ</label>
+                    <input type="range" min="10" max="100" value="40">
+                </div>
+            </div>
+
+            <div class="panel-section download-section">
+                <h3>📥 মাস্টার ডাউনলোড (DOWNLOAD)</h3>
+                <p>Downloads the entire 4-in-1 Master Artboard as a single SVG file.</p>
+                <button id="downloadBtn">Download Master SVG</button>
+            </div>
+        </aside>
+
+        <main class="canvas-container">
+            <!-- 7320x2520 is 4 posters of 1830x2520 placed side-by-side -->
+            <svg id="masterCanvas" viewBox="0 0 7320 2520" xmlns="http://www.w3.org/2000/svg">
+                
+                <!-- Poster 1 -->
+                <g transform="translate(0, 0)">
+                    <rect id="svg-p1-bg" width="1830" height="2520" fill="#1a1a24" />
+                    <text id="svg-p1-title" x="915" y="1260" font-family="Arial" font-size="150" fill="#ffffff" text-anchor="middle" font-weight="bold">POSTER ONE</text>
+                </g>
+
+                <!-- Poster 2 -->
+                <g transform="translate(1830, 0)">
+                    <rect id="svg-p2-bg" width="1830" height="2520" fill="#2b1a24" />
+                    <text id="svg-p2-title" x="915" y="1260" font-family="Arial" font-size="150" fill="#ffffff" text-anchor="middle" font-weight="bold">POSTER TWO</text>
+                </g>
+
+                <!-- Poster 3 -->
+                <g transform="translate(3660, 0)">
+                    <rect id="svg-p3-bg" width="1830" height="2520" fill="#1a241e" />
+                    <text id="svg-p3-title" x="915" y="1260" font-family="Arial" font-size="150" fill="#ffffff" text-anchor="middle" font-weight="bold">POSTER THREE</text>
+                </g>
+
+                <!-- Poster 4 -->
+                <g transform="translate(5490, 0)">
+                    <rect id="svg-p4-bg" width="1830" height="2520" fill="#241a1a" />
+                    <text id="svg-p4-title" x="915" y="1260" font-family="Arial" font-size="150" fill="#ffffff" text-anchor="middle" font-weight="bold">POSTER FOUR</text>
+                </g>
+
+            </svg>
+        </main>
+    </div>
+
+    <footer class="bottom-bar">
+        <span>System Ready.</span>
+        <span>Master Artboard: 7320 x 2520 px</span>
+    </footer>
+
+    <script src="script.js"></script>
 </body>
 </html>
