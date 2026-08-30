@@ -1,4 +1,4 @@
-// Function to link a sidebar input to an SVG element
+// Function to map sidebar inputs to SVG attributes
 function linkInputToSVG(inputId, svgElementId, attribute) {
     const inputElement = document.getElementById(inputId);
     const svgElement = document.getElementById(svgElementId);
@@ -14,20 +14,42 @@ function linkInputToSVG(inputId, svgElementId, attribute) {
     }
 }
 
-// Map the 4 posters' inputs to their SVG counterparts
+// Map the 4 posters' inputs to their SVG targets based on the new UI
 for (let i = 1; i <= 4; i++) {
-    // Link Titles
+    // 1. Text Title Update
     linkInputToSVG(`p${i}-title`, `svg-p${i}-title`, 'text');
     
-    // Link Background Colors
+    // 2. Background Color
     linkInputToSVG(`p${i}-bg`, `svg-p${i}-bg`, 'fill');
 
-    // Link Wave Colors (colors both front and back wave)
-    linkInputToSVG(`p${i}-waveColor`, `svg-p${i}-wave`, 'fill');
-    linkInputToSVG(`p${i}-waveColor`, `svg-p${i}-wave-back`, 'fill');
+    // 3. Line & Shape Color (Updates stroke color of the main art path)
+    linkInputToSVG(`p${i}-line`, `svg-p${i}-line`, 'stroke');
+
+    // 4. Typo Box Color (Updates stroke of the tiny box in the sidebar)
+    linkInputToSVG(`p${i}-box`, `svg-p${i}-box`, 'stroke');
+
+    // 5. Main Text Color (Updates color of the rotated text)
+    linkInputToSVG(`p${i}-text`, `svg-p${i}-title`, 'fill');
 }
 
-// Master Download Logic (SVG)
+// Map Engine Setting Sliders to update text labels in the UI
+const densitySlider = document.getElementById('eng-density');
+const freqSlider = document.getElementById('eng-freq');
+const thickSlider = document.getElementById('eng-thick');
+
+densitySlider.addEventListener('input', (e) => {
+    document.getElementById('val-density').innerText = e.target.value;
+});
+
+freqSlider.addEventListener('input', (e) => {
+    document.getElementById('val-freq').innerText = e.target.value + '%';
+});
+
+thickSlider.addEventListener('input', (e) => {
+    document.getElementById('val-thick').innerText = e.target.value + 'PX';
+});
+
+// Master SVG Download Logic
 document.getElementById('downloadBtn').addEventListener('click', () => {
     const svgElement = document.getElementById('masterCanvas');
     const serializer = new XMLSerializer();
@@ -41,55 +63,9 @@ document.getElementById('downloadBtn').addEventListener('click', () => {
     const downloadLink = document.createElement("a");
     
     downloadLink.href = url;
-    downloadLink.download = "DDL_Master_Artboard.svg";
+    downloadLink.download = "Ali_Design_Hub_Master.svg";
     
     document.body.appendChild(downloadLink);
     downloadLink.click();
     document.body.removeChild(downloadLink);
 });
-
-// ==========================================
-// WAVE GENERATOR ENGINE (3D Overlapping Waves)
-// ==========================================
-
-const waveSlider = document.getElementById('waveFrequency');
-
-function drawWaves() {
-    const frequency = waveSlider.value; 
-    const width = 1830;                 
-    const height = 2520;                
-    const amplitude = 150;              
-    const yCenter = 1900;               
-
-    // PATH 1: The Front Wave
-    let pathDataFront = `M 0,${height} L 0,${yCenter}`;
-    for (let x = 0; x <= width; x += 10) {
-        let y = yCenter + Math.sin((x / width) * Math.PI * 2 * frequency) * amplitude;
-        pathDataFront += ` L ${x},${y}`;
-    }
-    pathDataFront += ` L ${width},${height} Z`;
-
-    // PATH 2: The Back Wave (shifted higher and out of phase)
-    const yCenterBack = 1800;
-    let pathDataBack = `M 0,${height} L 0,${yCenterBack}`;
-    for (let x = 0; x <= width; x += 10) {
-        let y = yCenterBack + Math.sin(((x / width) * Math.PI * 2 * frequency) + 1.5) * (amplitude * 1.1);
-        pathDataBack += ` L ${x},${y}`;
-    }
-    pathDataBack += ` L ${width},${height} Z`;
-
-    // Inject both paths into all 4 posters
-    for (let i = 1; i <= 4; i++) {
-        const frontWave = document.getElementById(`svg-p${i}-wave`);
-        const backWave = document.getElementById(`svg-p${i}-wave-back`);
-        
-        if (frontWave) frontWave.setAttribute('d', pathDataFront);
-        if (backWave) backWave.setAttribute('d', pathDataBack);
-    }
-}
-
-// Listen for slider movement to redraw instantly
-waveSlider.addEventListener('input', drawWaves);
-
-// Draw the initial waves as soon as the page loads
-drawWaves();
