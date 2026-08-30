@@ -17,6 +17,19 @@ function linkInputToSVG(inputId, svgElementId, attribute) {
     }
 }
 
+// NEW: Function to calculate and update percentage label for Typography sliders
+function updatePercentLabel(sliderId, labelId) {
+    const slider = document.getElementById(sliderId);
+    const label = document.getElementById(labelId);
+    if (slider && label) {
+        const min = parseFloat(slider.min);
+        const max = parseFloat(slider.max);
+        const val = parseFloat(slider.value);
+        const percent = Math.round(((val - min) / (max - min)) * 100);
+        label.innerText = percent + '%';
+    }
+}
+
 // Map the 4 posters' individual inputs
 for (let i = 1; i <= 4; i++) {
     linkInputToSVG(`p${i}-title`, `svg-p${i}-title`, 'text');
@@ -28,7 +41,24 @@ for (let i = 1; i <= 4; i++) {
     linkInputToSVG(`p${i}-fs`, `svg-p${i}-title`, 'font-size');
     linkInputToSVG(`p${i}-pos`, `svg-p${i}-title`, 'x');
     linkInputToSVG(`p${i}-pos-x`, `svg-p${i}-title`, 'y');
+
+    // Attach Percentage Updater to Individual Sliders
+    ['fs', 'pos', 'pos-x'].forEach(prop => {
+        document.getElementById(`p${i}-${prop}`).addEventListener('input', () => {
+            updatePercentLabel(`p${i}-${prop}`, `val-p${i}-${prop}`);
+        });
+        updatePercentLabel(`p${i}-${prop}`, `val-p${i}-${prop}`); // Initial Load
+    });
 }
+
+// Attach Percentage Updater to Global Sliders
+['global-fs', 'global-pos', 'global-pos-x'].forEach(id => {
+    document.getElementById(id).addEventListener('input', () => {
+        updatePercentLabel(id, `val-${id}`);
+    });
+    updatePercentLabel(id, `val-${id}`); // Initial Load
+});
+
 
 // ==========================================
 // DYNAMIC ARTBOARD COUNT SELECTOR
@@ -37,15 +67,11 @@ const posterCountSelect = document.getElementById('poster-count');
 
 function updatePosterCount() {
     let count = parseInt(posterCountSelect.value);
-    
-    // The total width of the canvas depending on how many posters are visible
-    // 1: 1830 | 2: 3860 | 3: 5890 | 4: 7920
     let canvasWidths = { 1: 1830, 2: 3860, 3: 5890, 4: 7920 };
     
     for (let i = 1; i <= 4; i++) {
         const sidebarPanel = document.getElementById(`panel-${i}`);
         const artGroup = document.getElementById(`art-${i}`);
-        
         if (i <= count) {
             sidebarPanel.style.display = 'block';
             artGroup.style.display = 'block';
@@ -55,15 +81,11 @@ function updatePosterCount() {
         }
     }
     
-    // Resize the master canvas bounds so downloads are cropped perfectly
     let newWidth = canvasWidths[count];
     document.getElementById('masterCanvas').setAttribute('viewBox', `0 0 ${newWidth} 2520`);
-    
-    // Update the UI footer text
     document.getElementById('footer-size').innerText = `Master Artboard: ${newWidth} x 2520 px`;
 }
 
-// Listen for dropdown changes
 posterCountSelect.addEventListener('change', updatePosterCount);
 
 
@@ -99,6 +121,7 @@ globalFs.addEventListener('input', (e) => {
     for (let i = 1; i <= 4; i++) {
         document.getElementById(`svg-p${i}-title`).setAttribute('font-size', val);
         document.getElementById(`p${i}-fs`).value = val; 
+        updatePercentLabel(`p${i}-fs`, `val-p${i}-fs`); // Sync the percentage text
     }
 });
 
@@ -107,6 +130,7 @@ globalPos.addEventListener('input', (e) => {
     for (let i = 1; i <= 4; i++) {
         document.getElementById(`svg-p${i}-title`).setAttribute('x', val);
         document.getElementById(`p${i}-pos`).value = val; 
+        updatePercentLabel(`p${i}-pos`, `val-p${i}-pos`); // Sync the percentage text
     }
 });
 
@@ -115,6 +139,7 @@ globalPosX.addEventListener('input', (e) => {
     for (let i = 1; i <= 4; i++) {
         document.getElementById(`svg-p${i}-title`).setAttribute('y', val);
         document.getElementById(`p${i}-pos-x`).value = val; 
+        updatePercentLabel(`p${i}-pos-x`, `val-p${i}-pos-x`); // Sync the percentage text
     }
 });
 
@@ -305,7 +330,6 @@ function randomizeBackgrounds() {
         document.getElementById(`p${i}-bg`).value = randomBg;
     }
 }
-
 
 // Listeners to trigger manual redesign
 densitySlider.addEventListener('input', (e) => {
