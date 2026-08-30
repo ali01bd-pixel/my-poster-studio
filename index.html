@@ -26,7 +26,6 @@
     <div class="main-workspace">
         <aside class="sidebar">
             
-            <!-- GLOBAL TEXT CONTROLS -->
             <div class="panel-section-title">
                 <span class="pink-dot">🔠</span> গ্লোবাল টেক্সট (GLOBAL TEXT)
             </div>
@@ -58,11 +57,10 @@
                 </div>
                 <div class="slider-group" style="margin-bottom: 0;">
                     <div class="slider-header"><label>ALL POSITION (HORIZONTAL)</label></div>
-                    <input type="range" id="global-pos-x" min="20" max="1500" value="160">
+                    <input type="range" id="global-pos-x" min="20" max="1500" value="130">
                 </div>
             </div>
 
-            <!-- INDIVIDUAL PANELS -->
             <div class="panel-section-title">
                 <span class="pink-dot"></span> কাস্টমাইজেশন (CUSTOMIZE PANELS)
             </div>
@@ -93,7 +91,7 @@
                             <div class="slider-header"><label>INDIVIDUAL VERTICAL</label></div><input type="range" id="p1-pos" min="-2400" max="-100" value="-1800">
                         </div>
                         <div class="slider-group" style="padding: 0 5px; margin-bottom: 0;">
-                            <div class="slider-header"><label>INDIVIDUAL HORIZONTAL</label></div><input type="range" id="p1-pos-x" min="20" max="1500" value="160">
+                            <div class="slider-header"><label>INDIVIDUAL HORIZONTAL</label></div><input type="range" id="p1-pos-x" min="20" max="1500" value="130">
                         </div>
                     </div>
                 </details>
@@ -123,7 +121,7 @@
                             <div class="slider-header"><label>INDIVIDUAL VERTICAL</label></div><input type="range" id="p2-pos" min="-2400" max="-100" value="-1800">
                         </div>
                         <div class="slider-group" style="padding: 0 5px; margin-bottom: 0;">
-                            <div class="slider-header"><label>INDIVIDUAL HORIZONTAL</label></div><input type="range" id="p2-pos-x" min="20" max="1500" value="160">
+                            <div class="slider-header"><label>INDIVIDUAL HORIZONTAL</label></div><input type="range" id="p2-pos-x" min="20" max="1500" value="130">
                         </div>
                     </div>
                 </details>
@@ -153,7 +151,7 @@
                             <div class="slider-header"><label>INDIVIDUAL VERTICAL</label></div><input type="range" id="p3-pos" min="-2400" max="-100" value="-1800">
                         </div>
                         <div class="slider-group" style="padding: 0 5px; margin-bottom: 0;">
-                            <div class="slider-header"><label>INDIVIDUAL HORIZONTAL</label></div><input type="range" id="p3-pos-x" min="20" max="1500" value="160">
+                            <div class="slider-header"><label>INDIVIDUAL HORIZONTAL</label></div><input type="range" id="p3-pos-x" min="20" max="1500" value="130">
                         </div>
                     </div>
                 </details>
@@ -183,7 +181,7 @@
                             <div class="slider-header"><label>INDIVIDUAL VERTICAL</label></div><input type="range" id="p4-pos" min="-2400" max="-100" value="-1800">
                         </div>
                         <div class="slider-group" style="padding: 0 5px; margin-bottom: 0;">
-                            <div class="slider-header"><label>INDIVIDUAL HORIZONTAL</label></div><input type="range" id="p4-pos-x" min="20" max="1500" value="160">
+                            <div class="slider-header"><label>INDIVIDUAL HORIZONTAL</label></div><input type="range" id="p4-pos-x" min="20" max="1500" value="130">
                         </div>
                     </div>
                 </details>
@@ -223,48 +221,51 @@
         </aside>
 
         <main class="canvas-container">
-            <!-- Canvas width expanded to 7920 to accommodate the gaps -->
             <svg id="masterCanvas" viewBox="0 0 7920 2520" xmlns="http://www.w3.org/2000/svg">
-                <defs><clipPath id="posterClip"><rect width="1830" height="2520" /></clipPath></defs>
-                <!-- Transparent background so the gaps show the dark workspace grid -->
+                <defs>
+                    <clipPath id="posterClip"><rect width="1830" height="2520" /></clipPath>
+                    <!-- NEW: Strict Art Clipping Mask starting exactly at x=200 -->
+                    <clipPath id="artClip"><rect x="200" y="0" width="1630" height="2520" /></clipPath>
+                </defs>
+                
                 <rect width="100%" height="100%" fill="transparent" />
 
-                <!-- Poster 1: Position 0 -->
+                <!-- Poster 1 -->
                 <g transform="translate(0, 0)" clip-path="url(#posterClip)">
-                    <rect id="svg-p1-bg" x="350" width="1480" height="2520" fill="#e3e1db" />
-                    <rect width="350" height="2520" fill="#f0efeb" />
-                    <text id="svg-p1-title" x="-1800" y="160" transform="rotate(-90)" font-family="'Segoe UI', Arial, sans-serif" font-size="180" fill="#1a202c" font-weight="900" letter-spacing="10">ABSTRACT</text>
-                    <path id="svg-p1-line" d="" fill="none" stroke="#111827" stroke-width="80" stroke-linecap="round" stroke-linejoin="round"/>
+                    <rect id="svg-p1-bg" x="200" width="1630" height="2520" fill="#e3e1db" />
+                    <rect width="200" height="2520" fill="#f0efeb" />
+                    <text id="svg-p1-title" x="-1800" y="130" transform="rotate(-90)" font-family="'Segoe UI', Arial, sans-serif" font-size="180" fill="#1a202c" font-weight="900" letter-spacing="10">ABSTRACT</text>
+                    <!-- Clip path applied directly to the line art -->
+                    <path id="svg-p1-line" d="" fill="none" stroke="#111827" stroke-width="80" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#artClip)"/>
                 </g>
 
-                <!-- Poster 2: Added 200px gap (1830 + 200 = 2030) -->
+                <!-- Poster 2 -->
                 <g transform="translate(2030, 0)" clip-path="url(#posterClip)">
-                    <rect id="svg-p2-bg" x="350" width="1480" height="2520" fill="#e61f26" />
-                    <rect width="350" height="2520" fill="#d91d24" />
-                    <text id="svg-p2-title" x="-1800" y="160" transform="rotate(-90)" font-family="'Segoe UI', Arial, sans-serif" font-size="180" fill="#ffffff" font-weight="900" letter-spacing="10">IPSUM</text>
-                    <path id="svg-p2-line" d="" fill="none" stroke="#111827" stroke-width="80" stroke-linecap="round" stroke-linejoin="round"/>
+                    <rect id="svg-p2-bg" x="200" width="1630" height="2520" fill="#e61f26" />
+                    <rect width="200" height="2520" fill="#d91d24" />
+                    <text id="svg-p2-title" x="-1800" y="130" transform="rotate(-90)" font-family="'Segoe UI', Arial, sans-serif" font-size="180" fill="#ffffff" font-weight="900" letter-spacing="10">IPSUM</text>
+                    <path id="svg-p2-line" d="" fill="none" stroke="#111827" stroke-width="80" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#artClip)"/>
                 </g>
 
-                <!-- Poster 3: Added another 200px gap (2030 + 1830 + 200 = 4060) -->
+                <!-- Poster 3 -->
                 <g transform="translate(4060, 0)" clip-path="url(#posterClip)">
-                    <rect id="svg-p3-bg" x="350" width="1480" height="2520" fill="#181d27" />
-                    <rect width="350" height="2520" fill="#c3e000" />
-                    <text id="svg-p3-title" x="-1800" y="160" transform="rotate(-90)" font-family="'Segoe UI', Arial, sans-serif" font-size="180" fill="#1a202c" font-weight="900" letter-spacing="10">STUDIO</text>
-                    <path id="svg-p3-line" d="" fill="none" stroke="#c3e000" stroke-width="40" stroke-linecap="round" stroke-linejoin="round"/>
+                    <rect id="svg-p3-bg" x="200" width="1630" height="2520" fill="#181d27" />
+                    <rect width="200" height="2520" fill="#c3e000" />
+                    <text id="svg-p3-title" x="-1800" y="130" transform="rotate(-90)" font-family="'Segoe UI', Arial, sans-serif" font-size="180" fill="#1a202c" font-weight="900" letter-spacing="10">STUDIO</text>
+                    <path id="svg-p3-line" d="" fill="none" stroke="#c3e000" stroke-width="40" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#artClip)"/>
                 </g>
 
-                <!-- Poster 4: Added another 200px gap (4060 + 1830 + 200 = 6090) -->
+                <!-- Poster 4 -->
                 <g transform="translate(6090, 0)" clip-path="url(#posterClip)">
-                    <rect id="svg-p4-bg" x="350" width="1480" height="2520" fill="#362222" />
-                    <rect width="350" height="2520" fill="#4a2e2e" />
-                    <text id="svg-p4-title" x="-1800" y="160" transform="rotate(-90)" font-family="'Segoe UI', Arial, sans-serif" font-size="180" fill="#ffffff" font-weight="900" letter-spacing="10">MINIMAL</text>
-                    <path id="svg-p4-line" d="" fill="none" stroke="#ffffff" stroke-width="40" stroke-linecap="round" stroke-linejoin="round"/>
+                    <rect id="svg-p4-bg" x="200" width="1630" height="2520" fill="#362222" />
+                    <rect width="200" height="2520" fill="#4a2e2e" />
+                    <text id="svg-p4-title" x="-1800" y="130" transform="rotate(-90)" font-family="'Segoe UI', Arial, sans-serif" font-size="180" fill="#ffffff" font-weight="900" letter-spacing="10">MINIMAL</text>
+                    <path id="svg-p4-line" d="" fill="none" stroke="#ffffff" stroke-width="40" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#artClip)"/>
                 </g>
             </svg>
         </main>
     </div>
 
-    <!-- Footer Master Size updated -->
     <footer class="bottom-bar" style="background-color: #16161e; border-top: 1px solid #2a2a35; padding: 8px 20px; display: flex; justify-content: space-between; font-size: 12px; color: #666; width: 100%;">
         <span>System Ready.</span>
         <span>Master Artboard: 7920 x 2520 px</span>
