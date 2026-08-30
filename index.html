@@ -8,11 +8,6 @@
 </head>
 <body>
 
-    <path id="svg-p1-wave" fill="#ffffff" opacity="0.1" d="" />
-<path id="svg-p2-wave" fill="#ffffff" opacity="0.1" d="" />
-<path id="svg-p3-wave" fill="#ffffff" opacity="0.1" d="" />
-<path id="svg-p4-wave" fill="#ffffff" opacity="0.1" d="" />
-
     <header class="top-bar">
         <div class="logo">🎨 DESIGN DYNAMIC LAB <span>Master Poster Generator</span></div>
         <div class="alert">⚠️ Adobe Stock / Microstock Alert: Customize designs before uploading!</div>
@@ -35,23 +30,10 @@
                         <label>Background</label>
                         <input type="color" id="p1-bg" value="#1a1a24">
                     </div>
-                    <!-- Example for Poster 1 (do this for all 4, changing the id from p1 to p2, p3, p4) -->
-<details open class="poster-controls">
-    <summary>Poster 1 (Far Left)</summary>
-    <div class="control-group">
-        <label>Title / টাইটেল</label>
-        <input type="text" id="p1-title" value="POSTER ONE">
-    </div>
-    <div class="control-group">
-        <label>Background</label>
-        <input type="color" id="p1-bg" value="#1a1a24">
-    </div>
-    <!-- NEW WAVE COLOR PICKER -->
-    <div class="control-group">
-        <label>Wave Color</label>
-        <input type="color" id="p1-waveColor" value="#ffffff">
-    </div>
-</details>
+                    <div class="control-group">
+                        <label>Wave Color</label>
+                        <input type="color" id="p1-waveColor" value="#ffffff">
+                    </div>
                 </details>
 
                 <!-- Poster 2 Controls -->
@@ -64,6 +46,10 @@
                     <div class="control-group">
                         <label>Background</label>
                         <input type="color" id="p2-bg" value="#2b1a24">
+                    </div>
+                    <div class="control-group">
+                        <label>Wave Color</label>
+                        <input type="color" id="p2-waveColor" value="#ffffff">
                     </div>
                 </details>
 
@@ -78,6 +64,10 @@
                         <label>Background</label>
                         <input type="color" id="p3-bg" value="#1a241e">
                     </div>
+                    <div class="control-group">
+                        <label>Wave Color</label>
+                        <input type="color" id="p3-waveColor" value="#ffffff">
+                    </div>
                 </details>
 
                 <!-- Poster 4 Controls -->
@@ -91,17 +81,20 @@
                         <label>Background</label>
                         <input type="color" id="p4-bg" value="#241a1a">
                     </div>
+                    <div class="control-group">
+                        <label>Wave Color</label>
+                        <input type="color" id="p4-waveColor" value="#ffffff">
+                    </div>
                 </details>
             </div>
 
             <div class="panel-section">
-    <h3>⚙️ ইঞ্জিন সেটিংস (ENGINE SETTINGS)</h3>
-    <div class="control-group">
-        <label>Wave Frequency / ওয়েভ</label>
-        <!-- Added id="waveFrequency" and changed max to 15 for better wave visuals -->
-        <input type="range" id="waveFrequency" min="1" max="15" value="3">
-    </div>
-</div>
+                <h3>⚙️ ইঞ্জিন সেটিংস (ENGINE SETTINGS)</h3>
+                <div class="control-group">
+                    <label>Wave Frequency / ওয়েভ</label>
+                    <input type="range" id="waveFrequency" min="1" max="15" value="3">
+                </div>
+            </div>
 
             <div class="panel-section download-section">
                 <h3>📥 মাস্টার ডাউনলোড (DOWNLOAD)</h3>
@@ -117,55 +110,36 @@
                 <!-- Poster 1 -->
                 <g transform="translate(0, 0)">
                     <rect id="svg-p1-bg" width="1830" height="2520" fill="#1a1a24" />
+                    <path id="svg-p1-wave-back" fill="#ffffff" opacity="0.05" d="" />
+                    <path id="svg-p1-wave" fill="#ffffff" opacity="0.1" d="" />
                     <text id="svg-p1-title" x="915" y="1260" font-family="Arial" font-size="150" fill="#ffffff" text-anchor="middle" font-weight="bold">POSTER ONE</text>
                 </g>
 
                 <!-- Poster 2 -->
                 <g transform="translate(1830, 0)">
                     <rect id="svg-p2-bg" width="1830" height="2520" fill="#2b1a24" />
+                    <path id="svg-p2-wave-back" fill="#ffffff" opacity="0.05" d="" />
+                    <path id="svg-p2-wave" fill="#ffffff" opacity="0.1" d="" />
                     <text id="svg-p2-title" x="915" y="1260" font-family="Arial" font-size="150" fill="#ffffff" text-anchor="middle" font-weight="bold">POSTER TWO</text>
                 </g>
 
                 <!-- Poster 3 -->
                 <g transform="translate(3660, 0)">
                     <rect id="svg-p3-bg" width="1830" height="2520" fill="#1a241e" />
+                    <path id="svg-p3-wave-back" fill="#ffffff" opacity="0.05" d="" />
+                    <path id="svg-p3-wave" fill="#ffffff" opacity="0.1" d="" />
                     <text id="svg-p3-title" x="915" y="1260" font-family="Arial" font-size="150" fill="#ffffff" text-anchor="middle" font-weight="bold">POSTER THREE</text>
                 </g>
 
                 <!-- Poster 4 -->
                 <g transform="translate(5490, 0)">
                     <rect id="svg-p4-bg" width="1830" height="2520" fill="#241a1a" />
+                    <path id="svg-p4-wave-back" fill="#ffffff" opacity="0.05" d="" />
+                    <path id="svg-p4-wave" fill="#ffffff" opacity="0.1" d="" />
                     <text id="svg-p4-title" x="915" y="1260" font-family="Arial" font-size="150" fill="#ffffff" text-anchor="middle" font-weight="bold">POSTER FOUR</text>
                 </g>
 
             </svg>
-            <!-- Poster 1 -->
-<g transform="translate(0, 0)">
-    <rect id="svg-p1-bg" width="1830" height="2520" fill="#1a1a24" />
-    <path id="svg-p1-wave" fill="rgba(255, 255, 255, 0.05)" d="" /> <!-- NEW WAVE -->
-    <text id="svg-p1-title" x="915" y="1260" font-family="Arial" font-size="150" fill="#ffffff" text-anchor="middle" font-weight="bold">POSTER ONE</text>
-</g>
-
-<!-- Poster 2 -->
-<g transform="translate(1830, 0)">
-    <rect id="svg-p2-bg" width="1830" height="2520" fill="#2b1a24" />
-    <path id="svg-p2-wave" fill="rgba(255, 255, 255, 0.05)" d="" /> <!-- NEW WAVE -->
-    <text id="svg-p2-title" x="915" y="1260" font-family="Arial" font-size="150" fill="#ffffff" text-anchor="middle" font-weight="bold">POSTER TWO</text>
-</g>
-
-<!-- Poster 3 -->
-<g transform="translate(3660, 0)">
-    <rect id="svg-p3-bg" width="1830" height="2520" fill="#1a241e" />
-    <path id="svg-p3-wave" fill="rgba(255, 255, 255, 0.05)" d="" /> <!-- NEW WAVE -->
-    <text id="svg-p3-title" x="915" y="1260" font-family="Arial" font-size="150" fill="#ffffff" text-anchor="middle" font-weight="bold">POSTER THREE</text>
-</g>
-
-<!-- Poster 4 -->
-<g transform="translate(5490, 0)">
-    <rect id="svg-p4-bg" width="1830" height="2520" fill="#241a1a" />
-    <path id="svg-p4-wave" fill="rgba(255, 255, 255, 0.05)" d="" /> <!-- NEW WAVE -->
-    <text id="svg-p4-title" x="915" y="1260" font-family="Arial" font-size="150" fill="#ffffff" text-anchor="middle" font-weight="bold">POSTER FOUR</text>
-</g>
         </main>
     </div>
 
