@@ -14,20 +14,34 @@
         </div>
         <div class="alert-box">
             <div class="alert-title">⚠️ ADOBE STOCK / MICROSTOCK ALERT</div>
-            <div class="alert-desc">To avoid 'Similar Issue', customize the designs before uploading! / 'Similar Issue' এড়াতে প্যানেল থেকে ডিজাইন কাস্টমাইজ করে নিন!</div>
+            <div class="alert-desc">To avoid 'Similar Issue', customize designs before uploading! / 'Similar Issue' এড়াতে ডিজাইন কাস্টমাইজ করে নিন!</div>
         </div>
         <div class="top-actions">
-            <div class="user-profile">
-                <div class="avatar">M</div>
-                Mohammad
-            </div>
+            <div class="user-profile"><div class="avatar">M</div> Mohammad</div>
             <button class="btn-pro">⚡ UPGRADE TO PRO</button>
-            <button class="btn-shuffle">🔃 SHUFFLE STYLES</button>
+            <button class="btn-shuffle">🔃 SHUFFLE</button>
         </div>
     </header>
 
     <div class="main-workspace">
         <aside class="sidebar">
+            
+            <!-- NEW: GLOBAL TEXT CONTROLS -->
+            <div class="panel-section-title">
+                <span class="pink-dot">🔠</span> গ্লোবাল টেক্সট (GLOBAL TEXT)
+            </div>
+            <div class="engine-controls" style="margin-bottom: 25px; background: #1a1a1e; padding: 15px; border-radius: 6px; border: 1px solid #333;">
+                <div class="slider-group">
+                    <div class="slider-header"><label>ALL FONT SIZE</label></div>
+                    <input type="range" id="global-fs" min="50" max="450" value="180">
+                </div>
+                <div class="slider-group" style="margin-bottom: 0;">
+                    <div class="slider-header"><label>ALL TEXT POSITION (Y)</label></div>
+                    <input type="range" id="global-pos" min="-2400" max="-100" value="-1800">
+                </div>
+            </div>
+
+            <!-- INDIVIDUAL PANELS -->
             <div class="panel-section-title">
                 <span class="pink-dot"></span> কাস্টমাইজেশন (CUSTOMIZE PANELS)
             </div>
@@ -37,35 +51,16 @@
                 <details open class="poster-controls">
                     <summary>POSTER 1 (FAR LEFT)</summary>
                     <div class="controls-wrapper">
-                        <div class="control-group text-input-group">
-                            <label>TITLE / টাইটেল</label>
-                            <input type="text" id="p1-title" value="ABSTRACT">
-                        </div>
-                        <div class="control-group color-input-group">
-                            <label>BACKGROUND</label>
-                            <input type="color" id="p1-bg" value="#e3e1db">
-                        </div>
-                        <div class="control-group color-input-group">
-                            <label>LINE & SHAPE</label>
-                            <input type="color" id="p1-line" value="#111827">
-                        </div>
-                        <div class="control-group color-input-group">
-                            <label>TYPO BOX</label>
-                            <input type="color" id="p1-box" value="#ffffff">
-                        </div>
-                        <div class="control-group color-input-group">
-                            <label>MAIN TEXT</label>
-                            <input type="color" id="p1-text" value="#1a202c">
-                        </div>
-
-                        <!-- NEW: Font Controls -->
+                        <div class="control-group text-input-group"><label>TITLE</label><input type="text" id="p1-title" value="ABSTRACT"></div>
+                        <div class="control-group color-input-group"><label>BACKGROUND</label><input type="color" id="p1-bg" value="#e3e1db"></div>
+                        <div class="control-group color-input-group"><label>LINE & SHAPE</label><input type="color" id="p1-line" value="#111827"></div>
+                        <div class="control-group color-input-group"><label>TYPO BOX</label><input type="color" id="p1-box" value="#ffffff"></div>
+                        <div class="control-group color-input-group"><label>MAIN TEXT</label><input type="color" id="p1-text" value="#1a202c"></div>
                         <div class="slider-group" style="margin-top: 15px; padding: 0 5px;">
-                            <div class="slider-header"><label>FONT SIZE</label></div>
-                            <input type="range" id="p1-fs" min="50" max="350" value="180">
+                            <div class="slider-header"><label>INDIVIDUAL FONT SIZE</label></div><input type="range" id="p1-fs" min="50" max="450" value="180">
                         </div>
                         <div class="slider-group" style="padding: 0 5px;">
-                            <div class="slider-header"><label>TEXT POSITION (Y)</label></div>
-                            <input type="range" id="p1-pos" min="-2400" max="-100" value="-1800">
+                            <div class="slider-header"><label>INDIVIDUAL POSITION</label></div><input type="range" id="p1-pos" min="-2400" max="-100" value="-1800">
                         </div>
                     </div>
                 </details>
@@ -74,35 +69,16 @@
                 <details class="poster-controls">
                     <summary>POSTER 2 (CENTER LEFT)</summary>
                     <div class="controls-wrapper">
-                        <div class="control-group text-input-group">
-                            <label>TITLE / টাইটেল</label>
-                            <input type="text" id="p2-title" value="IPSUM">
-                        </div>
-                        <div class="control-group color-input-group">
-                            <label>BACKGROUND</label>
-                            <input type="color" id="p2-bg" value="#e61f26">
-                        </div>
-                        <div class="control-group color-input-group">
-                            <label>LINE & SHAPE</label>
-                            <input type="color" id="p2-line" value="#111827">
-                        </div>
-                        <div class="control-group color-input-group">
-                            <label>TYPO BOX</label>
-                            <input type="color" id="p2-box" value="#000000">
-                        </div>
-                        <div class="control-group color-input-group">
-                            <label>MAIN TEXT</label>
-                            <input type="color" id="p2-text" value="#ffffff">
-                        </div>
-
-                        <!-- NEW: Font Controls -->
+                        <div class="control-group text-input-group"><label>TITLE</label><input type="text" id="p2-title" value="IPSUM"></div>
+                        <div class="control-group color-input-group"><label>BACKGROUND</label><input type="color" id="p2-bg" value="#e61f26"></div>
+                        <div class="control-group color-input-group"><label>LINE & SHAPE</label><input type="color" id="p2-line" value="#111827"></div>
+                        <div class="control-group color-input-group"><label>TYPO BOX</label><input type="color" id="p2-box" value="#000000"></div>
+                        <div class="control-group color-input-group"><label>MAIN TEXT</label><input type="color" id="p2-text" value="#ffffff"></div>
                         <div class="slider-group" style="margin-top: 15px; padding: 0 5px;">
-                            <div class="slider-header"><label>FONT SIZE</label></div>
-                            <input type="range" id="p2-fs" min="50" max="350" value="180">
+                            <div class="slider-header"><label>INDIVIDUAL FONT SIZE</label></div><input type="range" id="p2-fs" min="50" max="450" value="180">
                         </div>
                         <div class="slider-group" style="padding: 0 5px;">
-                            <div class="slider-header"><label>TEXT POSITION (Y)</label></div>
-                            <input type="range" id="p2-pos" min="-2400" max="-100" value="-1800">
+                            <div class="slider-header"><label>INDIVIDUAL POSITION</label></div><input type="range" id="p2-pos" min="-2400" max="-100" value="-1800">
                         </div>
                     </div>
                 </details>
@@ -111,35 +87,16 @@
                 <details class="poster-controls">
                     <summary>POSTER 3 (CENTER RIGHT)</summary>
                     <div class="controls-wrapper">
-                        <div class="control-group text-input-group">
-                            <label>TITLE / টাইটেল</label>
-                            <input type="text" id="p3-title" value="STUDIO">
-                        </div>
-                        <div class="control-group color-input-group">
-                            <label>BACKGROUND</label>
-                            <input type="color" id="p3-bg" value="#c3e000">
-                        </div>
-                        <div class="control-group color-input-group">
-                            <label>LINE & SHAPE</label>
-                            <input type="color" id="p3-line" value="#1a202c">
-                        </div>
-                        <div class="control-group color-input-group">
-                            <label>TYPO BOX</label>
-                            <input type="color" id="p3-box" value="#1a202c">
-                        </div>
-                        <div class="control-group color-input-group">
-                            <label>MAIN TEXT</label>
-                            <input type="color" id="p3-text" value="#1a202c">
-                        </div>
-
-                        <!-- NEW: Font Controls -->
+                        <div class="control-group text-input-group"><label>TITLE</label><input type="text" id="p3-title" value="STUDIO"></div>
+                        <div class="control-group color-input-group"><label>BACKGROUND</label><input type="color" id="p3-bg" value="#c3e000"></div>
+                        <div class="control-group color-input-group"><label>LINE & SHAPE</label><input type="color" id="p3-line" value="#1a202c"></div>
+                        <div class="control-group color-input-group"><label>TYPO BOX</label><input type="color" id="p3-box" value="#1a202c"></div>
+                        <div class="control-group color-input-group"><label>MAIN TEXT</label><input type="color" id="p3-text" value="#1a202c"></div>
                         <div class="slider-group" style="margin-top: 15px; padding: 0 5px;">
-                            <div class="slider-header"><label>FONT SIZE</label></div>
-                            <input type="range" id="p3-fs" min="50" max="350" value="180">
+                            <div class="slider-header"><label>INDIVIDUAL FONT SIZE</label></div><input type="range" id="p3-fs" min="50" max="450" value="180">
                         </div>
                         <div class="slider-group" style="padding: 0 5px;">
-                            <div class="slider-header"><label>TEXT POSITION (Y)</label></div>
-                            <input type="range" id="p3-pos" min="-2400" max="-100" value="-1800">
+                            <div class="slider-header"><label>INDIVIDUAL POSITION</label></div><input type="range" id="p3-pos" min="-2400" max="-100" value="-1800">
                         </div>
                     </div>
                 </details>
@@ -148,35 +105,16 @@
                 <details class="poster-controls">
                     <summary>POSTER 4 (FAR RIGHT)</summary>
                     <div class="controls-wrapper">
-                        <div class="control-group text-input-group">
-                            <label>TITLE / টাইটেল</label>
-                            <input type="text" id="p4-title" value="MINIMAL">
-                        </div>
-                        <div class="control-group color-input-group">
-                            <label>BACKGROUND</label>
-                            <input type="color" id="p4-bg" value="#362222">
-                        </div>
-                        <div class="control-group color-input-group">
-                            <label>LINE & SHAPE</label>
-                            <input type="color" id="p4-line" value="#ffffff">
-                        </div>
-                        <div class="control-group color-input-group">
-                            <label>TYPO BOX</label>
-                            <input type="color" id="p4-box" value="#ffffff">
-                        </div>
-                        <div class="control-group color-input-group">
-                            <label>MAIN TEXT</label>
-                            <input type="color" id="p4-text" value="#ffffff">
-                        </div>
-
-                        <!-- NEW: Font Controls -->
+                        <div class="control-group text-input-group"><label>TITLE</label><input type="text" id="p4-title" value="MINIMAL"></div>
+                        <div class="control-group color-input-group"><label>BACKGROUND</label><input type="color" id="p4-bg" value="#362222"></div>
+                        <div class="control-group color-input-group"><label>LINE & SHAPE</label><input type="color" id="p4-line" value="#ffffff"></div>
+                        <div class="control-group color-input-group"><label>TYPO BOX</label><input type="color" id="p4-box" value="#ffffff"></div>
+                        <div class="control-group color-input-group"><label>MAIN TEXT</label><input type="color" id="p4-text" value="#ffffff"></div>
                         <div class="slider-group" style="margin-top: 15px; padding: 0 5px;">
-                            <div class="slider-header"><label>FONT SIZE</label></div>
-                            <input type="range" id="p4-fs" min="50" max="350" value="180">
+                            <div class="slider-header"><label>INDIVIDUAL FONT SIZE</label></div><input type="range" id="p4-fs" min="50" max="450" value="180">
                         </div>
                         <div class="slider-group" style="padding: 0 5px;">
-                            <div class="slider-header"><label>TEXT POSITION (Y)</label></div>
-                            <input type="range" id="p4-pos" min="-2400" max="-100" value="-1800">
+                            <div class="slider-header"><label>INDIVIDUAL POSITION</label></div><input type="range" id="p4-pos" min="-2400" max="-100" value="-1800">
                         </div>
                     </div>
                 </details>
@@ -187,27 +125,27 @@
             </div>
             
             <div class="engine-controls">
+                
+                <!-- NEW: DESIGN MODE DROPDOWN -->
+                <div class="control-group text-input-group" style="margin-bottom: 20px; border: 1px solid #ff2a5f;">
+                    <label style="color: #ff2a5f;">DESIGN MODE / স্টাইল মোড</label>
+                    <select id="design-mode">
+                        <option value="geometric">Geometric / জ্যামিতিক (Default)</option>
+                        <option value="retro">Retro Waves / রেট্রো ওয়েভ</option>
+                        <option value="topology">Complex Topology / টপোলজি</option>
+                    </select>
+                </div>
+
                 <div class="slider-group">
-                    <div class="slider-header">
-                        <label>BASE DENSITY / ঘনত্ব</label>
-                        <span id="val-density">80</span>
-                    </div>
+                    <div class="slider-header"><label>BASE DENSITY / ঘনত্ব</label><span id="val-density">80</span></div>
                     <input type="range" id="eng-density" min="10" max="150" value="80">
                 </div>
-
                 <div class="slider-group">
-                    <div class="slider-header">
-                        <label>WAVE FREQUENCY / ওয়েভ</label>
-                        <span id="val-freq">40%</span>
-                    </div>
+                    <div class="slider-header"><label>WAVE FREQUENCY / ওয়েভ</label><span id="val-freq">40%</span></div>
                     <input type="range" id="eng-freq" min="1" max="100" value="40">
                 </div>
-
                 <div class="slider-group">
-                    <div class="slider-header">
-                        <label>BASE THICKNESS / পুরুত্ব</label>
-                        <span id="val-thick">25PX</span>
-                    </div>
+                    <div class="slider-header"><label>BASE THICKNESS / পুরুত্ব</label><span id="val-thick">25PX</span></div>
                     <input type="range" id="eng-thick" min="1" max="100" value="25">
                 </div>
             </div>
@@ -217,14 +155,7 @@
 
         <main class="canvas-container">
             <svg id="masterCanvas" viewBox="0 0 7320 2520" xmlns="http://www.w3.org/2000/svg">
-                <!-- NEW: Clip Path to prevent art bleeding outside boundaries -->
-                <defs>
-                    <clipPath id="posterClip">
-                        <rect width="1830" height="2520" />
-                    </clipPath>
-                </defs>
-
-                <!-- Wrapper for white background -->
+                <defs><clipPath id="posterClip"><rect width="1830" height="2520" /></clipPath></defs>
                 <rect width="100%" height="100%" fill="#ffffff" />
 
                 <!-- Poster 1 -->
@@ -233,7 +164,7 @@
                     <rect width="350" height="2520" fill="#f0efeb" />
                     <rect id="svg-p1-box" x="80" y="200" width="100" height="100" fill="none" stroke="#111827" stroke-width="8" />
                     <text id="svg-p1-title" x="-1800" y="160" transform="rotate(-90)" font-family="'Segoe UI', Arial, sans-serif" font-size="180" fill="#1a202c" font-weight="900" letter-spacing="10">ABSTRACT</text>
-                    <path id="svg-p1-line" d="" fill="none" stroke="#111827" stroke-width="80" />
+                    <path id="svg-p1-line" d="" fill="none" stroke="#111827" stroke-width="80" stroke-linecap="round" stroke-linejoin="round"/>
                 </g>
 
                 <!-- Poster 2 -->
@@ -242,7 +173,7 @@
                     <rect width="350" height="2520" fill="#d91d24" />
                     <rect id="svg-p2-box" x="80" y="200" width="100" height="100" fill="none" stroke="#000000" stroke-width="8" />
                     <text id="svg-p2-title" x="-1800" y="160" transform="rotate(-90)" font-family="'Segoe UI', Arial, sans-serif" font-size="180" fill="#ffffff" font-weight="900" letter-spacing="10">IPSUM</text>
-                    <path id="svg-p2-line" d="" fill="none" stroke="#111827" stroke-width="80" />
+                    <path id="svg-p2-line" d="" fill="none" stroke="#111827" stroke-width="80" stroke-linecap="round" stroke-linejoin="round"/>
                 </g>
 
                 <!-- Poster 3 -->
@@ -251,7 +182,7 @@
                     <rect width="350" height="2520" fill="#c3e000" />
                     <rect id="svg-p3-box" x="80" y="200" width="100" height="100" fill="none" stroke="#1a202c" stroke-width="8" />
                     <text id="svg-p3-title" x="-1800" y="160" transform="rotate(-90)" font-family="'Segoe UI', Arial, sans-serif" font-size="180" fill="#1a202c" font-weight="900" letter-spacing="10">STUDIO</text>
-                    <path id="svg-p3-line" d="" fill="none" stroke="#c3e000" stroke-width="40" />
+                    <path id="svg-p3-line" d="" fill="none" stroke="#c3e000" stroke-width="40" stroke-linecap="round" stroke-linejoin="round"/>
                 </g>
 
                 <!-- Poster 4 -->
@@ -260,7 +191,7 @@
                     <rect width="350" height="2520" fill="#4a2e2e" />
                     <rect id="svg-p4-box" x="80" y="200" width="100" height="100" fill="none" stroke="#ffffff" stroke-width="8" />
                     <text id="svg-p4-title" x="-1800" y="160" transform="rotate(-90)" font-family="'Segoe UI', Arial, sans-serif" font-size="180" fill="#ffffff" font-weight="900" letter-spacing="10">MINIMAL</text>
-                    <path id="svg-p4-line" d="" fill="none" stroke="#ffffff" stroke-width="40" />
+                    <path id="svg-p4-line" d="" fill="none" stroke="#ffffff" stroke-width="40" stroke-linecap="round" stroke-linejoin="round"/>
                 </g>
             </svg>
         </main>
