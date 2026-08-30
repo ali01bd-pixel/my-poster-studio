@@ -18,7 +18,10 @@ for (let i = 1; i <= 4; i++) {
     linkInputToSVG(`p${i}-box`, `svg-p${i}-box`, 'stroke');
     linkInputToSVG(`p${i}-text`, `svg-p${i}-title`, 'fill');
     linkInputToSVG(`p${i}-fs`, `svg-p${i}-title`, 'font-size');
+    
+    // Position mappings: Vertical (x) and Horizontal (y) due to the -90deg rotation
     linkInputToSVG(`p${i}-pos`, `svg-p${i}-title`, 'x');
+    linkInputToSVG(`p${i}-pos-x`, `svg-p${i}-title`, 'y');
 }
 
 // ==========================================
@@ -26,6 +29,7 @@ for (let i = 1; i <= 4; i++) {
 // ==========================================
 const globalFs = document.getElementById('global-fs');
 const globalPos = document.getElementById('global-pos');
+const globalPosX = document.getElementById('global-pos-x');
 
 globalFs.addEventListener('input', (e) => {
     let val = e.target.value;
@@ -40,6 +44,15 @@ globalPos.addEventListener('input', (e) => {
     for (let i = 1; i <= 4; i++) {
         document.getElementById(`svg-p${i}-title`).setAttribute('x', val);
         document.getElementById(`p${i}-pos`).value = val; 
+    }
+});
+
+// NEW: Global Horizontal Control
+globalPosX.addEventListener('input', (e) => {
+    let val = e.target.value;
+    for (let i = 1; i <= 4; i++) {
+        document.getElementById(`svg-p${i}-title`).setAttribute('y', val);
+        document.getElementById(`p${i}-pos-x`).value = val; 
     }
 });
 
@@ -169,39 +182,31 @@ modeSelect.addEventListener('change', generateDynamicArt);
 // RANDOMIZATION ENGINE (AUTO SHUFFLE)
 // ==========================================
 function randomizeEngine() {
-    // 1. Pick a random mode
     const modes = ['geometric', 'retro', 'topology'];
     const randomMode = modes[Math.floor(Math.random() * modes.length)];
     
-    // 2. Pick random slider values
     const randomDensity = Math.floor(Math.random() * (150 - 10 + 1)) + 10;
     const randomFreq = Math.floor(Math.random() * 100) + 1;
     const randomThick = Math.floor(Math.random() * 100) + 1;
 
-    // 3. Update the inputs in the sidebar
     modeSelect.value = randomMode;
     densitySlider.value = randomDensity;
     freqSlider.value = randomFreq;
     thickSlider.value = randomThick;
 
-    // 4. Update the text labels in the sidebar
     document.getElementById('val-density').innerText = randomDensity;
     document.getElementById('val-freq').innerText = randomFreq + '%';
     document.getElementById('val-thick').innerText = randomThick + 'PX';
 
-    // 5. Draw the random art
     generateDynamicArt();
 }
 
-// Link the SHUFFLE button in the header
 const shuffleBtn = document.querySelector('.btn-shuffle');
 if (shuffleBtn) {
     shuffleBtn.addEventListener('click', randomizeEngine);
 }
 
-// Generate random art immediately when the page loads
 randomizeEngine();
-
 
 // Master SVG Download Logic
 document.getElementById('downloadBtn').addEventListener('click', () => {
