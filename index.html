@@ -26,7 +26,7 @@
     <div class="main-workspace">
         <aside class="sidebar">
             
-            <!-- NEW: GLOBAL TEXT CONTROLS -->
+            <!-- GLOBAL TEXT CONTROLS -->
             <div class="panel-section-title">
                 <span class="pink-dot">🔠</span> গ্লোবাল টেক্সট (GLOBAL TEXT)
             </div>
@@ -35,9 +35,14 @@
                     <div class="slider-header"><label>ALL FONT SIZE</label></div>
                     <input type="range" id="global-fs" min="50" max="450" value="180">
                 </div>
-                <div class="slider-group" style="margin-bottom: 0;">
-                    <div class="slider-header"><label>ALL TEXT POSITION (Y)</label></div>
+                <div class="slider-group">
+                    <div class="slider-header"><label>ALL POSITION (VERTICAL)</label></div>
                     <input type="range" id="global-pos" min="-2400" max="-100" value="-1800">
+                </div>
+                <!-- NEW: GLOBAL HORIZONTAL SLIDER -->
+                <div class="slider-group" style="margin-bottom: 0;">
+                    <div class="slider-header"><label>ALL POSITION (HORIZONTAL)</label></div>
+                    <input type="range" id="global-pos-x" min="20" max="1500" value="160">
                 </div>
             </div>
 
@@ -60,7 +65,11 @@
                             <div class="slider-header"><label>INDIVIDUAL FONT SIZE</label></div><input type="range" id="p1-fs" min="50" max="450" value="180">
                         </div>
                         <div class="slider-group" style="padding: 0 5px;">
-                            <div class="slider-header"><label>INDIVIDUAL POSITION</label></div><input type="range" id="p1-pos" min="-2400" max="-100" value="-1800">
+                            <div class="slider-header"><label>INDIVIDUAL VERTICAL</label></div><input type="range" id="p1-pos" min="-2400" max="-100" value="-1800">
+                        </div>
+                        <!-- NEW: INDIVIDUAL HORIZONTAL SLIDER -->
+                        <div class="slider-group" style="padding: 0 5px; margin-bottom: 0;">
+                            <div class="slider-header"><label>INDIVIDUAL HORIZONTAL</label></div><input type="range" id="p1-pos-x" min="20" max="1500" value="160">
                         </div>
                     </div>
                 </details>
@@ -78,7 +87,11 @@
                             <div class="slider-header"><label>INDIVIDUAL FONT SIZE</label></div><input type="range" id="p2-fs" min="50" max="450" value="180">
                         </div>
                         <div class="slider-group" style="padding: 0 5px;">
-                            <div class="slider-header"><label>INDIVIDUAL POSITION</label></div><input type="range" id="p2-pos" min="-2400" max="-100" value="-1800">
+                            <div class="slider-header"><label>INDIVIDUAL VERTICAL</label></div><input type="range" id="p2-pos" min="-2400" max="-100" value="-1800">
+                        </div>
+                        <!-- NEW: INDIVIDUAL HORIZONTAL SLIDER -->
+                        <div class="slider-group" style="padding: 0 5px; margin-bottom: 0;">
+                            <div class="slider-header"><label>INDIVIDUAL HORIZONTAL</label></div><input type="range" id="p2-pos-x" min="20" max="1500" value="160">
                         </div>
                     </div>
                 </details>
@@ -96,7 +109,11 @@
                             <div class="slider-header"><label>INDIVIDUAL FONT SIZE</label></div><input type="range" id="p3-fs" min="50" max="450" value="180">
                         </div>
                         <div class="slider-group" style="padding: 0 5px;">
-                            <div class="slider-header"><label>INDIVIDUAL POSITION</label></div><input type="range" id="p3-pos" min="-2400" max="-100" value="-1800">
+                            <div class="slider-header"><label>INDIVIDUAL VERTICAL</label></div><input type="range" id="p3-pos" min="-2400" max="-100" value="-1800">
+                        </div>
+                        <!-- NEW: INDIVIDUAL HORIZONTAL SLIDER -->
+                        <div class="slider-group" style="padding: 0 5px; margin-bottom: 0;">
+                            <div class="slider-header"><label>INDIVIDUAL HORIZONTAL</label></div><input type="range" id="p3-pos-x" min="20" max="1500" value="160">
                         </div>
                     </div>
                 </details>
@@ -114,7 +131,11 @@
                             <div class="slider-header"><label>INDIVIDUAL FONT SIZE</label></div><input type="range" id="p4-fs" min="50" max="450" value="180">
                         </div>
                         <div class="slider-group" style="padding: 0 5px;">
-                            <div class="slider-header"><label>INDIVIDUAL POSITION</label></div><input type="range" id="p4-pos" min="-2400" max="-100" value="-1800">
+                            <div class="slider-header"><label>INDIVIDUAL VERTICAL</label></div><input type="range" id="p4-pos" min="-2400" max="-100" value="-1800">
+                        </div>
+                        <!-- NEW: INDIVIDUAL HORIZONTAL SLIDER -->
+                        <div class="slider-group" style="padding: 0 5px; margin-bottom: 0;">
+                            <div class="slider-header"><label>INDIVIDUAL HORIZONTAL</label></div><input type="range" id="p4-pos-x" min="20" max="1500" value="160">
                         </div>
                     </div>
                 </details>
@@ -126,7 +147,6 @@
             
             <div class="engine-controls">
                 
-                <!-- NEW: DESIGN MODE DROPDOWN -->
                 <div class="control-group text-input-group" style="margin-bottom: 20px; border: 1px solid #ff2a5f;">
                     <label style="color: #ff2a5f;">DESIGN MODE / স্টাইল মোড</label>
                     <select id="design-mode">
