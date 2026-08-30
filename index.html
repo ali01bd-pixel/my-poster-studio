@@ -26,7 +26,6 @@
     <div class="main-workspace">
         <aside class="sidebar">
 
-            <!-- NEW: ARTBOARD COUNT SELECTOR -->
             <div class="panel-section-title">
                 <span class="pink-dot">🎨</span> আর্টবোর্ড (ARTBOARD)
             </div>
@@ -63,16 +62,17 @@
                     </select>
                 </div>
 
+                <!-- NEW: Global Percentage Labels -->
                 <div class="slider-group">
-                    <div class="slider-header"><label>ALL FONT SIZE</label></div>
+                    <div class="slider-header"><label>ALL FONT SIZE</label><span id="val-global-fs">33%</span></div>
                     <input type="range" id="global-fs" min="50" max="450" value="180">
                 </div>
                 <div class="slider-group">
-                    <div class="slider-header"><label>ALL POSITION (VERTICAL)</label></div>
+                    <div class="slider-header"><label>ALL POSITION (VERTICAL)</label><span id="val-global-pos">26%</span></div>
                     <input type="range" id="global-pos" min="-2400" max="-100" value="-1800">
                 </div>
                 <div class="slider-group" style="margin-bottom: 0;">
-                    <div class="slider-header"><label>ALL POSITION (HORIZONTAL)</label></div>
+                    <div class="slider-header"><label>ALL POSITION (HORIZONTAL)</label><span id="val-global-pos-x">7%</span></div>
                     <input type="range" id="global-pos-x" min="20" max="1500" value="130">
                 </div>
             </div>
@@ -82,7 +82,7 @@
             </div>
             
             <div class="accordion-container">
-                <!-- Poster 1 (Added ID panel-1) -->
+                <!-- Poster 1 -->
                 <details id="panel-1" open class="poster-controls">
                     <summary>POSTER 1</summary>
                     <div class="controls-wrapper">
@@ -100,19 +100,21 @@
                         <div class="control-group color-input-group"><label>BACKGROUND</label><input type="color" id="p1-bg" value="#e3e1db"></div>
                         <div class="control-group color-input-group"><label>LINE & SHAPE</label><input type="color" id="p1-line" value="#111827"></div>
                         <div class="control-group color-input-group"><label>MAIN TEXT</label><input type="color" id="p1-text" value="#1a202c"></div>
+                        
+                        <!-- NEW: Individual Percentage Labels -->
                         <div class="slider-group" style="margin-top: 15px; padding: 0 5px;">
-                            <div class="slider-header"><label>INDIVIDUAL FONT SIZE</label></div><input type="range" id="p1-fs" min="50" max="450" value="180">
+                            <div class="slider-header"><label>INDIVIDUAL FONT SIZE</label><span id="val-p1-fs">33%</span></div><input type="range" id="p1-fs" min="50" max="450" value="180">
                         </div>
                         <div class="slider-group" style="padding: 0 5px;">
-                            <div class="slider-header"><label>INDIVIDUAL VERTICAL</label></div><input type="range" id="p1-pos" min="-2400" max="-100" value="-1800">
+                            <div class="slider-header"><label>INDIVIDUAL VERTICAL</label><span id="val-p1-pos">26%</span></div><input type="range" id="p1-pos" min="-2400" max="-100" value="-1800">
                         </div>
                         <div class="slider-group" style="padding: 0 5px; margin-bottom: 0;">
-                            <div class="slider-header"><label>INDIVIDUAL HORIZONTAL</label></div><input type="range" id="p1-pos-x" min="20" max="1500" value="130">
+                            <div class="slider-header"><label>INDIVIDUAL HORIZONTAL</label><span id="val-p1-pos-x">7%</span></div><input type="range" id="p1-pos-x" min="20" max="1500" value="130">
                         </div>
                     </div>
                 </details>
 
-                <!-- Poster 2 (Added ID panel-2) -->
+                <!-- Poster 2 -->
                 <details id="panel-2" class="poster-controls">
                     <summary>POSTER 2</summary>
                     <div class="controls-wrapper">
@@ -130,19 +132,20 @@
                         <div class="control-group color-input-group"><label>BACKGROUND</label><input type="color" id="p2-bg" value="#e61f26"></div>
                         <div class="control-group color-input-group"><label>LINE & SHAPE</label><input type="color" id="p2-line" value="#111827"></div>
                         <div class="control-group color-input-group"><label>MAIN TEXT</label><input type="color" id="p2-text" value="#ffffff"></div>
+                        
                         <div class="slider-group" style="margin-top: 15px; padding: 0 5px;">
-                            <div class="slider-header"><label>INDIVIDUAL FONT SIZE</label></div><input type="range" id="p2-fs" min="50" max="450" value="180">
+                            <div class="slider-header"><label>INDIVIDUAL FONT SIZE</label><span id="val-p2-fs">33%</span></div><input type="range" id="p2-fs" min="50" max="450" value="180">
                         </div>
                         <div class="slider-group" style="padding: 0 5px;">
-                            <div class="slider-header"><label>INDIVIDUAL VERTICAL</label></div><input type="range" id="p2-pos" min="-2400" max="-100" value="-1800">
+                            <div class="slider-header"><label>INDIVIDUAL VERTICAL</label><span id="val-p2-pos">26%</span></div><input type="range" id="p2-pos" min="-2400" max="-100" value="-1800">
                         </div>
                         <div class="slider-group" style="padding: 0 5px; margin-bottom: 0;">
-                            <div class="slider-header"><label>INDIVIDUAL HORIZONTAL</label></div><input type="range" id="p2-pos-x" min="20" max="1500" value="130">
+                            <div class="slider-header"><label>INDIVIDUAL HORIZONTAL</label><span id="val-p2-pos-x">7%</span></div><input type="range" id="p2-pos-x" min="20" max="1500" value="130">
                         </div>
                     </div>
                 </details>
 
-                <!-- Poster 3 (Added ID panel-3) -->
+                <!-- Poster 3 -->
                 <details id="panel-3" class="poster-controls">
                     <summary>POSTER 3</summary>
                     <div class="controls-wrapper">
@@ -160,19 +163,20 @@
                         <div class="control-group color-input-group"><label>BACKGROUND</label><input type="color" id="p3-bg" value="#c3e000"></div>
                         <div class="control-group color-input-group"><label>LINE & SHAPE</label><input type="color" id="p3-line" value="#1a202c"></div>
                         <div class="control-group color-input-group"><label>MAIN TEXT</label><input type="color" id="p3-text" value="#1a202c"></div>
+                        
                         <div class="slider-group" style="margin-top: 15px; padding: 0 5px;">
-                            <div class="slider-header"><label>INDIVIDUAL FONT SIZE</label></div><input type="range" id="p3-fs" min="50" max="450" value="180">
+                            <div class="slider-header"><label>INDIVIDUAL FONT SIZE</label><span id="val-p3-fs">33%</span></div><input type="range" id="p3-fs" min="50" max="450" value="180">
                         </div>
                         <div class="slider-group" style="padding: 0 5px;">
-                            <div class="slider-header"><label>INDIVIDUAL VERTICAL</label></div><input type="range" id="p3-pos" min="-2400" max="-100" value="-1800">
+                            <div class="slider-header"><label>INDIVIDUAL VERTICAL</label><span id="val-p3-pos">26%</span></div><input type="range" id="p3-pos" min="-2400" max="-100" value="-1800">
                         </div>
                         <div class="slider-group" style="padding: 0 5px; margin-bottom: 0;">
-                            <div class="slider-header"><label>INDIVIDUAL HORIZONTAL</label></div><input type="range" id="p3-pos-x" min="20" max="1500" value="130">
+                            <div class="slider-header"><label>INDIVIDUAL HORIZONTAL</label><span id="val-p3-pos-x">7%</span></div><input type="range" id="p3-pos-x" min="20" max="1500" value="130">
                         </div>
                     </div>
                 </details>
 
-                <!-- Poster 4 (Added ID panel-4) -->
+                <!-- Poster 4 -->
                 <details id="panel-4" class="poster-controls">
                     <summary>POSTER 4</summary>
                     <div class="controls-wrapper">
@@ -190,14 +194,15 @@
                         <div class="control-group color-input-group"><label>BACKGROUND</label><input type="color" id="p4-bg" value="#362222"></div>
                         <div class="control-group color-input-group"><label>LINE & SHAPE</label><input type="color" id="p4-line" value="#ffffff"></div>
                         <div class="control-group color-input-group"><label>MAIN TEXT</label><input type="color" id="p4-text" value="#ffffff"></div>
+                        
                         <div class="slider-group" style="margin-top: 15px; padding: 0 5px;">
-                            <div class="slider-header"><label>INDIVIDUAL FONT SIZE</label></div><input type="range" id="p4-fs" min="50" max="450" value="180">
+                            <div class="slider-header"><label>INDIVIDUAL FONT SIZE</label><span id="val-p4-fs">33%</span></div><input type="range" id="p4-fs" min="50" max="450" value="180">
                         </div>
                         <div class="slider-group" style="padding: 0 5px;">
-                            <div class="slider-header"><label>INDIVIDUAL VERTICAL</label></div><input type="range" id="p4-pos" min="-2400" max="-100" value="-1800">
+                            <div class="slider-header"><label>INDIVIDUAL VERTICAL</label><span id="val-p4-pos">26%</span></div><input type="range" id="p4-pos" min="-2400" max="-100" value="-1800">
                         </div>
                         <div class="slider-group" style="padding: 0 5px; margin-bottom: 0;">
-                            <div class="slider-header"><label>INDIVIDUAL HORIZONTAL</label></div><input type="range" id="p4-pos-x" min="20" max="1500" value="130">
+                            <div class="slider-header"><label>INDIVIDUAL HORIZONTAL</label><span id="val-p4-pos-x">7%</span></div><input type="range" id="p4-pos-x" min="20" max="1500" value="130">
                         </div>
                     </div>
                 </details>
@@ -245,7 +250,7 @@
                 
                 <rect width="100%" height="100%" fill="transparent" />
 
-                <!-- Poster 1 (Added ID art-1) -->
+                <!-- Poster 1 -->
                 <g id="art-1" transform="translate(0, 0)" clip-path="url(#posterClip)">
                     <rect id="svg-p1-bg" x="200" width="1630" height="2520" fill="#e3e1db" />
                     <rect width="200" height="2520" fill="#f0efeb" />
@@ -253,7 +258,7 @@
                     <path id="svg-p1-line" d="" fill="none" stroke="#111827" stroke-width="80" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#artClip)"/>
                 </g>
 
-                <!-- Poster 2 (Added ID art-2) -->
+                <!-- Poster 2 -->
                 <g id="art-2" transform="translate(2030, 0)" clip-path="url(#posterClip)">
                     <rect id="svg-p2-bg" x="200" width="1630" height="2520" fill="#e61f26" />
                     <rect width="200" height="2520" fill="#d91d24" />
@@ -261,7 +266,7 @@
                     <path id="svg-p2-line" d="" fill="none" stroke="#111827" stroke-width="80" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#artClip)"/>
                 </g>
 
-                <!-- Poster 3 (Added ID art-3) -->
+                <!-- Poster 3 -->
                 <g id="art-3" transform="translate(4060, 0)" clip-path="url(#posterClip)">
                     <rect id="svg-p3-bg" x="200" width="1630" height="2520" fill="#181d27" />
                     <rect width="200" height="2520" fill="#c3e000" />
@@ -269,7 +274,7 @@
                     <path id="svg-p3-line" d="" fill="none" stroke="#c3e000" stroke-width="40" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#artClip)"/>
                 </g>
 
-                <!-- Poster 4 (Added ID art-4) -->
+                <!-- Poster 4 -->
                 <g id="art-4" transform="translate(6090, 0)" clip-path="url(#posterClip)">
                     <rect id="svg-p4-bg" x="200" width="1630" height="2520" fill="#362222" />
                     <rect width="200" height="2520" fill="#4a2e2e" />
@@ -280,7 +285,6 @@
         </main>
     </div>
 
-    <!-- Added ID to the footer size text -->
     <footer class="bottom-bar" style="background-color: #16161e; border-top: 1px solid #2a2a35; padding: 8px 20px; display: flex; justify-content: space-between; font-size: 12px; color: #666; width: 100%;">
         <span>System Ready.</span>
         <span id="footer-size">Master Artboard: 7920 x 2520 px</span>
