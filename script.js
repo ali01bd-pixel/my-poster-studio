@@ -23,6 +23,18 @@ for (let i = 1; i <= 4; i++) {
     linkInputToSVG(`p${i}-bg`, `svg-p${i}-bg`, 'fill');
 }
 
+// Map the 4 posters' inputs to their SVG counterparts
+for (let i = 1; i <= 4; i++) {
+    // Link Titles (updates text content)
+    linkInputToSVG(`p${i}-title`, `svg-p${i}-title`, 'text');
+    
+    // Link Background Colors (updates fill attribute)
+    linkInputToSVG(`p${i}-bg`, `svg-p${i}-bg`, 'fill');
+
+    // NEW: Link Wave Colors (updates fill attribute)
+    linkInputToSVG(`p${i}-waveColor`, `svg-p${i}-wave`, 'fill');
+}
+
 // Master Download Logic
 document.getElementById('downloadBtn').addEventListener('click', () => {
     const svgElement = document.getElementById('masterCanvas');
