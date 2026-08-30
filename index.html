@@ -3,150 +3,223 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Design Dynamic Lab</title>
+    <title>Ali Design Hub</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <header class="top-bar">
-        <div class="logo">🎨 DESIGN DYNAMIC LAB <span>Master Poster Generator</span></div>
-        <div class="alert">⚠️ Adobe Stock / Microstock Alert: Customize designs before uploading!</div>
-        <div class="user-profile"><span>Guest</span></div>
+        <div class="logo">
+            <span class="icon">🔶</span> ALI DESIGN HUB <span class="subtitle">Master Poster Generator</span>
+        </div>
+        <div class="alert-box">
+            <div class="alert-title">⚠️ ADOBE STOCK / MICROSTOCK ALERT</div>
+            <div class="alert-desc">To avoid 'Similar Issue', customize the designs before uploading! / 'Similar Issue' এড়াতে প্যানেল থেকে ডিজাইন কাস্টমাইজ করে নিন!</div>
+        </div>
+        <div class="top-actions">
+            <div class="user-profile">
+                <div class="avatar">M</div>
+                Mohammad
+            </div>
+            <button class="btn-pro">⚡ UPGRADE TO PRO</button>
+            <button class="btn-shuffle">🔃 SHUFFLE STYLES</button>
+        </div>
     </header>
 
     <div class="main-workspace">
         <aside class="sidebar">
-            <div class="panel-section">
-                <h3>🎨 কাস্টমাইজেশন (CUSTOMIZE PANELS)</h3>
-                
-                <!-- Poster 1 Controls -->
+            <div class="panel-section-title">
+                <span class="pink-dot"></span> কাস্টমাইজেশন (CUSTOMIZE PANELS)
+            </div>
+            
+            <div class="accordion-container">
+                <!-- Poster 1 -->
                 <details open class="poster-controls">
-                    <summary>Poster 1 (Far Left)</summary>
-                    <div class="control-group">
-                        <label>Title / টাইটেল</label>
-                        <input type="text" id="p1-title" value="POSTER ONE">
-                    </div>
-                    <div class="control-group">
-                        <label>Background</label>
-                        <input type="color" id="p1-bg" value="#1a1a24">
-                    </div>
-                    <div class="control-group">
-                        <label>Wave Color</label>
-                        <input type="color" id="p1-waveColor" value="#ffffff">
-                    </div>
-                </details>
-
-                <!-- Poster 2 Controls -->
-                <details class="poster-controls">
-                    <summary>Poster 2 (Center Left)</summary>
-                    <div class="control-group">
-                        <label>Title / টাইটেল</label>
-                        <input type="text" id="p2-title" value="POSTER TWO">
-                    </div>
-                    <div class="control-group">
-                        <label>Background</label>
-                        <input type="color" id="p2-bg" value="#2b1a24">
-                    </div>
-                    <div class="control-group">
-                        <label>Wave Color</label>
-                        <input type="color" id="p2-waveColor" value="#ffffff">
+                    <summary>POSTER 1 (FAR LEFT)</summary>
+                    <div class="controls-wrapper">
+                        <div class="control-group text-input-group">
+                            <label>TITLE / টাইটেল</label>
+                            <input type="text" id="p1-title" value="ABSTRACT">
+                        </div>
+                        <div class="control-group color-input-group">
+                            <label>BACKGROUND</label>
+                            <input type="color" id="p1-bg" value="#e3e1db">
+                        </div>
+                        <div class="control-group color-input-group">
+                            <label>LINE & SHAPE</label>
+                            <input type="color" id="p1-line" value="#111827">
+                        </div>
+                        <div class="control-group color-input-group">
+                            <label>TYPO BOX</label>
+                            <input type="color" id="p1-box" value="#ffffff">
+                        </div>
+                        <div class="control-group color-input-group">
+                            <label>MAIN TEXT</label>
+                            <input type="color" id="p1-text" value="#1a202c">
+                        </div>
                     </div>
                 </details>
 
-                <!-- Poster 3 Controls -->
+                <!-- Poster 2 -->
                 <details class="poster-controls">
-                    <summary>Poster 3 (Center Right)</summary>
-                    <div class="control-group">
-                        <label>Title / টাইটেল</label>
-                        <input type="text" id="p3-title" value="POSTER THREE">
-                    </div>
-                    <div class="control-group">
-                        <label>Background</label>
-                        <input type="color" id="p3-bg" value="#1a241e">
-                    </div>
-                    <div class="control-group">
-                        <label>Wave Color</label>
-                        <input type="color" id="p3-waveColor" value="#ffffff">
+                    <summary>POSTER 2 (CENTER LEFT)</summary>
+                    <div class="controls-wrapper">
+                        <div class="control-group text-input-group">
+                            <label>TITLE / টাইটেল</label>
+                            <input type="text" id="p2-title" value="IPSUM">
+                        </div>
+                        <div class="control-group color-input-group">
+                            <label>BACKGROUND</label>
+                            <input type="color" id="p2-bg" value="#e61f26">
+                        </div>
+                        <div class="control-group color-input-group">
+                            <label>LINE & SHAPE</label>
+                            <input type="color" id="p2-line" value="#111827">
+                        </div>
+                        <div class="control-group color-input-group">
+                            <label>TYPO BOX</label>
+                            <input type="color" id="p2-box" value="#000000">
+                        </div>
+                        <div class="control-group color-input-group">
+                            <label>MAIN TEXT</label>
+                            <input type="color" id="p2-text" value="#ffffff">
+                        </div>
                     </div>
                 </details>
 
-                <!-- Poster 4 Controls -->
+                <!-- Poster 3 -->
                 <details class="poster-controls">
-                    <summary>Poster 4 (Far Right)</summary>
-                    <div class="control-group">
-                        <label>Title / টাইটেল</label>
-                        <input type="text" id="p4-title" value="POSTER FOUR">
+                    <summary>POSTER 3 (CENTER RIGHT)</summary>
+                    <div class="controls-wrapper">
+                        <div class="control-group text-input-group">
+                            <label>TITLE / টাইটেল</label>
+                            <input type="text" id="p3-title" value="STUDIO">
+                        </div>
+                        <div class="control-group color-input-group">
+                            <label>BACKGROUND</label>
+                            <input type="color" id="p3-bg" value="#c3e000">
+                        </div>
+                        <div class="control-group color-input-group">
+                            <label>LINE & SHAPE</label>
+                            <input type="color" id="p3-line" value="#1a202c">
+                        </div>
+                        <div class="control-group color-input-group">
+                            <label>TYPO BOX</label>
+                            <input type="color" id="p3-box" value="#1a202c">
+                        </div>
+                        <div class="control-group color-input-group">
+                            <label>MAIN TEXT</label>
+                            <input type="color" id="p3-text" value="#1a202c">
+                        </div>
                     </div>
-                    <div class="control-group">
-                        <label>Background</label>
-                        <input type="color" id="p4-bg" value="#241a1a">
-                    </div>
-                    <div class="control-group">
-                        <label>Wave Color</label>
-                        <input type="color" id="p4-waveColor" value="#ffffff">
+                </details>
+
+                <!-- Poster 4 -->
+                <details class="poster-controls">
+                    <summary>POSTER 4 (FAR RIGHT)</summary>
+                    <div class="controls-wrapper">
+                        <div class="control-group text-input-group">
+                            <label>TITLE / টাইটেল</label>
+                            <input type="text" id="p4-title" value="MINIMAL">
+                        </div>
+                        <div class="control-group color-input-group">
+                            <label>BACKGROUND</label>
+                            <input type="color" id="p4-bg" value="#362222">
+                        </div>
+                        <div class="control-group color-input-group">
+                            <label>LINE & SHAPE</label>
+                            <input type="color" id="p4-line" value="#ffffff">
+                        </div>
+                        <div class="control-group color-input-group">
+                            <label>TYPO BOX</label>
+                            <input type="color" id="p4-box" value="#ffffff">
+                        </div>
+                        <div class="control-group color-input-group">
+                            <label>MAIN TEXT</label>
+                            <input type="color" id="p4-text" value="#ffffff">
+                        </div>
                     </div>
                 </details>
             </div>
 
-            <div class="panel-section">
-                <h3>⚙️ ইঞ্জিন সেটিংস (ENGINE SETTINGS)</h3>
-                <div class="control-group">
-                    <label>Wave Frequency / ওয়েভ</label>
-                    <input type="range" id="waveFrequency" min="1" max="15" value="3">
+            <div class="panel-section-title" style="margin-top: 20px;">
+                <span class="pink-dot">⚙️</span> ইঞ্জিন সেটিংস (ENGINE SETTINGS)
+            </div>
+            
+            <div class="engine-controls">
+                <div class="slider-group">
+                    <div class="slider-header">
+                        <label>BASE DENSITY / ঘনত্ব</label>
+                        <span id="val-density">80</span>
+                    </div>
+                    <input type="range" id="eng-density" min="10" max="150" value="80">
+                </div>
+
+                <div class="slider-group">
+                    <div class="slider-header">
+                        <label>WAVE FREQUENCY / ওয়েভ</label>
+                        <span id="val-freq">40%</span>
+                    </div>
+                    <input type="range" id="eng-freq" min="1" max="100" value="40">
+                </div>
+
+                <div class="slider-group">
+                    <div class="slider-header">
+                        <label>BASE THICKNESS / পুরুত্ব</label>
+                        <span id="val-thick">25PX</span>
+                    </div>
+                    <input type="range" id="eng-thick" min="1" max="100" value="25">
                 </div>
             </div>
 
-            <div class="panel-section download-section">
-                <h3>📥 মাস্টার ডাউনলোড (DOWNLOAD)</h3>
-                <p>Downloads the entire 4-in-1 Master Artboard as a single SVG file.</p>
-                <button id="downloadBtn">Download Master SVG</button>
-            </div>
+            <button id="downloadBtn" class="download-btn">DOWNLOAD SVG</button>
         </aside>
 
         <main class="canvas-container">
-            <!-- 7320x2520 is 4 posters of 1830x2520 placed side-by-side -->
             <svg id="masterCanvas" viewBox="0 0 7320 2520" xmlns="http://www.w3.org/2000/svg">
-                
+                <!-- Wrapper for white background -->
+                <rect width="100%" height="100%" fill="#ffffff" />
+
                 <!-- Poster 1 -->
                 <g transform="translate(0, 0)">
-                    <rect id="svg-p1-bg" width="1830" height="2520" fill="#1a1a24" />
-                    <path id="svg-p1-wave-back" fill="#ffffff" opacity="0.05" d="" />
-                    <path id="svg-p1-wave" fill="#ffffff" opacity="0.1" d="" />
-                    <text id="svg-p1-title" x="915" y="1260" font-family="Arial" font-size="150" fill="#ffffff" text-anchor="middle" font-weight="bold">POSTER ONE</text>
+                    <rect id="svg-p1-bg" x="350" width="1480" height="2520" fill="#e3e1db" />
+                    <!-- Left Strip -->
+                    <rect width="350" height="2520" fill="#f0efeb" />
+                    <rect id="svg-p1-box" x="80" y="200" width="100" height="100" fill="none" stroke="#111827" stroke-width="8" />
+                    <text id="svg-p1-title" x="-1800" y="160" transform="rotate(-90)" font-family="'Segoe UI', Arial, sans-serif" font-size="180" fill="#1a202c" font-weight="900" letter-spacing="10">ABSTRACT</text>
+                    <!-- Art Placeholder -->
+                    <path id="svg-p1-line" d="M 350,1260 Q 1090,2000 1830,1260" fill="none" stroke="#111827" stroke-width="80" />
                 </g>
 
                 <!-- Poster 2 -->
                 <g transform="translate(1830, 0)">
-                    <rect id="svg-p2-bg" width="1830" height="2520" fill="#2b1a24" />
-                    <path id="svg-p2-wave-back" fill="#ffffff" opacity="0.05" d="" />
-                    <path id="svg-p2-wave" fill="#ffffff" opacity="0.1" d="" />
-                    <text id="svg-p2-title" x="915" y="1260" font-family="Arial" font-size="150" fill="#ffffff" text-anchor="middle" font-weight="bold">POSTER TWO</text>
+                    <rect id="svg-p2-bg" x="350" width="1480" height="2520" fill="#e61f26" />
+                    <rect width="350" height="2520" fill="#d91d24" />
+                    <rect id="svg-p2-box" x="80" y="200" width="100" height="100" fill="none" stroke="#000000" stroke-width="8" />
+                    <text id="svg-p2-title" x="-1800" y="160" transform="rotate(-90)" font-family="'Segoe UI', Arial, sans-serif" font-size="180" fill="#ffffff" font-weight="900" letter-spacing="10">IPSUM</text>
+                    <path id="svg-p2-line" d="M 350,1260 Q 1090,520 1830,1260" fill="none" stroke="#111827" stroke-width="80" />
                 </g>
 
                 <!-- Poster 3 -->
                 <g transform="translate(3660, 0)">
-                    <rect id="svg-p3-bg" width="1830" height="2520" fill="#1a241e" />
-                    <path id="svg-p3-wave-back" fill="#ffffff" opacity="0.05" d="" />
-                    <path id="svg-p3-wave" fill="#ffffff" opacity="0.1" d="" />
-                    <text id="svg-p3-title" x="915" y="1260" font-family="Arial" font-size="150" fill="#ffffff" text-anchor="middle" font-weight="bold">POSTER THREE</text>
+                    <rect id="svg-p3-bg" x="350" width="1480" height="2520" fill="#181d27" />
+                    <rect width="350" height="2520" fill="#c3e000" />
+                    <rect id="svg-p3-box" x="80" y="200" width="100" height="100" fill="none" stroke="#1a202c" stroke-width="8" />
+                    <text id="svg-p3-title" x="-1800" y="160" transform="rotate(-90)" font-family="'Segoe UI', Arial, sans-serif" font-size="180" fill="#1a202c" font-weight="900" letter-spacing="10">STUDIO</text>
+                    <path id="svg-p3-line" d="M 350,2000 L 1090,2520 L 1830,2000" fill="none" stroke="#c3e000" stroke-width="40" />
                 </g>
 
                 <!-- Poster 4 -->
                 <g transform="translate(5490, 0)">
-                    <rect id="svg-p4-bg" width="1830" height="2520" fill="#241a1a" />
-                    <path id="svg-p4-wave-back" fill="#ffffff" opacity="0.05" d="" />
-                    <path id="svg-p4-wave" fill="#ffffff" opacity="0.1" d="" />
-                    <text id="svg-p4-title" x="915" y="1260" font-family="Arial" font-size="150" fill="#ffffff" text-anchor="middle" font-weight="bold">POSTER FOUR</text>
+                    <rect id="svg-p4-bg" x="350" width="1480" height="2520" fill="#362222" />
+                    <rect width="350" height="2520" fill="#4a2e2e" />
+                    <rect id="svg-p4-box" x="80" y="200" width="100" height="100" fill="none" stroke="#ffffff" stroke-width="8" />
+                    <text id="svg-p4-title" x="-1800" y="160" transform="rotate(-90)" font-family="'Segoe UI', Arial, sans-serif" font-size="180" fill="#ffffff" font-weight="900" letter-spacing="10">MINIMAL</text>
+                    <path id="svg-p4-line" d="M 350,1260 L 1830,1260 M 350,1400 L 1500,1400 M 500,1540 L 1830,1540" fill="none" stroke="#ffffff" stroke-width="40" />
                 </g>
-
             </svg>
         </main>
     </div>
-
-    <footer class="bottom-bar">
-        <span>System Ready.</span>
-        <span>Master Artboard: 7320 x 2520 px</span>
-    </footer>
 
     <script src="script.js"></script>
 </body>
