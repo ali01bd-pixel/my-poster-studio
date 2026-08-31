@@ -1,5 +1,5 @@
 // ==========================================
-// SAFE AREA TOGGLE
+// UI SYNC AND TOGGLES
 // ==========================================
 let safeAreaVisible = false;
 document.getElementById('toggle-safe-area').addEventListener('click', () => {
@@ -47,9 +47,8 @@ function updatePosterCount() {
 }
 posterCountSelect.addEventListener('change', updatePosterCount);
 
-
 // ==========================================
-// 23-MODE ADVANCED PATTERN GENERATOR ENGINE
+// ADVANCED MATHEMATICAL ART ENGINE
 // ==========================================
 const densitySlider = document.getElementById('eng-density');
 const freqSlider = document.getElementById('eng-freq');
@@ -59,9 +58,14 @@ const ampSlider = document.getElementById('eng-amp');
 const phaseSlider = document.getElementById('eng-phase');
 const chaosSlider = document.getElementById('eng-chaos');
 
+// Deterministic Pseudo-Random Number Generator
+function randomSeed(seed) {
+    let x = Math.sin(seed++) * 10000;
+    return x - Math.floor(x);
+}
+
 function getJitter(seed, chaosLevel) {
-    let noise = (Math.sin(seed * 12.9898 + seed * 78.233) * 43758.5453) % 1;
-    return noise * chaosLevel * 5; 
+    return (randomSeed(seed) - 0.5) * chaosLevel * 10; 
 }
 
 function generateDynamicArt() {
@@ -73,267 +77,226 @@ function generateDynamicArt() {
     const chaos = parseInt(chaosSlider.value);      
     const mode = modeSelect.value;
 
-    const startX = 0; const endX = 1830; const midX = 915; const height = 2520;
+    const W = 1830; 
+    const H = 2520;
+    const midX = W / 2;
+    const midY = H / 2;
+    
     let paths = ["", "", "", ""];
     
-    // Determine whether this mode draws Lines (stroke) or Shapes (fill)
-    let useFill = ['watercolor_bubble', 'gradient_grain', 'aura', 'translucent_fluid', 'bauhaus', 'boho_terrazzo'].includes(mode);
+    // Determine if the design mode uses solid shapes (fill) or outlines (stroke)
+    let fillModes = ['watercolor_bubble', 'bauhaus', 'boho_terrazzo', 'neo_brutalist', 'gradient_grain', 'aura', 'liquid_marble'];
+    let useFill = fillModes.includes(mode);
     
     for (let i = 1; i <= 4; i++) {
         let el = document.getElementById(`svg-p${i}-line`);
-        if(useFill) {
+        if (useFill) {
             el.setAttribute('fill', `url(#stroke-grad-${i})`);
             el.setAttribute('stroke', 'none');
-            el.setAttribute('opacity', mode === 'bauhaus' ? '0.9' : '0.6'); // Transparency for overlaps
+            // Give specific modes a beautiful transparent overlay effect
+            if (['watercolor_bubble', 'gradient_grain', 'aura'].includes(mode)) {
+                el.setAttribute('style', 'mix-blend-mode: multiply; opacity: 0.85;');
+            } else {
+                el.setAttribute('style', 'mix-blend-mode: normal; opacity: 1;');
+            }
         } else {
             el.setAttribute('fill', 'none');
             el.setAttribute('stroke', `url(#stroke-grad-${i})`);
-            el.setAttribute('stroke-width', thick * (1 + (i*0.2))); 
-            el.setAttribute('opacity', '1');
+            el.setAttribute('stroke-width', thick * (1 + (i*0.1))); 
+            el.setAttribute('style', 'mix-blend-mode: normal; opacity: 1;');
         }
     }
 
-    // 1. GEOMETRIC
-    if (mode === 'geometric') {
-        for(let p=0; p<4; p++) {
-            for (let i = 0; i < density; i++) {
-                let y = ((height / density) * i) + (phase * 5); 
-                let b = freq * 15 * amp; let j = getJitter(i+p, chaos);
-                if(p===0) paths[p] += `M ${startX},${y+j} Q ${midX+j},${y+b} ${endX},${y+j} M ${startX},${y+j} Q ${midX-j},${y-b} ${endX},${y+j} `;
-                if(p===1) paths[p] += `M ${startX},${y+j} Q ${midX},${y+b+j} ${endX},${y+j} `;
-                if(p===2) paths[p] += `M ${startX},${y+j} L ${midX+j},${y+b} L ${endX},${y+j} `;
-                if(p===3) paths[p] += `M ${startX},${y} L ${startX + 150 + (Math.abs(Math.sin(i*freq*0.05))*endX*amp) + j},${y} `;
+    for (let p = 0; p < 4; p++) {
+        let path = "";
+        
+        // ----------------------------------------------------
+        // 1. MINIMALIST CONTINUOUS LINE ART (Elegant Splines)
+        // ----------------------------------------------------
+        if (mode === 'minimalist_line') {
+            let points = density / 10 + 3;
+            path += `M 0,${midY} `;
+            for(let i=1; i<=points; i++) {
+                let x = (W / points) * i;
+                let y = midY + Math.sin(i * freq * 0.1 + phase + p) * (800 * amp) + getJitter(i+p, chaos);
+                let cp1x = x - (W/points/2); let cp1y = y - (400*amp);
+                let cp2x = x - (W/points/2); let cp2y = y + (400*amp);
+                path += `C ${cp1x},${cp1y} ${cp2x},${cp2y} ${x},${y} `;
             }
         }
-    }
-    // 2. RETRO WAVES
-    else if (mode === 'retro') {
-        for(let p=0; p<4; p++) {
-            for (let i = 0; i < density; i++) {
-                let y = ((height / density) * i) + (phase * 5); let a = freq * 5 * amp; let j = getJitter(i+p, chaos);
-                if(p===0) paths[p] += `M ${startX},${y+j} C ${startX+250+j},${y-a} ${midX-250-j},${y+a} ${midX},${y+j} C ${midX+250+j},${y-a} ${endX-250-j},${y+a} ${endX},${y+j} `;
-                if(p===1) paths[p] += `M ${startX},${height+j} Q ${midX+j},${y - (freq*12*amp)} ${endX},${height+j} `;
-                if(p===2) paths[p] += `M ${startX},${height - (i*12*amp) + j} A ${i*12*amp+j} ${i*12*amp+j} 0 0 1 ${startX + (i*12*amp) + j},${height} `;
-                if(p===3) paths[p] += `M ${startX},${y+j} C ${startX+500},${y+j} ${endX-500},${y-(freq*15*amp)+j} ${endX},${y-(freq*15*amp)+j} `;
-            }
-        }
-    }
-    // 3. TOPOLOGY
-    else if (mode === 'topology') {
-        for (let i = 0; i < density; i++) {
-            let y = ((height / density) * i) + (phase * 5);
-            paths[0] += `M ${startX},${y} `; paths[1] += `M ${startX},${y} `; paths[2] += `M ${startX},${y} `; paths[3] += `M ${startX},${y} `;
-            for(let x = startX; x <= endX; x += 80) {
-                let px = x + (phase * 2); let j = getJitter(x*i, chaos);
-                paths[0] += `L ${x+j},${y + Math.sin(px*0.005 + i*0.1)*(freq*3*amp) + j} `;
-                paths[1] += `L ${x+j},${y + Math.sin(px*0.01)*(freq*5*amp) + j} `;
-                paths[2] += `L ${x+j},${y + Math.sin(px*0.008 - i*0.2)*(freq*4*amp) + j} `;
-                paths[3] += `L ${x+j},${y + Math.sin(px*0.003)*(freq*8*amp) + j} `;
-            }
-        }
-    }
-    // 4. MANDALA
-    else if (mode === 'mandala') {
-        let l = Math.floor(density/3)+4; let pet = Math.floor(freq/3)+6; let rad = 1000*amp; let pr = phase*(Math.PI/180);
-        for(let i=1; i<=l; i++) {
-            let r = (rad/l)*i;
-            for(let j=0; j<=pet; j++) {
-                let a = (j/pet)*Math.PI*2 + pr; let sp = (j%2===0)?(freq*1.5*amp):-(freq*1.5*amp); let jx = getJitter(i*j,chaos);
-                let x = midX + Math.cos(a)*(r+sp)+jx; let y = 1260 + Math.sin(a)*(r+sp)+jx;
-                if(j===0) paths[0]+= `M ${x},${y} `; else paths[0]+= `L ${x},${y} `;
+        
+        // ----------------------------------------------------
+        // 2. BAUHAUS GEOMETRIC (Strict Primitives)
+        // ----------------------------------------------------
+        else if (mode === 'bauhaus') {
+            let shapes = Math.floor(density / 10) + 2;
+            for(let i=0; i<shapes; i++) {
+                let s = (freq * 5 * amp) + (randomSeed(i*p+1)*200);
+                let x = randomSeed(i*p+2) * W; 
+                let y = randomSeed(i*p+3) * H;
+                let type = Math.floor(randomSeed(i*p+4) * 3);
                 
-                let x1 = midX + Math.cos(a)*r; let y1 = 1260 + Math.sin(a)*r;
-                let x2 = midX + Math.cos(a+0.2)*(r+freq*3*amp)+jx; let y2 = 1260 + Math.sin(a+0.2)*(r+freq*3*amp)+jx;
-                paths[1]+= `M ${x1},${y1} Q ${x2},${y2} ${x1},${y1} `;
-            }
-        }
-        for(let i=1; i<=density; i++) {
-            let r = (rad/density)*i; let s = Math.floor(freq/8)+3;
-            for(let j=0; j<=s; j++) {
-                let a = (j/s)*Math.PI*2 + pr; let x = midX + Math.cos(a)*r + getJitter(i*j,chaos); let y = 1260 + Math.sin(a)*r;
-                if(j===0) paths[2]+= `M ${x},${y} `; else paths[2]+= `L ${x},${y} `;
-            }
-            for(let j=0; j<s; j++) {
-                let a1 = (j/s)*Math.PI*2 + pr + (i*0.1); let a2 = a1 + (Math.PI*2/s)*0.6;
-                paths[3]+= `M ${midX+Math.cos(a1)*r},${1260+Math.sin(a1)*r} A ${r} ${r} 0 0 1 ${midX+Math.cos(a2)*r},${1260+Math.sin(a2)*r} `;
-            }
-        }
-    }
-    // 5. WATERCOLOR BUBBLE & 6. GRADIENT GRAIN & 7. AURA (Circle based shapes)
-    else if (['watercolor_bubble', 'gradient_grain', 'aura'].includes(mode)) {
-        for(let p=0; p<4; p++) {
-            for(let i=0; i<density; i++) {
-                let r = (freq * 4 * amp) + getJitter(i, 100) + 50;
-                let cx = midX + getJitter(i+p, endX); 
-                let cy = 1260 + getJitter(i*p, height) - (height/2);
-                if(mode === 'aura') { cx = midX; cy = 1260; r = (i*freq*2*amp) + 50; }
-                paths[p] += `M ${cx-r},${cy} a ${r},${r} 0 1,0 ${r*2},0 a ${r},${r} 0 1,0 -${r*2},0 `;
-            }
-        }
-    }
-    // 8. RETRO POSTER (Concentric)
-    else if (mode === 'retro_poster') {
-        for(let p=0; p<4; p++) {
-            for(let i=0; i<density; i++) {
-                let r = i * (2000/density) * amp; let j = getJitter(i, chaos);
-                let cx = (p%2===0) ? 0 : endX; let cy = (p<2) ? height : 0;
-                paths[p] += `M ${cx},${cy-r+j} A ${r} ${r} 0 0 ${(p%2===0)?1:0} ${cx+(p%2===0?r:-r)+j},${cy} `;
-            }
-        }
-    }
-    // 9. PSYCHEDELIC (Dense Ribbons)
-    else if (mode === 'psychedelic') {
-        for(let p=0; p<4; p++) {
-            for(let i=0; i<density*2; i++) {
-                let y = ((height/(density*2))*i) + phase*5; let j = getJitter(i, chaos);
-                let f = freq*0.01; let a = 200*amp;
-                paths[p] += `M ${startX},${y} C ${midX-500},${y-a+j} ${midX+500},${y+a-j} ${endX},${y} `;
-            }
-        }
-    }
-    // 10. MID-CENTURY MODERN (Intersecting Geometry)
-    else if (mode === 'mid_century') {
-        for(let p=0; p<4; p++) {
-            for(let i=0; i<density/3; i++) {
-                let cx = getJitter(i, endX); let cy = getJitter(i+1, height); let r = freq*5*amp;
-                paths[p] += `M ${cx-r},${cy} a ${r},${r} 0 1,0 ${r*2},0 a ${r},${r} 0 1,0 -${r*2},0 `;
-                paths[p] += `M ${cx},${cy-r*2} L ${cx},${cy+r*2} M ${cx-r*2},${cy} L ${cx+r*2},${cy} `;
-            }
-        }
-    }
-    // 11. JAPANESE MATCHBOX
-    else if (mode === 'japanese_matchbox') {
-        for(let p=0; p<4; p++) {
-            // Frame
-            paths[p] += `M 150,150 L 1680,150 L 1680,2370 L 150,2370 Z `;
-            // Sun
-            paths[p] += `M ${midX-400*amp},1000 a ${400*amp},${400*amp} 0 1,0 ${800*amp},0 a ${400*amp},${400*amp} 0 1,0 -${800*amp},0 `;
-            // Waves at bottom
-            for(let i=0; i<density; i++) {
-                let y = 1800 + (i*15*amp); let b = freq*2*amp;
-                paths[p] += `M 150,${y} Q 500,${y-b} 915,${y} T 1680,${y} `;
-            }
-        }
-    }
-    // 12. RISOGRAPH (Halftone Dots)
-    else if (mode === 'risograph') {
-        for(let p=0; p<4; p++) {
-            for(let y=200; y<2400; y+= (2000/density)) {
-                for(let x=200; x<1700; x+= (1500/density)) {
-                    let r = (Math.sin(x*0.01 + y*0.01 + phase)*freq*0.2*amp) + 10;
-                    if(r>0) paths[p] += `M ${x-r},${y} a ${r},${r} 0 1,0 ${r*2},0 a ${r},${r} 0 1,0 -${r*2},0 `;
+                if (type === 0) {
+                    // Perfect Circle
+                    path += `M ${x},${y} m -${s},0 a ${s},${s} 0 1,0 ${s*2},0 a ${s},${s} 0 1,0 -${s*2},0 `;
+                } else if (type === 1) {
+                    // Thick Rectangle
+                    path += `M ${x},${y} L ${x+s*1.5},${y} L ${x+s*1.5},${y+s} L ${x},${y+s} Z `;
+                } else {
+                    // Right Triangle
+                    path += `M ${x},${y} L ${x+s*2},${y+s*2} L ${x},${y+s*2} Z `;
                 }
             }
         }
-    }
-    // 13. SYNTHWAVE GRID
-    else if (mode === 'synthwave') {
-        for(let p=0; p<4; p++) {
-            // Perspective Horizon
-            for (let x = -3000; x <= 5000; x += (1000/density)) {
-                paths[p] += `M ${midX},1300 L ${x+getJitter(x,chaos)},2520 `;
-            }
-            for (let y = 1300; y <= 2520; y += (y-1290)*0.1 + 5) {
-                paths[p] += `M 0,${y+getJitter(y,chaos)} L 1830,${y+getJitter(y,chaos)} `;
-            }
-            // Sun
-            paths[p] += `M ${midX-500*amp},1200 a ${500*amp},${500*amp} 0 1,0 ${1000*amp},0 a ${500*amp},${500*amp} 0 1,0 -${1000*amp},0 `;
-        }
-    }
-    // 14. LIQUID MARBLE & 15. TRANSLUCENT FLUID
-    else if (['liquid_marble', 'translucent_fluid'].includes(mode)) {
-        for(let p=0; p<4; p++) {
-            for(let i=0; i<density; i++) {
-                let y = (height/density)*i; let b1 = freq*10*amp; let b2 = freq*15*amp; let j = getJitter(i, chaos);
-                paths[p] += `M ${startX-200},${y} C ${midX-500},${y-b1+j} ${midX+500},${y+b2-j} ${endX+200},${y} `;
-                if(mode==='translucent_fluid') paths[p] += `L ${endX+200},2600 L -200,2600 Z `; // close shape for filling
+
+        // ----------------------------------------------------
+        // 3. BOHO TERRAZZO & ARCH
+        // ----------------------------------------------------
+        else if (mode === 'boho_terrazzo') {
+            // Main Archway
+            let archW = 400 * amp + (p*50);
+            let archH = 1000 * amp;
+            let ax = midX - archW;
+            let ay = midY + 500;
+            path += `M ${ax},${ay} L ${ax},${ay - archH} A ${archW},${archW} 0 0,1 ${ax + archW*2},${ay - archH} L ${ax + archW*2},${ay} Z `;
+            
+            // Terrazzo flakes
+            let flakes = density;
+            for(let i=0; i<flakes; i++) {
+                let fx = randomSeed(i*p+5) * W;
+                let fy = randomSeed(i*p+6) * H;
+                let fs = randomSeed(i*p+7) * freq * amp;
+                path += `M ${fx},${fy} L ${fx+fs},${fy+fs*0.5} L ${fx+fs*0.8},${fy+fs*1.2} L ${fx-fs*0.2},${fy+fs} Z `;
             }
         }
-    }
-    // 16. Y2K CYBER
-    else if (mode === 'y2k') {
-        for(let p=0; p<4; p++) {
-            for(let i=0; i<density/4; i++) {
-                let cx = getJitter(i, 1830); let cy = getJitter(i*2, 2520); let r = freq*3*amp;
-                paths[p] += `M ${cx},${cy-r} L ${cx+r*0.2},${cy-r*0.2} L ${cx+r},${cy} L ${cx+r*0.2},${cy+r*0.2} L ${cx},${cy+r} L ${cx-r*0.2},${cy+r*0.2} L ${cx-r},${cy} L ${cx-r*0.2},${cy-r*0.2} Z `;
+
+        // ----------------------------------------------------
+        // 4. 80s SYNTHWAVE GRID (Perspective)
+        // ----------------------------------------------------
+        else if (mode === 'synthwave') {
+            let horizon = midY + 200;
+            // Retro Sun
+            let sr = 400 * amp;
+            path += `M ${midX},${horizon - 100} m -${sr},0 a ${sr},${sr} 0 1,1 ${sr*2},0 a ${sr},${sr} 0 1,1 -${sr*2},0 `;
+            
+            // Perspective Vertical Lines
+            let lines = Math.floor(density / 3);
+            for(let i=-lines; i<=lines; i++) {
+                let bottomX = midX + (i * 150 * amp);
+                path += `M ${midX},${horizon} L ${bottomX + (i*100)},${H} `;
             }
-            // Orbit rings
-            paths[p] += `M 915,1260 a 600,200 0 1,0 1200,0 a 600,200 0 1,0 -1200,0 M 915,1260 a 200,600 0 1,0 400,0 a 200,600 0 1,0 -400,0 `;
-        }
-    }
-    // 17. BAUHAUS & 18. BOHO TERRAZZO
-    else if (['bauhaus', 'boho_terrazzo'].includes(mode)) {
-        for(let p=0; p<4; p++) {
-            if(mode === 'boho_terrazzo') {
-                paths[p] += `M 415,2520 L 415,1000 A 500,500 0 0,1 1415,1000 L 1415,2520 Z `;
-            }
-            for(let i=0; i<density; i++) {
-                let x = getJitter(i, 1830); let y = getJitter(i*2, 2520); let s = freq*2*amp;
-                if(i%3===0) paths[p] += `M ${x},${y} L ${x+s},${y} L ${x+s},${y+s} L ${x},${y+s} Z `; // Square/speck
-                else if(i%3===1) paths[p] += `M ${x},${y} L ${x+s},${y+s} L ${x-s},${y+s} Z `; // Triangle
-                else paths[p] += `M ${x-s},${y} a ${s},${s} 0 1,0 ${s*2},0 a ${s},${s} 0 1,0 -${s*2},0 `; // Circle
+            
+            // Horizontal lines scaling exponentially
+            for(let i=0; i<15; i++) {
+                let y = horizon + Math.pow(1.4, i) * (freq * 0.1);
+                if (y < H) path += `M 0,${y} L ${W},${y} `;
             }
         }
-    }
-    // 19. MINIMALIST LINE
-    else if (mode === 'minimalist_line') {
-        for(let p=0; p<4; p++) {
-            paths[p] += `M ${midX},0 `;
-            for(let i=1; i<density; i++) {
-                let y = (height/density)*i; let bx = getJitter(i, 1830); let j = getJitter(i*2, chaos);
-                paths[p] += `S ${bx+j},${y-200} ${midX+j},${y} `;
+
+        // ----------------------------------------------------
+        // 5. 70s PSYCHEDELIC TYPOGRAPHY (Flowing Lava/Ribbons)
+        // ----------------------------------------------------
+        else if (mode === 'psychedelic' || mode === 'retro') {
+            let waves = density / 2;
+            for(let i=0; i<waves; i++) {
+                let y = (H / waves) * i;
+                let waveDepth = freq * 10 * amp;
+                let j = getJitter(i, chaos);
+                path += `M 0,${y+j} C 400,${y-waveDepth} 600,${y+waveDepth} 900,${y} C 1200,${y-waveDepth} 1400,${y+waveDepth} 1830,${y+j} `;
             }
         }
-    }
-    // 20. NEO-BRUTALIST
-    else if (mode === 'neo_brutalist') {
-        for(let p=0; p<4; p++) {
-            for(let i=0; i<density/5; i++) {
-                let cx = getJitter(i, 1830); let cy = getJitter(i*2, 2520); let r = freq*4*amp;
-                // Harsh Star polygon
-                paths[p] += `M ${cx},${cy-r} L ${cx+r*0.4},${cy-r*0.4} L ${cx+r},${cy} L ${cx+r*0.4},${cy+r*0.4} L ${cx},${cy+r} L ${cx-r*0.4},${cy+r*0.4} L ${cx-r},${cy} L ${cx-r*0.4},${cy-r*0.4} Z `;
-                // Drop shadow
-                paths[p] += `M ${cx+20},${cy-r+20} L ${cx+r*0.4+20},${cy-r*0.4+20} L ${cx+r+20},${cy+20} L ${cx+r*0.4+20},${cy+r*0.4+20} L ${cx+20},${cy+r+20} L ${cx-r*0.4+20},${cy+r*0.4+20} L ${cx-r+20},${cy+20} L ${cx-r*0.4+20},${cy-r*0.4+20} Z `;
+
+        // ----------------------------------------------------
+        // 6. Y2K CYBER GRAPHICS (Starbursts & Wireframes)
+        // ----------------------------------------------------
+        else if (mode === 'y2k') {
+            let stars = Math.floor(density / 10) + 1;
+            for(let i=0; i<stars; i++) {
+                let cx = randomSeed(i*p+8) * W;
+                let cy = randomSeed(i*p+9) * H;
+                let r = (freq * 3 * amp) + 50;
+                // Sharp 4-point star
+                path += `M ${cx},${cy-r} Q ${cx+r*0.1},${cy-r*0.1} ${cx+r},${cy} Q ${cx+r*0.1},${cy+r*0.1} ${cx},${cy+r} Q ${cx-r*0.1},${cy+r*0.1} ${cx-r},${cy} Q ${cx-r*0.1},${cy-r*0.1} ${cx},${cy-r} Z `;
+            }
+            // Elliptical Orbits
+            let eX = W * 0.8; let eY = H * 0.2;
+            for(let i=1; i<=3; i++) {
+                let rx = 300 * i * amp; let ry = 100 * i * amp;
+                path += `M ${eX-rx},${eY} a ${rx},${ry} 0 1,0 ${rx*2},0 a ${rx},${ry} 0 1,0 -${rx*2},0 `;
             }
         }
-    }
-    // 21. VINTAGE BOTANICAL
-    else if (mode === 'botanical') {
-        for(let p=0; p<4; p++) {
-            paths[p] += `M ${midX},2520 Q ${midX+getJitter(1,200)},1260 ${midX},100 `; // Stem
-            for(let i=1; i<density/2; i++) {
-                 let y = 2400 - (i*2200/(density/2)); let leaf = freq*2*amp;
-                 paths[p] += `M ${midX},${y} Q ${midX+leaf},${y-leaf/2} ${midX+leaf*1.5},${y-leaf*1.5} Q ${midX+leaf/2},${y-leaf} ${midX},${y} `;
-                 paths[p] += `M ${midX},${y-50} Q ${midX-leaf},${y-50-leaf/2} ${midX-leaf*1.5},${y-50-leaf*1.5} Q ${midX-leaf/2},${y-50-leaf} ${midX},${y-50} `;
+
+        // ----------------------------------------------------
+        // 7. WATERCOLOR BUBBLES / AURA
+        // ----------------------------------------------------
+        else if (mode === 'watercolor_bubble' || mode === 'aura' || mode === 'gradient_grain') {
+            let circles = density / 2;
+            for(let i=0; i<circles; i++) {
+                let r = (freq * 4 * amp) + randomSeed(i+p)*200;
+                let cx = (mode === 'aura') ? midX : randomSeed(i*p+10) * W; 
+                let cy = (mode === 'aura') ? midY + (i*50) : randomSeed(i*p+11) * H;
+                path += `M ${cx-r},${cy} a ${r},${r} 0 1,0 ${r*2},0 a ${r},${r} 0 1,0 -${r*2},0 `;
             }
         }
-    }
-    // 22. SCANDI LANDSCAPE
-    else if (mode === 'scandi_landscape') {
-        for(let p=0; p<4; p++) {
-            paths[p] += `M ${midX},800 a ${300*amp},${300*amp} 0 1,0 ${600*amp},0 a ${300*amp},${300*amp} 0 1,0 -${600*amp},0 `; // Sun
-            for(let i=0; i<density/4; i++) {
-                let y = 1500 + (i*200); let peak = y - (freq*10*amp);
-                paths[p] += `M -200,2600 L -200,${y} Q 915,${peak} 2000,${y+200} L 2000,2600 Z `;
-            }
-        }
-    }
-    // 23. CELESTIAL CONSTELLATION
-    else if (mode === 'celestial') {
-        for(let p=0; p<4; p++) {
-            // Crescent Moon
-            paths[p] += `M 1400,400 A 200,200 0 1,1 1100,700 A 250,250 0 1,0 1400,400 `;
-            for(let i=0; i<density; i++) {
-                let cx = getJitter(i, 1830); let cy = getJitter(i*2, 2520); let r = 5*amp;
-                paths[p] += `M ${cx-r},${cy} a ${r},${r} 0 1,0 ${r*2},0 a ${r},${r} 0 1,0 -${r*2},0 `;
-                if(i>0) {
-                    let px = getJitter(i-1, 1830); let py = getJitter((i-1)*2, 2520);
-                    if(Math.abs(cx-px) < (freq*10)) paths[p] += `M ${cx},${cy} L ${px},${py} `; // connect stars
+
+        // ----------------------------------------------------
+        // 8. MANDALA ART (Radial Symmetry)
+        // ----------------------------------------------------
+        else if (mode === 'mandala') {
+            let layers = Math.floor(density / 5) + 3; 
+            let petals = Math.floor(freq / 3) + 8;    
+            let maxRadius = 1000 * amp; 
+
+            for(let i=1; i<=layers; i++) {
+                let rBase = (maxRadius / layers) * i;
+                for(let j=0; j<petals; j++) {
+                    let angle1 = ((j / petals) * Math.PI * 2);
+                    let angle2 = (((j + 0.5) / petals) * Math.PI * 2);
+                    let angle3 = (((j + 1) / petals) * Math.PI * 2);
+                    
+                    let x1 = midX + Math.cos(angle1) * rBase; 
+                    let y1 = midY + Math.sin(angle1) * rBase;
+                    let x2 = midX + Math.cos(angle2) * (rBase + (freq*2*amp)); 
+                    let y2 = midY + Math.sin(angle2) * (rBase + (freq*2*amp));
+                    let x3 = midX + Math.cos(angle3) * rBase; 
+                    let y3 = midY + Math.sin(angle3) * rBase;
+                    
+                    path += `M ${x1},${y1} Q ${x2},${y2} ${x3},${y3} `;
                 }
             }
         }
+
+        // ----------------------------------------------------
+        // 9. TOPOLOGY (Topographic Map lines)
+        // ----------------------------------------------------
+        else if (mode === 'topology') {
+            for (let i = 0; i < density; i++) {
+                let yBase = ((H / density) * i);
+                path += `M 0,${yBase} `; 
+                for(let x = 0; x <= W; x += 100) {
+                    let noise = Math.sin((x * 0.005) + (i * 0.1) + phase) * (freq * 5 * amp);
+                    let j = getJitter(x*i, chaos);
+                    path += `L ${x+j},${yBase + noise + j} `;
+                }
+            }
+        }
+
+        // ----------------------------------------------------
+        // 10. DEFAULT / GEOMETRIC (Angular grids)
+        // ----------------------------------------------------
+        else {
+            for (let i = 0; i < density; i++) {
+                let y = ((H / density) * i);
+                let drop = freq * 10 * amp;
+                let j = getJitter(i, chaos);
+                path += `M 0,${y} L ${midX/2},${y-drop+j} L ${midX},${y} L ${midX + midX/2},${y+drop+j} L ${W},${y} `;
+            }
+        }
+
+        paths[p] = path;
     }
 
+    // Apply the mathematical paths to the SVGs
     for(let i=1; i<=4; i++) {
         document.getElementById(`svg-p${i}-line`).setAttribute('d', paths[i-1]);
     }
@@ -343,18 +306,30 @@ function generateDynamicArt() {
 // BACKGROUND & LINE GRADIENT SHUFFLE ENGINE
 // ==========================================
 function randomizeColors() {
+    // Beautiful, modern Adobe Stock-ready color palettes
     const bgGradients = [
-        ['#0f2027', '#203a43'], ['#2c3e50', '#000000'], ['#141e30', '#243b55'], 
-        ['#23074d', '#cc5333'], ['#1a2a6c', '#b21f1f'], ['#000000', '#434343'], 
-        ['#111111', '#111111'], ['#3E5151', '#DECBA4'], ['#ffecd2', '#fcb69f'], 
-        ['#eaafc8', '#654ea3'], ['#000428', '#004e92']
+        ['#ece9e6', '#ffffff'], // Clean Minimal White
+        ['#0f2027', '#203a43'], // Deep Space
+        ['#2c3e50', '#000000'], // Slate Black
+        ['#fff1eb', '#ace0f9'], // Pastel Sunset
+        ['#a18cd1', '#fbc2eb'], // Dreamy Purple
+        ['#141e30', '#243b55'], // Midnight Blue
+        ['#000000', '#1a1a1a'], // Pure Noir
+        ['#e0c3fc', '#8ec5fc'], // Synth Violet
+        ['#f6d365', '#fda085'], // Warm Peach
+        ['#1e130c', '#9a8478']  // Boho Brown
     ];
 
     const lineGradients = [
-        ['#00c6ff', '#0072ff'], ['#f12711', '#f5af19'], ['#fc4a1a', '#f7b733'], 
-        ['#7F00FF', '#E100FF'], ['#11998e', '#38ef7d'], ['#ff0084', '#33001b'], 
-        ['#00d2ff', '#3a7bd5'], ['#f85032', '#e73827'], ['#ffffff', '#e0e0e0'],
-        ['#fdfc47', '#24fe41'], ['#ff9a9e', '#fecfef']
+        ['#111111', '#333333'], // Deep Ink
+        ['#ff0844', '#ffb199'], // Vibrant Coral
+        ['#00c6ff', '#0072ff'], // Cyber Cyan
+        ['#f12711', '#f5af19'], // Fire Orange
+        ['#7F00FF', '#E100FF'], // Neon Purple
+        ['#11998e', '#38ef7d'], // Mint Green
+        ['#c31432', '#240b36'], // Blood Dark
+        ['#ffffff', '#f0f0f0'], // Pure White (for dark BGs)
+        ['#fdfc47', '#24fe41']  // Acid Green
     ];
     
     for (let i = 1; i <= 4; i++) {
@@ -373,6 +348,7 @@ function randomizeColors() {
     }
 }
 
+// Event Listeners for the advanced sliders
 ['eng-density', 'eng-freq', 'eng-thick', 'eng-amp', 'eng-phase', 'eng-chaos'].forEach(id => {
     document.getElementById(id).addEventListener('input', (e) => {
         let valText = e.target.value;
@@ -396,12 +372,12 @@ function randomizeEngine() {
     const modes = Array.from(modeSelect.options).map(opt => opt.value);
     const randomMode = modes[Math.floor(Math.random() * modes.length)];
     
-    const randomDensity = Math.floor(Math.random() * (150 - 10 + 1)) + 10;
-    const randomFreq = Math.floor(Math.random() * 100) + 1;
-    const randomThick = Math.floor(Math.random() * 100) + 1;
-    const randomAmp = Math.floor(Math.random() * (200 - 50 + 1)) + 50; 
+    const randomDensity = Math.floor(Math.random() * (100 - 10 + 1)) + 10;
+    const randomFreq = Math.floor(Math.random() * 80) + 10;
+    const randomThick = Math.floor(Math.random() * 50) + 5;
+    const randomAmp = Math.floor(Math.random() * (150 - 50 + 1)) + 50; 
     const randomPhase = Math.floor(Math.random() * 360);
-    const randomChaos = Math.floor(Math.random() * 30); 
+    const randomChaos = Math.floor(Math.random() * 15); // Keep chaos low for premium look
 
     modeSelect.value = randomMode;
     densitySlider.value = randomDensity;
@@ -435,7 +411,6 @@ updatePosterCount();
 // MASTER DOWNLOAD LOGIC (Hides Safe Area)
 // ==========================================
 document.getElementById('downloadBtn').addEventListener('click', () => {
-    // Hide safe areas temporarily before saving
     let wasSafeVisible = safeAreaVisible;
     if(wasSafeVisible) {
         for(let i=1; i<=4; i++) document.getElementById(`safe-${i}`).style.display = 'none';
@@ -454,8 +429,5 @@ document.getElementById('downloadBtn').addEventListener('click', () => {
     downloadLink.click();
     document.body.removeChild(downloadLink);
 
-    // Restore safe areas if they were visible
     if(wasSafeVisible) {
-        for(let i=1; i<=4; i++) document.getElementById(`safe-${i}`).style.display = 'block';
-    }
-});
+        for
