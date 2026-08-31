@@ -3,64 +3,19 @@ function linkInputToSVG(inputId, svgElementId, attribute) {
     const inputElement = document.getElementById(inputId);
     const svgElement = document.getElementById(svgElementId);
     if (inputElement && svgElement) {
-        if (inputElement.tagName === 'SELECT' || inputElement.type === 'color' || inputElement.type === 'range' || inputElement.type === 'text') {
-            inputElement.addEventListener('input', (event) => {
-                if (attribute === 'text') svgElement.textContent = event.target.value;
-                else svgElement.setAttribute(attribute, event.target.value);
-            });
-            if(inputElement.tagName === 'SELECT') {
-                 inputElement.addEventListener('change', (event) => {
-                    svgElement.setAttribute(attribute, event.target.value);
-                });
-            }
-        }
+        inputElement.addEventListener('input', (event) => {
+            svgElement.setAttribute(attribute, event.target.value);
+        });
     }
 }
 
-// Percentage label updater
-function updatePercentLabel(sliderId, labelId) {
-    const slider = document.getElementById(sliderId);
-    const label = document.getElementById(labelId);
-    if (slider && label) {
-        const min = parseFloat(slider.min);
-        const max = parseFloat(slider.max);
-        const val = parseFloat(slider.value);
-        const percent = Math.round(((val - min) / (max - min)) * 100);
-        label.innerText = percent + '%';
-    }
-}
-
-// Map the 4 posters' individual inputs (Now including BG and Line Gradient Color Stops)
+// Map the 4 posters' individual color inputs
 for (let i = 1; i <= 4; i++) {
-    linkInputToSVG(`p${i}-title`, `svg-p${i}-title`, 'text');
-    linkInputToSVG(`p${i}-font`, `svg-p${i}-title`, 'font-family');
-    linkInputToSVG(`p${i}-text`, `svg-p${i}-title`, 'fill');
-    
-    // NEW: Map the gradient dual-colors to the SVG <stop> elements
     linkInputToSVG(`p${i}-bg1`, `p${i}-bg1-stop`, 'stop-color');
     linkInputToSVG(`p${i}-bg2`, `p${i}-bg2-stop`, 'stop-color');
     linkInputToSVG(`p${i}-line1`, `p${i}-line1-stop`, 'stop-color');
     linkInputToSVG(`p${i}-line2`, `p${i}-line2-stop`, 'stop-color');
-
-    linkInputToSVG(`p${i}-fs`, `svg-p${i}-title`, 'font-size');
-    linkInputToSVG(`p${i}-pos`, `svg-p${i}-title`, 'x');
-    linkInputToSVG(`p${i}-pos-x`, `svg-p${i}-title`, 'y');
-
-    ['fs', 'pos', 'pos-x'].forEach(prop => {
-        document.getElementById(`p${i}-${prop}`).addEventListener('input', () => {
-            updatePercentLabel(`p${i}-${prop}`, `val-p${i}-${prop}`);
-        });
-        updatePercentLabel(`p${i}-${prop}`, `val-p${i}-${prop}`);
-    });
 }
-
-['global-fs', 'global-pos', 'global-pos-x'].forEach(id => {
-    document.getElementById(id).addEventListener('input', () => {
-        updatePercentLabel(id, `val-${id}`);
-    });
-    updatePercentLabel(id, `val-${id}`); 
-});
-
 
 // ==========================================
 // DYNAMIC ARTBOARD COUNT SELECTOR
@@ -92,60 +47,6 @@ posterCountSelect.addEventListener('change', updatePosterCount);
 
 
 // ==========================================
-// GLOBAL TEXT CONTROLS LOGIC
-// ==========================================
-const globalText = document.getElementById('global-text');
-const globalFont = document.getElementById('global-font');
-const globalFs = document.getElementById('global-fs');
-const globalPos = document.getElementById('global-pos');
-const globalPosX = document.getElementById('global-pos-x');
-
-globalText.addEventListener('input', (e) => {
-    let val = e.target.value;
-    for (let i = 1; i <= 4; i++) {
-        if(val.trim() !== "") {
-            document.getElementById(`svg-p${i}-title`).textContent = val;
-            document.getElementById(`p${i}-title`).value = val; 
-        }
-    }
-});
-
-globalFont.addEventListener('change', (e) => {
-    let val = e.target.value;
-    for (let i = 1; i <= 4; i++) {
-        document.getElementById(`svg-p${i}-title`).setAttribute('font-family', val);
-        document.getElementById(`p${i}-font`).value = val; 
-    }
-});
-
-globalFs.addEventListener('input', (e) => {
-    let val = e.target.value;
-    for (let i = 1; i <= 4; i++) {
-        document.getElementById(`svg-p${i}-title`).setAttribute('font-size', val);
-        document.getElementById(`p${i}-fs`).value = val; 
-        updatePercentLabel(`p${i}-fs`, `val-p${i}-fs`); 
-    }
-});
-
-globalPos.addEventListener('input', (e) => {
-    let val = e.target.value;
-    for (let i = 1; i <= 4; i++) {
-        document.getElementById(`svg-p${i}-title`).setAttribute('x', val);
-        document.getElementById(`p${i}-pos`).value = val; 
-        updatePercentLabel(`p${i}-pos`, `val-p${i}-pos`); 
-    }
-});
-
-globalPosX.addEventListener('input', (e) => {
-    let val = e.target.value;
-    for (let i = 1; i <= 4; i++) {
-        document.getElementById(`svg-p${i}-title`).setAttribute('y', val);
-        document.getElementById(`p${i}-pos-x`).value = val; 
-        updatePercentLabel(`p${i}-pos-x`, `val-p${i}-pos-x`); 
-    }
-});
-
-// ==========================================
 // ADVANCED PATTERN GENERATOR ENGINE
 // ==========================================
 const densitySlider = document.getElementById('eng-density');
@@ -170,10 +71,14 @@ function generateDynamicArt() {
     const chaos = parseInt(chaosSlider.value);      
     const mode = modeSelect.value;
 
-    const startX = 200; const endX = 1830; const midX = 1015; const height = 2520;
+    // Full 1830px width for pure art layout
+    const startX = 0; const endX = 1830; const midX = 915; const height = 2520;
     
     let p1Path = "", p2Path = "", p3Path = "", p4Path = "";
 
+    // ----------------------------------------------------
+    // MODE 1: GEOMETRIC
+    // ----------------------------------------------------
     if (mode === 'geometric') {
         document.getElementById('svg-p1-line').setAttribute('stroke-width', thick * 0.15); 
         document.getElementById('svg-p2-line').setAttribute('stroke-width', thick * 0.4);  
@@ -214,6 +119,9 @@ function generateDynamicArt() {
             }
         }
     }
+    // ----------------------------------------------------
+    // MODE 2: RETRO WAVES
+    // ----------------------------------------------------
     else if (mode === 'retro') {
         document.getElementById('svg-p1-line').setAttribute('stroke-width', thick * 0.4); 
         document.getElementById('svg-p2-line').setAttribute('stroke-width', thick * 0.5);  
@@ -245,6 +153,9 @@ function generateDynamicArt() {
             p4Path += `M ${startX},${startY+j} C ${startX+500},${startY+j} ${endX-500},${endY+j} ${endX},${endY+j} `;
         }
     }
+    // ----------------------------------------------------
+    // MODE 3: COMPLEX TOPOLOGY
+    // ----------------------------------------------------
     else if (mode === 'topology') {
         document.getElementById('svg-p1-line').setAttribute('stroke-width', thick * 0.2); 
         document.getElementById('svg-p2-line').setAttribute('stroke-width', thick * 0.25);  
@@ -275,6 +186,9 @@ function generateDynamicArt() {
             }
         }
     }
+    // ----------------------------------------------------
+    // MODE 4: MANDALA 
+    // ----------------------------------------------------
     else if (mode === 'mandala') {
         document.getElementById('svg-p1-line').setAttribute('stroke-width', thick * 0.2); 
         document.getElementById('svg-p2-line').setAttribute('stroke-width', thick * 0.3);  
@@ -350,41 +264,37 @@ function generateDynamicArt() {
 // BACKGROUND & LINE GRADIENT SHUFFLE ENGINE
 // ==========================================
 function randomizeColors() {
-    // Professional Dark Gradients for Backgrounds
     const bgGradients = [
-        ['#0f2027', '#203a43'], // Deep space
-        ['#2c3e50', '#000000'], // Dark slate
-        ['#141e30', '#243b55'], // Midnight
-        ['#23074d', '#cc5333'], // Purple-orange dark
-        ['#1a2a6c', '#b21f1f'], // Deep blue to red
-        ['#000000', '#434343'], // Black to grey
-        ['#111111', '#111111'], // Solid dark
-        ['#3E5151', '#DECBA4']  // Sand to slate
+        ['#0f2027', '#203a43'], 
+        ['#2c3e50', '#000000'], 
+        ['#141e30', '#243b55'], 
+        ['#23074d', '#cc5333'], 
+        ['#1a2a6c', '#b21f1f'], 
+        ['#000000', '#434343'], 
+        ['#111111', '#111111'], 
+        ['#3E5151', '#DECBA4']  
     ];
 
-    // High-Contrast Bright Gradients for Lines
     const lineGradients = [
-        ['#00c6ff', '#0072ff'], // Cyan blue
-        ['#f12711', '#f5af19'], // Fire orange
-        ['#fc4a1a', '#f7b733'], // Warm gradient
-        ['#7F00FF', '#E100FF'], // Purple neon
-        ['#11998e', '#38ef7d'], // Mint green
-        ['#ff0084', '#33001b'], // Hot pink dark
-        ['#00d2ff', '#3a7bd5'], // Electric blue
-        ['#f85032', '#e73827']  // Crimson
+        ['#00c6ff', '#0072ff'], 
+        ['#f12711', '#f5af19'], 
+        ['#fc4a1a', '#f7b733'], 
+        ['#7F00FF', '#E100FF'], 
+        ['#11998e', '#38ef7d'], 
+        ['#ff0084', '#33001b'], 
+        ['#00d2ff', '#3a7bd5'], 
+        ['#f85032', '#e73827']  
     ];
     
     for (let i = 1; i <= 4; i++) {
         let randomBg = bgGradients[Math.floor(Math.random() * bgGradients.length)];
         let randomLine = lineGradients[Math.floor(Math.random() * lineGradients.length)];
         
-        // Apply to SVG <stop> elements
         document.getElementById(`p${i}-bg1-stop`).setAttribute('stop-color', randomBg[0]);
         document.getElementById(`p${i}-bg2-stop`).setAttribute('stop-color', randomBg[1]);
         document.getElementById(`p${i}-line1-stop`).setAttribute('stop-color', randomLine[0]);
         document.getElementById(`p${i}-line2-stop`).setAttribute('stop-color', randomLine[1]);
 
-        // Sync with UI sidebar color pickers
         document.getElementById(`p${i}-bg1`).value = randomBg[0];
         document.getElementById(`p${i}-bg2`).value = randomBg[1];
         document.getElementById(`p${i}-line1`).value = randomLine[0];
