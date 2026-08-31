@@ -179,4 +179,265 @@ function generateDynamicArt() {
         }
 
         // 4. 80s SYNTHWAVE GRID
-        else if (mode === 'synth
+        else if (mode === 'synthwave') {
+            let horizon = midY + 200;
+            let sr = 400 * amp;
+            path += `M ${midX},${horizon - 100} m -${sr},0 a ${sr},${sr} 0 1,1 ${sr*2},0 a ${sr},${sr} 0 1,1 -${sr*2},0 `;
+            
+            let lines = Math.floor(density / 3);
+            for(let i=-lines; i<=lines; i++) {
+                let bottomX = midX + (i * 150 * amp);
+                path += `M ${midX},${horizon} L ${bottomX + (i*100)},${H} `;
+            }
+            
+            for(let i=0; i<15; i++) {
+                let y = horizon + Math.pow(1.4, i) * (freq * 0.1);
+                if (y < H) path += `M 0,${y} L ${W},${y} `;
+            }
+        }
+
+        // 5. 70s PSYCHEDELIC TYPOGRAPHY
+        else if (mode === 'psychedelic' || mode === 'retro') {
+            let waves = density / 2;
+            for(let i=0; i<waves; i++) {
+                let y = (H / waves) * i;
+                let waveDepth = freq * 10 * amp;
+                let j = getJitter(i, chaos);
+                path += `M 0,${y+j} C 400,${y-waveDepth} 600,${y+waveDepth} 900,${y} C 1200,${y-waveDepth} 1400,${y+waveDepth} 1830,${y+j} `;
+            }
+        }
+
+        // 6. Y2K CYBER GRAPHICS
+        else if (mode === 'y2k') {
+            let stars = Math.floor(density / 10) + 1;
+            for(let i=0; i<stars; i++) {
+                let cx = randomSeed(i*p+8) * W;
+                let cy = randomSeed(i*p+9) * H;
+                let r = (freq * 3 * amp) + 50;
+                path += `M ${cx},${cy-r} Q ${cx+r*0.1},${cy-r*0.1} ${cx+r},${cy} Q ${cx+r*0.1},${cy+r*0.1} ${cx},${cy+r} Q ${cx-r*0.1},${cy+r*0.1} ${cx-r},${cy} Q ${cx-r*0.1},${cy-r*0.1} ${cx},${cy-r} Z `;
+            }
+            let eX = W * 0.8; let eY = H * 0.2;
+            for(let i=1; i<=3; i++) {
+                let rx = 300 * i * amp; let ry = 100 * i * amp;
+                path += `M ${eX-rx},${eY} a ${rx},${ry} 0 1,0 ${rx*2},0 a ${rx},${ry} 0 1,0 -${rx*2},0 `;
+            }
+        }
+
+        // 7. WATERCOLOR BUBBLES / AURA
+        else if (mode === 'watercolor_bubble' || mode === 'aura' || mode === 'gradient_grain') {
+            let circles = density / 2;
+            for(let i=0; i<circles; i++) {
+                let r = (freq * 4 * amp) + randomSeed(i+p)*200;
+                let cx = (mode === 'aura') ? midX : randomSeed(i*p+10) * W; 
+                let cy = (mode === 'aura') ? midY + (i*50) : randomSeed(i*p+11) * H;
+                path += `M ${cx-r},${cy} a ${r},${r} 0 1,0 ${r*2},0 a ${r},${r} 0 1,0 -${r*2},0 `;
+            }
+        }
+
+        // 8. MANDALA ART
+        else if (mode === 'mandala') {
+            let layers = Math.floor(density / 5) + 3; 
+            let petals = Math.floor(freq / 3) + 8;    
+            let maxRadius = 1000 * amp; 
+
+            for(let i=1; i<=layers; i++) {
+                let rBase = (maxRadius / layers) * i;
+                for(let j=0; j<petals; j++) {
+                    let angle1 = ((j / petals) * Math.PI * 2);
+                    let angle2 = (((j + 0.5) / petals) * Math.PI * 2);
+                    let angle3 = (((j + 1) / petals) * Math.PI * 2);
+                    
+                    let x1 = midX + Math.cos(angle1) * rBase; 
+                    let y1 = midY + Math.sin(angle1) * rBase;
+                    let x2 = midX + Math.cos(angle2) * (rBase + (freq*2*amp)); 
+                    let y2 = midY + Math.sin(angle2) * (rBase + (freq*2*amp));
+                    let x3 = midX + Math.cos(angle3) * rBase; 
+                    let y3 = midY + Math.sin(angle3) * rBase;
+                    
+                    path += `M ${x1},${y1} Q ${x2},${y2} ${x3},${y3} `;
+                }
+            }
+        }
+
+        // 9. TOPOLOGY
+        else if (mode === 'topology') {
+            for (let i = 0; i < density; i++) {
+                let yBase = ((H / density) * i);
+                path += `M 0,${yBase} `; 
+                for(let x = 0; x <= W; x += 100) {
+                    let noise = Math.sin((x * 0.005) + (i * 0.1) + phase) * (freq * 5 * amp);
+                    let j = getJitter(x*i, chaos);
+                    path += `L ${x+j},${yBase + noise + j} `;
+                }
+            }
+        }
+
+        // 10. DEFAULT / GEOMETRIC
+        else {
+            for (let i = 0; i < density; i++) {
+                let y = ((H / density) * i);
+                let drop = freq * 10 * amp;
+                let j = getJitter(i, chaos);
+                path += `M 0,${y} L ${midX/2},${y-drop+j} L ${midX},${y} L ${midX + midX/2},${y+drop+j} L ${W},${y} `;
+            }
+        }
+
+        paths[p] = path;
+    }
+
+    // Push coordinates to HTML
+    for(let i=1; i<=4; i++) {
+        let lineEl = document.getElementById(`svg-p${i}-line`);
+        if (lineEl) lineEl.setAttribute('d', paths[i-1]);
+    }
+}
+
+// ==========================================
+// BACKGROUND & LINE GRADIENT SHUFFLE ENGINE
+// ==========================================
+function randomizeColors() {
+    const bgGradients = [
+        ['#ece9e6', '#ffffff'], ['#0f2027', '#203a43'], ['#2c3e50', '#000000'], 
+        ['#fff1eb', '#ace0f9'], ['#a18cd1', '#fbc2eb'], ['#141e30', '#243b55'], 
+        ['#000000', '#1a1a1a'], ['#e0c3fc', '#8ec5fc'], ['#f6d365', '#fda085'], 
+        ['#1e130c', '#9a8478']
+    ];
+
+    const lineGradients = [
+        ['#111111', '#333333'], ['#ff0844', '#ffb199'], ['#00c6ff', '#0072ff'], 
+        ['#f12711', '#f5af19'], ['#7F00FF', '#E100FF'], ['#11998e', '#38ef7d'], 
+        ['#c31432', '#240b36'], ['#ffffff', '#f0f0f0'], ['#fdfc47', '#24fe41']
+    ];
+    
+    for (let i = 1; i <= 4; i++) {
+        let randomBg = bgGradients[Math.floor(Math.random() * bgGradients.length)];
+        let randomLine = lineGradients[Math.floor(Math.random() * lineGradients.length)];
+        
+        let bg1 = document.getElementById(`p${i}-bg1-stop`);
+        let bg2 = document.getElementById(`p${i}-bg2-stop`);
+        let l1 = document.getElementById(`p${i}-line1-stop`);
+        let l2 = document.getElementById(`p${i}-line2-stop`);
+
+        if (bg1) bg1.setAttribute('stop-color', randomBg[0]);
+        if (bg2) bg2.setAttribute('stop-color', randomBg[1]);
+        if (l1) l1.setAttribute('stop-color', randomLine[0]);
+        if (l2) l2.setAttribute('stop-color', randomLine[1]);
+
+        let inBg1 = document.getElementById(`p${i}-bg1`);
+        let inBg2 = document.getElementById(`p${i}-bg2`);
+        let inL1 = document.getElementById(`p${i}-line1`);
+        let inL2 = document.getElementById(`p${i}-line2`);
+
+        if (inBg1) inBg1.value = randomBg[0];
+        if (inBg2) inBg2.value = randomBg[1];
+        if (inL1) inL1.value = randomLine[0];
+        if (inL2) inL2.value = randomLine[1];
+    }
+}
+
+// Ensure the UI sliders trigger redraws
+['eng-density', 'eng-freq', 'eng-thick', 'eng-amp', 'eng-phase', 'eng-chaos'].forEach(id => {
+    const slider = document.getElementById(id);
+    if (slider) {
+        slider.addEventListener('input', (e) => {
+            let valText = e.target.value;
+            if(id === 'eng-freq' || id === 'eng-amp' || id === 'eng-chaos') valText += '%';
+            if(id === 'eng-thick') valText += 'PX';
+            if(id === 'eng-phase') valText += '°';
+            
+            let label = document.getElementById(`val-${id.split('eng-')[1]}`);
+            if (label) label.innerText = valText;
+            
+            generateDynamicArt();
+        });
+    }
+});
+
+if (modeSelect) {
+    modeSelect.addEventListener('change', () => {
+        randomizeColors();
+        generateDynamicArt();
+    });
+}
+
+// ==========================================
+// RANDOMIZATION ENGINE (AUTO SHUFFLE)
+// ==========================================
+function randomizeEngine() {
+    if (!modeSelect) return;
+    
+    const modes = Array.from(modeSelect.options).map(opt => opt.value);
+    const randomMode = modes[Math.floor(Math.random() * modes.length)];
+    
+    const randomDensity = Math.floor(Math.random() * (100 - 10 + 1)) + 10;
+    const randomFreq = Math.floor(Math.random() * 80) + 10;
+    const randomThick = Math.floor(Math.random() * 50) + 5;
+    const randomAmp = Math.floor(Math.random() * (150 - 50 + 1)) + 50; 
+    const randomPhase = Math.floor(Math.random() * 360);
+    const randomChaos = Math.floor(Math.random() * 15); 
+
+    modeSelect.value = randomMode;
+    if(densitySlider) densitySlider.value = randomDensity;
+    if(freqSlider) freqSlider.value = randomFreq;
+    if(thickSlider) thickSlider.value = randomThick;
+    if(ampSlider) ampSlider.value = randomAmp;
+    if(phaseSlider) phaseSlider.value = randomPhase;
+    if(chaosSlider) chaosSlider.value = randomChaos;
+
+    if(document.getElementById('val-density')) document.getElementById('val-density').innerText = randomDensity;
+    if(document.getElementById('val-freq')) document.getElementById('val-freq').innerText = randomFreq + '%';
+    if(document.getElementById('val-thick')) document.getElementById('val-thick').innerText = randomThick + 'PX';
+    if(document.getElementById('val-amp')) document.getElementById('val-amp').innerText = randomAmp + '%';
+    if(document.getElementById('val-phase')) document.getElementById('val-phase').innerText = randomPhase + '°';
+    if(document.getElementById('val-chaos')) document.getElementById('val-chaos').innerText = randomChaos + '%';
+
+    randomizeColors();
+    generateDynamicArt();
+}
+
+const shuffleBtn = document.querySelector('.btn-shuffle:not(#toggle-safe-area)');
+if (shuffleBtn) {
+    shuffleBtn.addEventListener('click', randomizeEngine);
+}
+
+// INITIALIZE ON PAGE LOAD
+randomizeEngine();
+updatePosterCount();
+
+// ==========================================
+// MASTER DOWNLOAD LOGIC (Hides Safe Area)
+// ==========================================
+const downloadBtn = document.getElementById('downloadBtn');
+if (downloadBtn) {
+    downloadBtn.addEventListener('click', () => {
+        let wasSafeVisible = safeAreaVisible;
+        if(wasSafeVisible) {
+            for(let i=1; i<=4; i++) {
+                let box = document.getElementById(`safe-${i}`);
+                if(box) box.style.display = 'none';
+            }
+        }
+
+        const svgElement = document.getElementById('masterCanvas');
+        if (!svgElement) return;
+        
+        const serializer = new XMLSerializer();
+        let source = serializer.serializeToString(svgElement);
+        if (!source.match(/^<\?xml[^>]+>/)) source = '<?xml version="1.0" standalone="no"?>\r\n' + source;
+        
+        const url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(source);
+        const downloadLink = document.createElement("a");
+        downloadLink.href = url;
+        downloadLink.download = "Ali_Design_Hub_Master.svg";
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+
+        if(wasSafeVisible) {
+            for(let i=1; i<=4; i++) {
+                let box = document.getElementById(`safe-${i}`);
+                if(box) box.style.display = 'block';
+            }
+        }
+    });
+}
