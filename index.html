@@ -42,62 +42,13 @@
             </div>
             
             <div class="panel-section-title">
-                <span class="pink-dot">🔠</span> গ্লোবাল টেক্সট (GLOBAL TEXT)
-            </div>
-            <div class="engine-controls" style="margin-bottom: 25px; background: #1a1a1e; padding: 15px; border-radius: 6px; border: 1px solid #333;">
-                
-                <div class="control-group text-input-group" style="margin-bottom: 15px; background: #070709; border: 1px solid #444;">
-                    <label style="color: #ff2a5f;">ALL TEXT / টাইটেল</label>
-                    <input type="text" id="global-text" placeholder="Type here to change all posters...">
-                </div>
-
-                <div class="control-group text-input-group" style="margin-bottom: 20px; background: #070709; border: 1px solid #444;">
-                    <label style="color: #ff2a5f;">ALL FONT / ফন্ট স্টাইল</label>
-                    <select id="global-font">
-                        <option value="'Segoe UI', Arial, sans-serif">Modern Sans (Default)</option>
-                        <option value="Georgia, serif">Elegant Serif</option>
-                        <option value="'Courier New', monospace">Retro Monospace</option>
-                        <option value="Impact, sans-serif">Bold Impact</option>
-                        <option value="'Times New Roman', Times, serif">Classic Times</option>
-                    </select>
-                </div>
-
-                <div class="slider-group">
-                    <div class="slider-header"><label>ALL FONT SIZE</label><span id="val-global-fs">25%</span></div>
-                    <input type="range" id="global-fs" min="50" max="450" value="150">
-                </div>
-                <div class="slider-group">
-                    <div class="slider-header"><label>ALL POSITION (VERTICAL)</label><span id="val-global-pos">55%</span></div>
-                    <input type="range" id="global-pos" min="-2400" max="-100" value="-1135">
-                </div>
-                <div class="slider-group" style="margin-bottom: 0;">
-                    <div class="slider-header"><label>ALL POSITION (HORIZONTAL)</label><span id="val-global-pos-x">9%</span></div>
-                    <input type="range" id="global-pos-x" min="20" max="1500" value="153">
-                </div>
-            </div>
-
-            <div class="panel-section-title">
                 <span class="pink-dot"></span> কাস্টমাইজেশন (CUSTOMIZE PANELS)
             </div>
             
             <div class="accordion-container">
-                <!-- Poster 1 -->
                 <details id="panel-1" open class="poster-controls">
                     <summary>POSTER 1</summary>
                     <div class="controls-wrapper">
-                        <div class="control-group text-input-group"><label>TITLE</label><input type="text" id="p1-title" value="ABSTRACT"></div>
-                        <div class="control-group text-input-group">
-                            <label>FONT STYLE</label>
-                            <select id="p1-font">
-                                <option value="'Segoe UI', Arial, sans-serif">Modern Sans</option>
-                                <option value="Georgia, serif">Elegant Serif</option>
-                                <option value="'Courier New', monospace">Retro Monospace</option>
-                                <option value="Impact, sans-serif">Bold Impact</option>
-                                <option value="'Times New Roman', Times, serif">Classic Times</option>
-                            </select>
-                        </div>
-                        
-                        <!-- NEW DUAL-COLOR GRADIENT INPUTS -->
                         <div class="control-group text-input-group">
                             <label>BG GRADIENT (TOP → BOTTOM)</label>
                             <div style="display: flex; width: 100%; gap: 5px;">
@@ -112,38 +63,12 @@
                                 <input type="color" id="p1-line2" value="#0072ff" style="width: 50%; height: 35px; border: none; background: none; cursor: pointer;">
                             </div>
                         </div>
-
-                        <div class="control-group color-input-group"><label>MAIN TEXT</label><input type="color" id="p1-text" value="#ffffff"></div>
-                        
-                        <div class="slider-group" style="margin-top: 15px; padding: 0 5px;">
-                            <div class="slider-header"><label>INDIVIDUAL FONT SIZE</label><span id="val-p1-fs">25%</span></div><input type="range" id="p1-fs" min="50" max="450" value="150">
-                        </div>
-                        <div class="slider-group" style="padding: 0 5px;">
-                            <div class="slider-header"><label>INDIVIDUAL VERTICAL</label><span id="val-p1-pos">55%</span></div><input type="range" id="p1-pos" min="-2400" max="-100" value="-1135">
-                        </div>
-                        <div class="slider-group" style="padding: 0 5px; margin-bottom: 0;">
-                            <div class="slider-header"><label>INDIVIDUAL HORIZONTAL</label><span id="val-p1-pos-x">9%</span></div><input type="range" id="p1-pos-x" min="20" max="1500" value="153">
-                        </div>
                     </div>
                 </details>
 
-                <!-- Poster 2 -->
                 <details id="panel-2" class="poster-controls">
                     <summary>POSTER 2</summary>
                     <div class="controls-wrapper">
-                        <div class="control-group text-input-group"><label>TITLE</label><input type="text" id="p2-title" value="IPSUM"></div>
-                        <div class="control-group text-input-group">
-                            <label>FONT STYLE</label>
-                            <select id="p2-font">
-                                <option value="'Segoe UI', Arial, sans-serif">Modern Sans</option>
-                                <option value="Georgia, serif">Elegant Serif</option>
-                                <option value="'Courier New', monospace">Retro Monospace</option>
-                                <option value="Impact, sans-serif">Bold Impact</option>
-                                <option value="'Times New Roman', Times, serif">Classic Times</option>
-                            </select>
-                        </div>
-
-                        <!-- NEW DUAL-COLOR GRADIENT INPUTS -->
                         <div class="control-group text-input-group">
                             <label>BG GRADIENT (TOP → BOTTOM)</label>
                             <div style="display: flex; width: 100%; gap: 5px;">
@@ -158,38 +83,12 @@
                                 <input type="color" id="p2-line2" value="#f5af19" style="width: 50%; height: 35px; border: none; background: none; cursor: pointer;">
                             </div>
                         </div>
-
-                        <div class="control-group color-input-group"><label>MAIN TEXT</label><input type="color" id="p2-text" value="#ffffff"></div>
-                        
-                        <div class="slider-group" style="margin-top: 15px; padding: 0 5px;">
-                            <div class="slider-header"><label>INDIVIDUAL FONT SIZE</label><span id="val-p2-fs">25%</span></div><input type="range" id="p2-fs" min="50" max="450" value="150">
-                        </div>
-                        <div class="slider-group" style="padding: 0 5px;">
-                            <div class="slider-header"><label>INDIVIDUAL VERTICAL</label><span id="val-p2-pos">55%</span></div><input type="range" id="p2-pos" min="-2400" max="-100" value="-1135">
-                        </div>
-                        <div class="slider-group" style="padding: 0 5px; margin-bottom: 0;">
-                            <div class="slider-header"><label>INDIVIDUAL HORIZONTAL</label><span id="val-p2-pos-x">9%</span></div><input type="range" id="p2-pos-x" min="20" max="1500" value="153">
-                        </div>
                     </div>
                 </details>
 
-                <!-- Poster 3 -->
                 <details id="panel-3" class="poster-controls">
                     <summary>POSTER 3</summary>
                     <div class="controls-wrapper">
-                        <div class="control-group text-input-group"><label>TITLE</label><input type="text" id="p3-title" value="STUDIO"></div>
-                        <div class="control-group text-input-group">
-                            <label>FONT STYLE</label>
-                            <select id="p3-font">
-                                <option value="'Segoe UI', Arial, sans-serif">Modern Sans</option>
-                                <option value="Georgia, serif">Elegant Serif</option>
-                                <option value="'Courier New', monospace">Retro Monospace</option>
-                                <option value="Impact, sans-serif">Bold Impact</option>
-                                <option value="'Times New Roman', Times, serif">Classic Times</option>
-                            </select>
-                        </div>
-                        
-                        <!-- NEW DUAL-COLOR GRADIENT INPUTS -->
                         <div class="control-group text-input-group">
                             <label>BG GRADIENT (TOP → BOTTOM)</label>
                             <div style="display: flex; width: 100%; gap: 5px;">
@@ -204,38 +103,12 @@
                                 <input type="color" id="p3-line2" value="#E100FF" style="width: 50%; height: 35px; border: none; background: none; cursor: pointer;">
                             </div>
                         </div>
-
-                        <div class="control-group color-input-group"><label>MAIN TEXT</label><input type="color" id="p3-text" value="#ffffff"></div>
-                        
-                        <div class="slider-group" style="margin-top: 15px; padding: 0 5px;">
-                            <div class="slider-header"><label>INDIVIDUAL FONT SIZE</label><span id="val-p3-fs">25%</span></div><input type="range" id="p3-fs" min="50" max="450" value="150">
-                        </div>
-                        <div class="slider-group" style="padding: 0 5px;">
-                            <div class="slider-header"><label>INDIVIDUAL VERTICAL</label><span id="val-p3-pos">55%</span></div><input type="range" id="p3-pos" min="-2400" max="-100" value="-1135">
-                        </div>
-                        <div class="slider-group" style="padding: 0 5px; margin-bottom: 0;">
-                            <div class="slider-header"><label>INDIVIDUAL HORIZONTAL</label><span id="val-p3-pos-x">9%</span></div><input type="range" id="p3-pos-x" min="20" max="1500" value="153">
-                        </div>
                     </div>
                 </details>
 
-                <!-- Poster 4 -->
                 <details id="panel-4" class="poster-controls">
                     <summary>POSTER 4</summary>
                     <div class="controls-wrapper">
-                        <div class="control-group text-input-group"><label>TITLE</label><input type="text" id="p4-title" value="MINIMAL"></div>
-                        <div class="control-group text-input-group">
-                            <label>FONT STYLE</label>
-                            <select id="p4-font">
-                                <option value="'Segoe UI', Arial, sans-serif">Modern Sans</option>
-                                <option value="Georgia, serif">Elegant Serif</option>
-                                <option value="'Courier New', monospace">Retro Monospace</option>
-                                <option value="Impact, sans-serif">Bold Impact</option>
-                                <option value="'Times New Roman', Times, serif">Classic Times</option>
-                            </select>
-                        </div>
-                        
-                        <!-- NEW DUAL-COLOR GRADIENT INPUTS -->
                         <div class="control-group text-input-group">
                             <label>BG GRADIENT (TOP → BOTTOM)</label>
                             <div style="display: flex; width: 100%; gap: 5px;">
@@ -249,18 +122,6 @@
                                 <input type="color" id="p4-line1" value="#11998e" style="width: 50%; height: 35px; border: none; background: none; cursor: pointer;">
                                 <input type="color" id="p4-line2" value="#38ef7d" style="width: 50%; height: 35px; border: none; background: none; cursor: pointer;">
                             </div>
-                        </div>
-
-                        <div class="control-group color-input-group"><label>MAIN TEXT</label><input type="color" id="p4-text" value="#ffffff"></div>
-                        
-                        <div class="slider-group" style="margin-top: 15px; padding: 0 5px;">
-                            <div class="slider-header"><label>INDIVIDUAL FONT SIZE</label><span id="val-p4-fs">25%</span></div><input type="range" id="p4-fs" min="50" max="450" value="150">
-                        </div>
-                        <div class="slider-group" style="padding: 0 5px;">
-                            <div class="slider-header"><label>INDIVIDUAL VERTICAL</label><span id="val-p4-pos">55%</span></div><input type="range" id="p4-pos" min="-2400" max="-100" value="-1135">
-                        </div>
-                        <div class="slider-group" style="padding: 0 5px; margin-bottom: 0;">
-                            <div class="slider-header"><label>INDIVIDUAL HORIZONTAL</label><span id="val-p4-pos-x">9%</span></div><input type="range" id="p4-pos-x" min="20" max="1500" value="153">
                         </div>
                     </div>
                 </details>
@@ -314,14 +175,9 @@
 
         <main class="canvas-container">
             <svg id="masterCanvas" viewBox="0 0 7920 2520" xmlns="http://www.w3.org/2000/svg">
-                <!-- ==========================================
-                     NEW: SVG GRADIENT DEFINITIONS
-                     ========================================== -->
                 <defs>
                     <clipPath id="posterClip"><rect width="1830" height="2520" /></clipPath>
-                    <clipPath id="artClip"><rect x="200" y="0" width="1630" height="2520" /></clipPath>
                     
-                    <!-- Background Gradients (Top to Bottom) -->
                     <linearGradient id="bg-grad-1" x1="0%" y1="0%" x2="0%" y2="100%">
                         <stop id="p1-bg1-stop" offset="0%" stop-color="#0f2027" />
                         <stop id="p1-bg2-stop" offset="100%" stop-color="#203a43" />
@@ -339,7 +195,6 @@
                         <stop id="p4-bg2-stop" offset="100%" stop-color="#434343" />
                     </linearGradient>
 
-                    <!-- Line/Stroke Gradients (Left to Right) -->
                     <linearGradient id="stroke-grad-1" x1="0%" y1="0%" x2="100%" y2="0%">
                         <stop id="p1-line1-stop" offset="0%" stop-color="#00c6ff" />
                         <stop id="p1-line2-stop" offset="100%" stop-color="#0072ff" />
@@ -360,36 +215,24 @@
                 
                 <rect width="100%" height="100%" fill="transparent" />
 
-                <!-- Poster 1: Fills and Strokes changed to point to url(#) gradients -->
                 <g id="art-1" transform="translate(0, 0)" clip-path="url(#posterClip)">
-                    <rect id="svg-p1-bg" x="200" width="1630" height="2520" fill="url(#bg-grad-1)" />
-                    <rect width="200" height="2520" fill="rgba(0,0,0,0.5)" />
-                    <text id="svg-p1-title" x="-1135" y="153" transform="rotate(-90)" font-family="'Segoe UI', Arial, sans-serif" font-size="150" fill="#ffffff" font-weight="900" letter-spacing="10">ABSTRACT</text>
-                    <path id="svg-p1-line" d="" fill="none" stroke="url(#stroke-grad-1)" stroke-width="80" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#artClip)"/>
+                    <rect id="svg-p1-bg" x="0" width="1830" height="2520" fill="url(#bg-grad-1)" />
+                    <path id="svg-p1-line" d="" fill="none" stroke="url(#stroke-grad-1)" stroke-width="80" stroke-linecap="round" stroke-linejoin="round"/>
                 </g>
 
-                <!-- Poster 2: Fills and Strokes changed to point to url(#) gradients -->
                 <g id="art-2" transform="translate(2030, 0)" clip-path="url(#posterClip)">
-                    <rect id="svg-p2-bg" x="200" width="1630" height="2520" fill="url(#bg-grad-2)" />
-                    <rect width="200" height="2520" fill="rgba(0,0,0,0.5)" />
-                    <text id="svg-p2-title" x="-1135" y="153" transform="rotate(-90)" font-family="'Segoe UI', Arial, sans-serif" font-size="150" fill="#ffffff" font-weight="900" letter-spacing="10">IPSUM</text>
-                    <path id="svg-p2-line" d="" fill="none" stroke="url(#stroke-grad-2)" stroke-width="80" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#artClip)"/>
+                    <rect id="svg-p2-bg" x="0" width="1830" height="2520" fill="url(#bg-grad-2)" />
+                    <path id="svg-p2-line" d="" fill="none" stroke="url(#stroke-grad-2)" stroke-width="80" stroke-linecap="round" stroke-linejoin="round"/>
                 </g>
 
-                <!-- Poster 3: Fills and Strokes changed to point to url(#) gradients -->
                 <g id="art-3" transform="translate(4060, 0)" clip-path="url(#posterClip)">
-                    <rect id="svg-p3-bg" x="200" width="1630" height="2520" fill="url(#bg-grad-3)" />
-                    <rect width="200" height="2520" fill="rgba(0,0,0,0.5)" />
-                    <text id="svg-p3-title" x="-1135" y="153" transform="rotate(-90)" font-family="'Segoe UI', Arial, sans-serif" font-size="150" fill="#ffffff" font-weight="900" letter-spacing="10">STUDIO</text>
-                    <path id="svg-p3-line" d="" fill="none" stroke="url(#stroke-grad-3)" stroke-width="40" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#artClip)"/>
+                    <rect id="svg-p3-bg" x="0" width="1830" height="2520" fill="url(#bg-grad-3)" />
+                    <path id="svg-p3-line" d="" fill="none" stroke="url(#stroke-grad-3)" stroke-width="40" stroke-linecap="round" stroke-linejoin="round"/>
                 </g>
 
-                <!-- Poster 4: Fills and Strokes changed to point to url(#) gradients -->
                 <g id="art-4" transform="translate(6090, 0)" clip-path="url(#posterClip)">
-                    <rect id="svg-p4-bg" x="200" width="1630" height="2520" fill="url(#bg-grad-4)" />
-                    <rect width="200" height="2520" fill="rgba(0,0,0,0.5)" />
-                    <text id="svg-p4-title" x="-1135" y="153" transform="rotate(-90)" font-family="'Segoe UI', Arial, sans-serif" font-size="150" fill="#ffffff" font-weight="900" letter-spacing="10">MINIMAL</text>
-                    <path id="svg-p4-line" d="" fill="none" stroke="url(#stroke-grad-4)" stroke-width="40" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#artClip)"/>
+                    <rect id="svg-p4-bg" x="0" width="1830" height="2520" fill="url(#bg-grad-4)" />
+                    <path id="svg-p4-line" d="" fill="none" stroke="url(#stroke-grad-4)" stroke-width="40" stroke-linecap="round" stroke-linejoin="round"/>
                 </g>
             </svg>
         </main>
