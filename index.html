@@ -19,6 +19,7 @@
         <div class="top-actions">
             <div class="user-profile"><div class="avatar">M</div> Mohammad</div>
             <button class="btn-pro">⚡ UPGRADE TO PRO</button>
+            <button class="btn-shuffle" id="toggle-safe-area" style="background: #111827; border-color: #00e5ff; color: #00e5ff;">📐 TOGGLE SAFE AREA</button>
             <button class="btn-shuffle">🔃 SHUFFLE</button>
         </div>
     </header>
@@ -57,7 +58,7 @@
                             </div>
                         </div>
                         <div class="control-group text-input-group">
-                            <label>LINE GRADIENT (LEFT → RIGHT)</label>
+                            <label>ART GRADIENT (LEFT → RIGHT)</label>
                             <div style="display: flex; width: 100%; gap: 5px;">
                                 <input type="color" id="p1-line1" value="#00c6ff" style="width: 50%; height: 35px; border: none; background: none; cursor: pointer;">
                                 <input type="color" id="p1-line2" value="#0072ff" style="width: 50%; height: 35px; border: none; background: none; cursor: pointer;">
@@ -77,7 +78,7 @@
                             </div>
                         </div>
                         <div class="control-group text-input-group">
-                            <label>LINE GRADIENT (LEFT → RIGHT)</label>
+                            <label>ART GRADIENT (LEFT → RIGHT)</label>
                             <div style="display: flex; width: 100%; gap: 5px;">
                                 <input type="color" id="p2-line1" value="#f12711" style="width: 50%; height: 35px; border: none; background: none; cursor: pointer;">
                                 <input type="color" id="p2-line2" value="#f5af19" style="width: 50%; height: 35px; border: none; background: none; cursor: pointer;">
@@ -97,7 +98,7 @@
                             </div>
                         </div>
                         <div class="control-group text-input-group">
-                            <label>LINE GRADIENT (LEFT → RIGHT)</label>
+                            <label>ART GRADIENT (LEFT → RIGHT)</label>
                             <div style="display: flex; width: 100%; gap: 5px;">
                                 <input type="color" id="p3-line1" value="#7F00FF" style="width: 50%; height: 35px; border: none; background: none; cursor: pointer;">
                                 <input type="color" id="p3-line2" value="#E100FF" style="width: 50%; height: 35px; border: none; background: none; cursor: pointer;">
@@ -117,7 +118,7 @@
                             </div>
                         </div>
                         <div class="control-group text-input-group">
-                            <label>LINE GRADIENT (LEFT → RIGHT)</label>
+                            <label>ART GRADIENT (LEFT → RIGHT)</label>
                             <div style="display: flex; width: 100%; gap: 5px;">
                                 <input type="color" id="p4-line1" value="#11998e" style="width: 50%; height: 35px; border: none; background: none; cursor: pointer;">
                                 <input type="color" id="p4-line2" value="#38ef7d" style="width: 50%; height: 35px; border: none; background: none; cursor: pointer;">
@@ -135,11 +136,30 @@
                 
                 <div class="control-group text-input-group" style="margin-bottom: 20px; border: 1px solid #ff2a5f;">
                     <label style="color: #ff2a5f;">DESIGN MODE / স্টাইল মোড</label>
-                    <select id="design-mode">
-                        <option value="geometric">Geometric / জ্যামিতিক (Default)</option>
-                        <option value="retro">Retro Waves / রেট্রো ওয়েভ</option>
-                        <option value="topology">Complex Topology / টপোলজি</option>
-                        <option value="mandala">Mandala Art / ম্যান্ডালা</option>
+                    <select id="design-mode" style="height: 35px; font-size: 10px;">
+                        <option value="geometric">Geometric (Default)</option>
+                        <option value="retro">Retro Waves</option>
+                        <option value="topology">Complex Topology</option>
+                        <option value="mandala">Mandala Art</option>
+                        <option value="watercolor_bubble">Watercolor Bubble Poster</option>
+                        <option value="retro_poster">Retro Poster (Concentric)</option>
+                        <option value="psychedelic">70s Psychedelic Waves</option>
+                        <option value="mid_century">Mid-Century Modern Graphic</option>
+                        <option value="japanese_matchbox">Vintage Japanese Matchbox Art</option>
+                        <option value="risograph">Risograph Print Aesthetic</option>
+                        <option value="synthwave">80s Synthwave Grid</option>
+                        <option value="gradient_grain">Gradient Grain Poster</option>
+                        <option value="aura">Aura Poster</option>
+                        <option value="liquid_marble">Iridescent Liquid Marble</option>
+                        <option value="y2k">Y2K Cyber Graphics</option>
+                        <option value="translucent_fluid">Translucent Watercolor Fluid</option>
+                        <option value="bauhaus">Bauhaus Geometric Art</option>
+                        <option value="boho_terrazzo">Boho Terrazzo & Arch</option>
+                        <option value="minimalist_line">Minimalist Continuous Line Art</option>
+                        <option value="neo_brutalist">Neo-Brutalist Graphic</option>
+                        <option value="botanical">Vintage Botanical & Herbarium</option>
+                        <option value="scandi_landscape">Scandi Minimalist Landscape</option>
+                        <option value="celestial">Celestial Constellation</option>
                     </select>
                 </div>
 
@@ -217,22 +237,26 @@
 
                 <g id="art-1" transform="translate(0, 0)" clip-path="url(#posterClip)">
                     <rect id="svg-p1-bg" x="0" width="1830" height="2520" fill="url(#bg-grad-1)" />
-                    <path id="svg-p1-line" d="" fill="none" stroke="url(#stroke-grad-1)" stroke-width="80" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path id="svg-p1-line" d="" stroke-linecap="round" stroke-linejoin="round"/>
+                    <rect id="safe-1" x="150" y="150" width="1530" height="2220" fill="none" stroke="#00e5ff" stroke-width="6" stroke-dasharray="30, 20" style="display:none; pointer-events:none;" />
                 </g>
 
                 <g id="art-2" transform="translate(2030, 0)" clip-path="url(#posterClip)">
                     <rect id="svg-p2-bg" x="0" width="1830" height="2520" fill="url(#bg-grad-2)" />
-                    <path id="svg-p2-line" d="" fill="none" stroke="url(#stroke-grad-2)" stroke-width="80" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path id="svg-p2-line" d="" stroke-linecap="round" stroke-linejoin="round"/>
+                    <rect id="safe-2" x="150" y="150" width="1530" height="2220" fill="none" stroke="#00e5ff" stroke-width="6" stroke-dasharray="30, 20" style="display:none; pointer-events:none;" />
                 </g>
 
                 <g id="art-3" transform="translate(4060, 0)" clip-path="url(#posterClip)">
                     <rect id="svg-p3-bg" x="0" width="1830" height="2520" fill="url(#bg-grad-3)" />
-                    <path id="svg-p3-line" d="" fill="none" stroke="url(#stroke-grad-3)" stroke-width="40" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path id="svg-p3-line" d="" stroke-linecap="round" stroke-linejoin="round"/>
+                    <rect id="safe-3" x="150" y="150" width="1530" height="2220" fill="none" stroke="#00e5ff" stroke-width="6" stroke-dasharray="30, 20" style="display:none; pointer-events:none;" />
                 </g>
 
                 <g id="art-4" transform="translate(6090, 0)" clip-path="url(#posterClip)">
                     <rect id="svg-p4-bg" x="0" width="1830" height="2520" fill="url(#bg-grad-4)" />
-                    <path id="svg-p4-line" d="" fill="none" stroke="url(#stroke-grad-4)" stroke-width="40" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path id="svg-p4-line" d="" stroke-linecap="round" stroke-linejoin="round"/>
+                    <rect id="safe-4" x="150" y="150" width="1530" height="2220" fill="none" stroke="#00e5ff" stroke-width="6" stroke-dasharray="30, 20" style="display:none; pointer-events:none;" />
                 </g>
             </svg>
         </main>
