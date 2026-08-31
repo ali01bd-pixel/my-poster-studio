@@ -1,4 +1,14 @@
-// Map inputs to SVG attributes
+// ==========================================
+// SAFE AREA TOGGLE
+// ==========================================
+let safeAreaVisible = false;
+document.getElementById('toggle-safe-area').addEventListener('click', () => {
+    safeAreaVisible = !safeAreaVisible;
+    for(let i=1; i<=4; i++) {
+        document.getElementById(`safe-${i}`).style.display = safeAreaVisible ? 'block' : 'none';
+    }
+});
+
 function linkInputToSVG(inputId, svgElementId, attribute) {
     const inputElement = document.getElementById(inputId);
     const svgElement = document.getElementById(svgElementId);
@@ -9,7 +19,6 @@ function linkInputToSVG(inputId, svgElementId, attribute) {
     }
 }
 
-// Map the 4 posters' individual color inputs
 for (let i = 1; i <= 4; i++) {
     linkInputToSVG(`p${i}-bg1`, `p${i}-bg1-stop`, 'stop-color');
     linkInputToSVG(`p${i}-bg2`, `p${i}-bg2-stop`, 'stop-color');
@@ -17,15 +26,10 @@ for (let i = 1; i <= 4; i++) {
     linkInputToSVG(`p${i}-line2`, `p${i}-line2-stop`, 'stop-color');
 }
 
-// ==========================================
-// DYNAMIC ARTBOARD COUNT SELECTOR
-// ==========================================
 const posterCountSelect = document.getElementById('poster-count');
-
 function updatePosterCount() {
     let count = parseInt(posterCountSelect.value);
     let canvasWidths = { 1: 1830, 2: 3860, 3: 5890, 4: 7920 };
-    
     for (let i = 1; i <= 4; i++) {
         const sidebarPanel = document.getElementById(`panel-${i}`);
         const artGroup = document.getElementById(`art-${i}`);
@@ -37,17 +41,15 @@ function updatePosterCount() {
             artGroup.style.display = 'none';
         }
     }
-    
     let newWidth = canvasWidths[count];
     document.getElementById('masterCanvas').setAttribute('viewBox', `0 0 ${newWidth} 2520`);
     document.getElementById('footer-size').innerText = `Master Artboard: ${newWidth} x 2520 px`;
 }
-
 posterCountSelect.addEventListener('change', updatePosterCount);
 
 
 // ==========================================
-// ADVANCED PATTERN GENERATOR ENGINE
+// 23-MODE ADVANCED PATTERN GENERATOR ENGINE
 // ==========================================
 const densitySlider = document.getElementById('eng-density');
 const freqSlider = document.getElementById('eng-freq');
@@ -71,193 +73,270 @@ function generateDynamicArt() {
     const chaos = parseInt(chaosSlider.value);      
     const mode = modeSelect.value;
 
-    // Full 1830px width for pure art layout
     const startX = 0; const endX = 1830; const midX = 915; const height = 2520;
+    let paths = ["", "", "", ""];
     
-    let p1Path = "", p2Path = "", p3Path = "", p4Path = "";
+    // Determine whether this mode draws Lines (stroke) or Shapes (fill)
+    let useFill = ['watercolor_bubble', 'gradient_grain', 'aura', 'translucent_fluid', 'bauhaus', 'boho_terrazzo'].includes(mode);
+    
+    for (let i = 1; i <= 4; i++) {
+        let el = document.getElementById(`svg-p${i}-line`);
+        if(useFill) {
+            el.setAttribute('fill', `url(#stroke-grad-${i})`);
+            el.setAttribute('stroke', 'none');
+            el.setAttribute('opacity', mode === 'bauhaus' ? '0.9' : '0.6'); // Transparency for overlaps
+        } else {
+            el.setAttribute('fill', 'none');
+            el.setAttribute('stroke', `url(#stroke-grad-${i})`);
+            el.setAttribute('stroke-width', thick * (1 + (i*0.2))); 
+            el.setAttribute('opacity', '1');
+        }
+    }
 
-    // ----------------------------------------------------
-    // MODE 1: GEOMETRIC
-    // ----------------------------------------------------
+    // 1. GEOMETRIC
     if (mode === 'geometric') {
-        document.getElementById('svg-p1-line').setAttribute('stroke-width', thick * 0.15); 
-        document.getElementById('svg-p2-line').setAttribute('stroke-width', thick * 0.4);  
-        document.getElementById('svg-p3-line').setAttribute('stroke-width', thick * 0.6);  
-        document.getElementById('svg-p4-line').setAttribute('stroke-width', thick * 1.5);  
-
-        for (let i = 0; i < density; i++) {
-            let yOffset = i * (1000 / density) * amp; 
-            let controlDrop = freq * 15 * amp; 
-            let yShift = phase * 5;
-            let j1 = getJitter(i, chaos); let j2 = getJitter(i+100, chaos);
-            
-            p1Path += `M ${startX},${1260 - yOffset + yShift + j1} Q ${midX + j2},${1260 - yOffset + controlDrop + yShift} ${endX},${1260 - yOffset + yShift + j1} `;
-            p1Path += `M ${startX},${1260 + yOffset + yShift + j1} Q ${midX - j2},${1260 + yOffset - controlDrop + yShift} ${endX},${1260 + yOffset + yShift + j1} `;
+        for(let p=0; p<4; p++) {
+            for (let i = 0; i < density; i++) {
+                let y = ((height / density) * i) + (phase * 5); 
+                let b = freq * 15 * amp; let j = getJitter(i+p, chaos);
+                if(p===0) paths[p] += `M ${startX},${y+j} Q ${midX+j},${y+b} ${endX},${y+j} M ${startX},${y+j} Q ${midX-j},${y-b} ${endX},${y+j} `;
+                if(p===1) paths[p] += `M ${startX},${y+j} Q ${midX},${y+b+j} ${endX},${y+j} `;
+                if(p===2) paths[p] += `M ${startX},${y+j} L ${midX+j},${y+b} L ${endX},${y+j} `;
+                if(p===3) paths[p] += `M ${startX},${y} L ${startX + 150 + (Math.abs(Math.sin(i*freq*0.05))*endX*amp) + j},${y} `;
+            }
         }
-        for (let i = 0; i < density * 2; i++) {
-            let y = ((height / (density * 2)) * i) + (phase * 5); 
-            let bend = freq * 8 * amp; 
-            let j = getJitter(i, chaos);
-            p2Path += `M ${startX},${y + j} Q ${midX},${y + bend + j} ${endX},${y + j} `;
+    }
+    // 2. RETRO WAVES
+    else if (mode === 'retro') {
+        for(let p=0; p<4; p++) {
+            for (let i = 0; i < density; i++) {
+                let y = ((height / density) * i) + (phase * 5); let a = freq * 5 * amp; let j = getJitter(i+p, chaos);
+                if(p===0) paths[p] += `M ${startX},${y+j} C ${startX+250+j},${y-a} ${midX-250-j},${y+a} ${midX},${y+j} C ${midX+250+j},${y-a} ${endX-250-j},${y+a} ${endX},${y+j} `;
+                if(p===1) paths[p] += `M ${startX},${height+j} Q ${midX+j},${y - (freq*12*amp)} ${endX},${height+j} `;
+                if(p===2) paths[p] += `M ${startX},${height - (i*12*amp) + j} A ${i*12*amp+j} ${i*12*amp+j} 0 0 1 ${startX + (i*12*amp) + j},${height} `;
+                if(p===3) paths[p] += `M ${startX},${y+j} C ${startX+500},${y+j} ${endX-500},${y-(freq*15*amp)+j} ${endX},${y-(freq*15*amp)+j} `;
+            }
         }
-        for (let i = 0; i < density; i++) {
-            let y = height - (i * (height / density) * amp) + (phase * 5); 
-            let vDrop = freq * 8 * amp; 
-            let j = getJitter(i, chaos);
-            p3Path += `M ${startX},${y + j} L ${midX + j},${y + vDrop} L ${endX},${y + j} `;
-        }
+    }
+    // 3. TOPOLOGY
+    else if (mode === 'topology') {
         for (let i = 0; i < density; i++) {
             let y = ((height / density) * i) + (phase * 5);
-            let stretch = Math.abs(Math.sin(((i + phase) * freq) * 0.05)) * (endX - startX) * amp;
-            let lineEndX = startX + 150 + stretch + getJitter(i, chaos);
-            if (lineEndX > endX) lineEndX = endX;
-            p4Path += `M ${startX},${y} L ${lineEndX},${y} `;
-            if (Math.cos((i+phase) * freq * 0.1) > 0) {
-                let fragStart = lineEndX + (freq * 1.5); 
-                let fragEnd = fragStart + (300 * amp) + (Math.sin(i) * 100);
-                if (fragEnd < endX && fragStart < endX) p4Path += `M ${fragStart},${y} L ${fragEnd},${y} `;
-            }
-        }
-    }
-    // ----------------------------------------------------
-    // MODE 2: RETRO WAVES
-    // ----------------------------------------------------
-    else if (mode === 'retro') {
-        document.getElementById('svg-p1-line').setAttribute('stroke-width', thick * 0.4); 
-        document.getElementById('svg-p2-line').setAttribute('stroke-width', thick * 0.5);  
-        document.getElementById('svg-p3-line').setAttribute('stroke-width', thick * 0.3);  
-        document.getElementById('svg-p4-line').setAttribute('stroke-width', thick * 0.8);
-
-        for (let i = 0; i < density; i++) {
-            let y = ((height / density) * i) + (phase * 5); 
-            let a = freq * 5 * amp;
-            let j = getJitter(i, chaos);
-            p1Path += `M ${startX},${y+j} C ${startX+250+j},${y-a} ${midX-250-j},${y+a} ${midX},${y+j} C ${midX+250+j},${y-a} ${endX-250-j},${y+a} ${endX},${y+j} `;
-        }
-        for (let i = 0; i < density; i++) {
-            let y = height - (i * (height / density)) + (phase * 5); 
-            let arch = freq * 12 * amp;
-            let j = getJitter(i, chaos);
-            p2Path += `M ${startX},${height+j} Q ${midX+j},${y - arch} ${endX},${height+j} `;
-        }
-        for (let i = 0; i < density * 1.5; i++) {
-            let r = i * (1200 / density) * amp; 
-            let waveOffset = Math.sin((i+phase) * 0.2) * (freq * 2);
-            let j = getJitter(i, chaos);
-            p3Path += `M ${startX},${height - r + j} A ${r+waveOffset+j} ${r+waveOffset+j} 0 0 1 ${startX + r + j},${height} `;
-        }
-        for (let i = 0; i < density; i++) {
-            let startY = ((height / density) * i) + (phase * 5); 
-            let endY = startY - (freq * 15 * amp);
-            let j = getJitter(i, chaos);
-            p4Path += `M ${startX},${startY+j} C ${startX+500},${startY+j} ${endX-500},${endY+j} ${endX},${endY+j} `;
-        }
-    }
-    // ----------------------------------------------------
-    // MODE 3: COMPLEX TOPOLOGY
-    // ----------------------------------------------------
-    else if (mode === 'topology') {
-        document.getElementById('svg-p1-line').setAttribute('stroke-width', thick * 0.2); 
-        document.getElementById('svg-p2-line').setAttribute('stroke-width', thick * 0.25);  
-        document.getElementById('svg-p3-line').setAttribute('stroke-width', thick * 0.3);  
-        document.getElementById('svg-p4-line').setAttribute('stroke-width', thick * 0.4);
-
-        for (let i = 0; i < density; i++) {
-            let yBase = ((height / density) * i) + (phase * 5);
-            let jStart = getJitter(i, chaos);
-            p1Path += `M ${startX},${yBase+jStart} `; p2Path += `M ${startX},${yBase+jStart} `; 
-            p3Path += `M ${startX},${yBase+jStart} `; p4Path += `M ${startX},${yBase+jStart} `;
-            
+            paths[0] += `M ${startX},${y} `; paths[1] += `M ${startX},${y} `; paths[2] += `M ${startX},${y} `; paths[3] += `M ${startX},${y} `;
             for(let x = startX; x <= endX; x += 80) {
-                let px = x + (phase * 2);
-                let j = getJitter(x*i, chaos);
-
-                let n1 = yBase + Math.sin((px * 0.005) + (i * 0.1)) * (freq * 3 * amp) + Math.cos(px * 0.01) * 50 * amp;
-                let n2 = yBase + Math.sin(px * 0.01) * (freq * 5 * amp) * Math.cos(i * 0.05);
-                let n3 = yBase + Math.sin((px * 0.008) - (i * 0.2)) * (freq * 4 * amp) + Math.tan(px * 0.001) * 20;
-                let n4 = yBase + Math.sin(px * 0.003) * (freq * 8 * amp) + Math.sin(i * 0.1) * 100 * amp;
-                
-                if (n1 > height) n1 = height; if (n1 < 0) n1 = 0;
-                if (n2 > height) n2 = height; if (n2 < 0) n2 = 0;
-                if (n3 > height) n3 = height; if (n3 < 0) n3 = 0;
-                if (n4 > height) n4 = height; if (n4 < 0) n4 = 0;
-
-                p1Path += `L ${x+j},${n1+j} `; p2Path += `L ${x+j},${n2+j} `; p3Path += `L ${x+j},${n3+j} `; p4Path += `L ${x+j},${n4+j} `;
+                let px = x + (phase * 2); let j = getJitter(x*i, chaos);
+                paths[0] += `L ${x+j},${y + Math.sin(px*0.005 + i*0.1)*(freq*3*amp) + j} `;
+                paths[1] += `L ${x+j},${y + Math.sin(px*0.01)*(freq*5*amp) + j} `;
+                paths[2] += `L ${x+j},${y + Math.sin(px*0.008 - i*0.2)*(freq*4*amp) + j} `;
+                paths[3] += `L ${x+j},${y + Math.sin(px*0.003)*(freq*8*amp) + j} `;
             }
         }
     }
-    // ----------------------------------------------------
-    // MODE 4: MANDALA 
-    // ----------------------------------------------------
+    // 4. MANDALA
     else if (mode === 'mandala') {
-        document.getElementById('svg-p1-line').setAttribute('stroke-width', thick * 0.2); 
-        document.getElementById('svg-p2-line').setAttribute('stroke-width', thick * 0.3);  
-        document.getElementById('svg-p3-line').setAttribute('stroke-width', thick * 0.4);  
-        document.getElementById('svg-p4-line').setAttribute('stroke-width', thick * 0.6);
-
-        let centerX = midX; let centerY = height / 2;
-        let layers = Math.floor(density / 3) + 4; let petals = Math.floor(freq / 3) + 6;    
-        let maxRadius = 1000 * amp; 
-        let phaseRad = phase * (Math.PI / 180); 
-
-        for(let i=1; i<=layers; i++) {
-            let rBase = (maxRadius / layers) * i;
-            for(let j=0; j<=petals; j++) {
-                let angle = ((j / petals) * Math.PI * 2) + phaseRad + (i * 0.05); 
-                let spike = (j % 2 === 0) ? (freq * 1.5 * amp) : -(freq * 1.5 * amp);
-                let jx = getJitter(i*j, chaos); let jy = getJitter(j*i, chaos);
+        let l = Math.floor(density/3)+4; let pet = Math.floor(freq/3)+6; let rad = 1000*amp; let pr = phase*(Math.PI/180);
+        for(let i=1; i<=l; i++) {
+            let r = (rad/l)*i;
+            for(let j=0; j<=pet; j++) {
+                let a = (j/pet)*Math.PI*2 + pr; let sp = (j%2===0)?(freq*1.5*amp):-(freq*1.5*amp); let jx = getJitter(i*j,chaos);
+                let x = midX + Math.cos(a)*(r+sp)+jx; let y = 1260 + Math.sin(a)*(r+sp)+jx;
+                if(j===0) paths[0]+= `M ${x},${y} `; else paths[0]+= `L ${x},${y} `;
                 
-                let x = centerX + Math.cos(angle) * (rBase + spike) + jx; 
-                let y = centerY + Math.sin(angle) * (rBase + spike) + jy;
-                if (j === 0) p1Path += `M ${x},${y} `; else p1Path += `L ${x},${y} `;
+                let x1 = midX + Math.cos(a)*r; let y1 = 1260 + Math.sin(a)*r;
+                let x2 = midX + Math.cos(a+0.2)*(r+freq*3*amp)+jx; let y2 = 1260 + Math.sin(a+0.2)*(r+freq*3*amp)+jx;
+                paths[1]+= `M ${x1},${y1} Q ${x2},${y2} ${x1},${y1} `;
             }
         }
-
-        for(let i=1; i<=layers; i++) {
-            let rBase = (maxRadius / layers) * i;
-            for(let j=0; j<petals; j++) {
-                let angle1 = ((j / petals) * Math.PI * 2) + phaseRad;
-                let angle2 = (((j + 0.5) / petals) * Math.PI * 2) + phaseRad;
-                let angle3 = (((j + 1) / petals) * Math.PI * 2) + phaseRad;
-                let jx = getJitter(i, chaos);
-                
-                let x1 = centerX + Math.cos(angle1) * rBase; let y1 = centerY + Math.sin(angle1) * rBase;
-                let x2 = centerX + Math.cos(angle2) * (rBase + freq * 3 * amp) + jx; let y2 = centerY + Math.sin(angle2) * (rBase + freq * 3 * amp) + jx;
-                let x3 = centerX + Math.cos(angle3) * rBase; let y3 = centerY + Math.sin(angle3) * rBase;
-                p2Path += `M ${x1},${y1} Q ${x2},${y2} ${x3},${y3} `;
-            }
-        }
-
-        let sides = Math.floor(freq / 8) + 3; 
         for(let i=1; i<=density; i++) {
-            let r = (maxRadius / density) * i; let offset = (i % 2 === 0) ? phaseRad : (Math.PI / sides) + phaseRad;
-            for(let j=0; j<=sides; j++) {
-                let angle = (j / sides) * Math.PI * 2 + offset;
-                let jx = getJitter(i*j, chaos);
-                let x = centerX + Math.cos(angle) * r + jx; let y = centerY + Math.sin(angle) * r + jx;
-                if (j === 0) p3Path += `M ${x},${y} `; else p3Path += `L ${x},${y} `;
+            let r = (rad/density)*i; let s = Math.floor(freq/8)+3;
+            for(let j=0; j<=s; j++) {
+                let a = (j/s)*Math.PI*2 + pr; let x = midX + Math.cos(a)*r + getJitter(i*j,chaos); let y = 1260 + Math.sin(a)*r;
+                if(j===0) paths[2]+= `M ${x},${y} `; else paths[2]+= `L ${x},${y} `;
+            }
+            for(let j=0; j<s; j++) {
+                let a1 = (j/s)*Math.PI*2 + pr + (i*0.1); let a2 = a1 + (Math.PI*2/s)*0.6;
+                paths[3]+= `M ${midX+Math.cos(a1)*r},${1260+Math.sin(a1)*r} A ${r} ${r} 0 0 1 ${midX+Math.cos(a2)*r},${1260+Math.sin(a2)*r} `;
             }
         }
-
-        let dashCount = Math.floor(freq / 5) + 3;
-        for(let i=1; i<=density; i++) {
-            let r = (maxRadius / density) * i;
-            for(let j=0; j<dashCount; j++) {
-                let startAngle = ((j / dashCount) * Math.PI * 2) + (i * 0.1) + phaseRad;
-                let endAngle = startAngle + (Math.PI * 2 / dashCount) * 0.6; 
-                let jx = getJitter(i*j, chaos);
-                
-                let x1 = centerX + Math.cos(startAngle) * r + jx; let y1 = centerY + Math.sin(startAngle) * r + jx;
-                let x2 = centerX + Math.cos(endAngle) * r + jx; let y2 = centerY + Math.sin(endAngle) * r + jx;
-                p4Path += `M ${x1},${y1} A ${r} ${r} 0 0 1 ${x2},${y2} `;
+    }
+    // 5. WATERCOLOR BUBBLE & 6. GRADIENT GRAIN & 7. AURA (Circle based shapes)
+    else if (['watercolor_bubble', 'gradient_grain', 'aura'].includes(mode)) {
+        for(let p=0; p<4; p++) {
+            for(let i=0; i<density; i++) {
+                let r = (freq * 4 * amp) + getJitter(i, 100) + 50;
+                let cx = midX + getJitter(i+p, endX); 
+                let cy = 1260 + getJitter(i*p, height) - (height/2);
+                if(mode === 'aura') { cx = midX; cy = 1260; r = (i*freq*2*amp) + 50; }
+                paths[p] += `M ${cx-r},${cy} a ${r},${r} 0 1,0 ${r*2},0 a ${r},${r} 0 1,0 -${r*2},0 `;
+            }
+        }
+    }
+    // 8. RETRO POSTER (Concentric)
+    else if (mode === 'retro_poster') {
+        for(let p=0; p<4; p++) {
+            for(let i=0; i<density; i++) {
+                let r = i * (2000/density) * amp; let j = getJitter(i, chaos);
+                let cx = (p%2===0) ? 0 : endX; let cy = (p<2) ? height : 0;
+                paths[p] += `M ${cx},${cy-r+j} A ${r} ${r} 0 0 ${(p%2===0)?1:0} ${cx+(p%2===0?r:-r)+j},${cy} `;
+            }
+        }
+    }
+    // 9. PSYCHEDELIC (Dense Ribbons)
+    else if (mode === 'psychedelic') {
+        for(let p=0; p<4; p++) {
+            for(let i=0; i<density*2; i++) {
+                let y = ((height/(density*2))*i) + phase*5; let j = getJitter(i, chaos);
+                let f = freq*0.01; let a = 200*amp;
+                paths[p] += `M ${startX},${y} C ${midX-500},${y-a+j} ${midX+500},${y+a-j} ${endX},${y} `;
+            }
+        }
+    }
+    // 10. MID-CENTURY MODERN (Intersecting Geometry)
+    else if (mode === 'mid_century') {
+        for(let p=0; p<4; p++) {
+            for(let i=0; i<density/3; i++) {
+                let cx = getJitter(i, endX); let cy = getJitter(i+1, height); let r = freq*5*amp;
+                paths[p] += `M ${cx-r},${cy} a ${r},${r} 0 1,0 ${r*2},0 a ${r},${r} 0 1,0 -${r*2},0 `;
+                paths[p] += `M ${cx},${cy-r*2} L ${cx},${cy+r*2} M ${cx-r*2},${cy} L ${cx+r*2},${cy} `;
+            }
+        }
+    }
+    // 11. JAPANESE MATCHBOX
+    else if (mode === 'japanese_matchbox') {
+        for(let p=0; p<4; p++) {
+            // Frame
+            paths[p] += `M 150,150 L 1680,150 L 1680,2370 L 150,2370 Z `;
+            // Sun
+            paths[p] += `M ${midX-400*amp},1000 a ${400*amp},${400*amp} 0 1,0 ${800*amp},0 a ${400*amp},${400*amp} 0 1,0 -${800*amp},0 `;
+            // Waves at bottom
+            for(let i=0; i<density; i++) {
+                let y = 1800 + (i*15*amp); let b = freq*2*amp;
+                paths[p] += `M 150,${y} Q 500,${y-b} 915,${y} T 1680,${y} `;
+            }
+        }
+    }
+    // 12. RISOGRAPH (Halftone Dots)
+    else if (mode === 'risograph') {
+        for(let p=0; p<4; p++) {
+            for(let y=200; y<2400; y+= (2000/density)) {
+                for(let x=200; x<1700; x+= (1500/density)) {
+                    let r = (Math.sin(x*0.01 + y*0.01 + phase)*freq*0.2*amp) + 10;
+                    if(r>0) paths[p] += `M ${x-r},${y} a ${r},${r} 0 1,0 ${r*2},0 a ${r},${r} 0 1,0 -${r*2},0 `;
+                }
+            }
+        }
+    }
+    // 13. SYNTHWAVE GRID
+    else if (mode === 'synthwave') {
+        for(let p=0; p<4; p++) {
+            // Perspective Horizon
+            for (let x = -3000; x <= 5000; x += (1000/density)) {
+                paths[p] += `M ${midX},1300 L ${x+getJitter(x,chaos)},2520 `;
+            }
+            for (let y = 1300; y <= 2520; y += (y-1290)*0.1 + 5) {
+                paths[p] += `M 0,${y+getJitter(y,chaos)} L 1830,${y+getJitter(y,chaos)} `;
+            }
+            // Sun
+            paths[p] += `M ${midX-500*amp},1200 a ${500*amp},${500*amp} 0 1,0 ${1000*amp},0 a ${500*amp},${500*amp} 0 1,0 -${1000*amp},0 `;
+        }
+    }
+    // 14. LIQUID MARBLE & 15. TRANSLUCENT FLUID
+    else if (['liquid_marble', 'translucent_fluid'].includes(mode)) {
+        for(let p=0; p<4; p++) {
+            for(let i=0; i<density; i++) {
+                let y = (height/density)*i; let b1 = freq*10*amp; let b2 = freq*15*amp; let j = getJitter(i, chaos);
+                paths[p] += `M ${startX-200},${y} C ${midX-500},${y-b1+j} ${midX+500},${y+b2-j} ${endX+200},${y} `;
+                if(mode==='translucent_fluid') paths[p] += `L ${endX+200},2600 L -200,2600 Z `; // close shape for filling
+            }
+        }
+    }
+    // 16. Y2K CYBER
+    else if (mode === 'y2k') {
+        for(let p=0; p<4; p++) {
+            for(let i=0; i<density/4; i++) {
+                let cx = getJitter(i, 1830); let cy = getJitter(i*2, 2520); let r = freq*3*amp;
+                paths[p] += `M ${cx},${cy-r} L ${cx+r*0.2},${cy-r*0.2} L ${cx+r},${cy} L ${cx+r*0.2},${cy+r*0.2} L ${cx},${cy+r} L ${cx-r*0.2},${cy+r*0.2} L ${cx-r},${cy} L ${cx-r*0.2},${cy-r*0.2} Z `;
+            }
+            // Orbit rings
+            paths[p] += `M 915,1260 a 600,200 0 1,0 1200,0 a 600,200 0 1,0 -1200,0 M 915,1260 a 200,600 0 1,0 400,0 a 200,600 0 1,0 -400,0 `;
+        }
+    }
+    // 17. BAUHAUS & 18. BOHO TERRAZZO
+    else if (['bauhaus', 'boho_terrazzo'].includes(mode)) {
+        for(let p=0; p<4; p++) {
+            if(mode === 'boho_terrazzo') {
+                paths[p] += `M 415,2520 L 415,1000 A 500,500 0 0,1 1415,1000 L 1415,2520 Z `;
+            }
+            for(let i=0; i<density; i++) {
+                let x = getJitter(i, 1830); let y = getJitter(i*2, 2520); let s = freq*2*amp;
+                if(i%3===0) paths[p] += `M ${x},${y} L ${x+s},${y} L ${x+s},${y+s} L ${x},${y+s} Z `; // Square/speck
+                else if(i%3===1) paths[p] += `M ${x},${y} L ${x+s},${y+s} L ${x-s},${y+s} Z `; // Triangle
+                else paths[p] += `M ${x-s},${y} a ${s},${s} 0 1,0 ${s*2},0 a ${s},${s} 0 1,0 -${s*2},0 `; // Circle
+            }
+        }
+    }
+    // 19. MINIMALIST LINE
+    else if (mode === 'minimalist_line') {
+        for(let p=0; p<4; p++) {
+            paths[p] += `M ${midX},0 `;
+            for(let i=1; i<density; i++) {
+                let y = (height/density)*i; let bx = getJitter(i, 1830); let j = getJitter(i*2, chaos);
+                paths[p] += `S ${bx+j},${y-200} ${midX+j},${y} `;
+            }
+        }
+    }
+    // 20. NEO-BRUTALIST
+    else if (mode === 'neo_brutalist') {
+        for(let p=0; p<4; p++) {
+            for(let i=0; i<density/5; i++) {
+                let cx = getJitter(i, 1830); let cy = getJitter(i*2, 2520); let r = freq*4*amp;
+                // Harsh Star polygon
+                paths[p] += `M ${cx},${cy-r} L ${cx+r*0.4},${cy-r*0.4} L ${cx+r},${cy} L ${cx+r*0.4},${cy+r*0.4} L ${cx},${cy+r} L ${cx-r*0.4},${cy+r*0.4} L ${cx-r},${cy} L ${cx-r*0.4},${cy-r*0.4} Z `;
+                // Drop shadow
+                paths[p] += `M ${cx+20},${cy-r+20} L ${cx+r*0.4+20},${cy-r*0.4+20} L ${cx+r+20},${cy+20} L ${cx+r*0.4+20},${cy+r*0.4+20} L ${cx+20},${cy+r+20} L ${cx-r*0.4+20},${cy+r*0.4+20} L ${cx-r+20},${cy+20} L ${cx-r*0.4+20},${cy-r*0.4+20} Z `;
+            }
+        }
+    }
+    // 21. VINTAGE BOTANICAL
+    else if (mode === 'botanical') {
+        for(let p=0; p<4; p++) {
+            paths[p] += `M ${midX},2520 Q ${midX+getJitter(1,200)},1260 ${midX},100 `; // Stem
+            for(let i=1; i<density/2; i++) {
+                 let y = 2400 - (i*2200/(density/2)); let leaf = freq*2*amp;
+                 paths[p] += `M ${midX},${y} Q ${midX+leaf},${y-leaf/2} ${midX+leaf*1.5},${y-leaf*1.5} Q ${midX+leaf/2},${y-leaf} ${midX},${y} `;
+                 paths[p] += `M ${midX},${y-50} Q ${midX-leaf},${y-50-leaf/2} ${midX-leaf*1.5},${y-50-leaf*1.5} Q ${midX-leaf/2},${y-50-leaf} ${midX},${y-50} `;
+            }
+        }
+    }
+    // 22. SCANDI LANDSCAPE
+    else if (mode === 'scandi_landscape') {
+        for(let p=0; p<4; p++) {
+            paths[p] += `M ${midX},800 a ${300*amp},${300*amp} 0 1,0 ${600*amp},0 a ${300*amp},${300*amp} 0 1,0 -${600*amp},0 `; // Sun
+            for(let i=0; i<density/4; i++) {
+                let y = 1500 + (i*200); let peak = y - (freq*10*amp);
+                paths[p] += `M -200,2600 L -200,${y} Q 915,${peak} 2000,${y+200} L 2000,2600 Z `;
+            }
+        }
+    }
+    // 23. CELESTIAL CONSTELLATION
+    else if (mode === 'celestial') {
+        for(let p=0; p<4; p++) {
+            // Crescent Moon
+            paths[p] += `M 1400,400 A 200,200 0 1,1 1100,700 A 250,250 0 1,0 1400,400 `;
+            for(let i=0; i<density; i++) {
+                let cx = getJitter(i, 1830); let cy = getJitter(i*2, 2520); let r = 5*amp;
+                paths[p] += `M ${cx-r},${cy} a ${r},${r} 0 1,0 ${r*2},0 a ${r},${r} 0 1,0 -${r*2},0 `;
+                if(i>0) {
+                    let px = getJitter(i-1, 1830); let py = getJitter((i-1)*2, 2520);
+                    if(Math.abs(cx-px) < (freq*10)) paths[p] += `M ${cx},${cy} L ${px},${py} `; // connect stars
+                }
             }
         }
     }
 
-    document.getElementById('svg-p1-line').setAttribute('d', p1Path);
-    document.getElementById('svg-p2-line').setAttribute('d', p2Path);
-    document.getElementById('svg-p3-line').setAttribute('d', p3Path);
-    document.getElementById('svg-p4-line').setAttribute('d', p4Path);
+    for(let i=1; i<=4; i++) {
+        document.getElementById(`svg-p${i}-line`).setAttribute('d', paths[i-1]);
+    }
 }
 
 // ==========================================
@@ -265,25 +344,17 @@ function generateDynamicArt() {
 // ==========================================
 function randomizeColors() {
     const bgGradients = [
-        ['#0f2027', '#203a43'], 
-        ['#2c3e50', '#000000'], 
-        ['#141e30', '#243b55'], 
-        ['#23074d', '#cc5333'], 
-        ['#1a2a6c', '#b21f1f'], 
-        ['#000000', '#434343'], 
-        ['#111111', '#111111'], 
-        ['#3E5151', '#DECBA4']  
+        ['#0f2027', '#203a43'], ['#2c3e50', '#000000'], ['#141e30', '#243b55'], 
+        ['#23074d', '#cc5333'], ['#1a2a6c', '#b21f1f'], ['#000000', '#434343'], 
+        ['#111111', '#111111'], ['#3E5151', '#DECBA4'], ['#ffecd2', '#fcb69f'], 
+        ['#eaafc8', '#654ea3'], ['#000428', '#004e92']
     ];
 
     const lineGradients = [
-        ['#00c6ff', '#0072ff'], 
-        ['#f12711', '#f5af19'], 
-        ['#fc4a1a', '#f7b733'], 
-        ['#7F00FF', '#E100FF'], 
-        ['#11998e', '#38ef7d'], 
-        ['#ff0084', '#33001b'], 
-        ['#00d2ff', '#3a7bd5'], 
-        ['#f85032', '#e73827']  
+        ['#00c6ff', '#0072ff'], ['#f12711', '#f5af19'], ['#fc4a1a', '#f7b733'], 
+        ['#7F00FF', '#E100FF'], ['#11998e', '#38ef7d'], ['#ff0084', '#33001b'], 
+        ['#00d2ff', '#3a7bd5'], ['#f85032', '#e73827'], ['#ffffff', '#e0e0e0'],
+        ['#fdfc47', '#24fe41'], ['#ff9a9e', '#fecfef']
     ];
     
     for (let i = 1; i <= 4; i++) {
@@ -302,7 +373,6 @@ function randomizeColors() {
     }
 }
 
-// Event Listeners for the advanced sliders
 ['eng-density', 'eng-freq', 'eng-thick', 'eng-amp', 'eng-phase', 'eng-chaos'].forEach(id => {
     document.getElementById(id).addEventListener('input', (e) => {
         let valText = e.target.value;
@@ -323,13 +393,12 @@ modeSelect.addEventListener('change', () => {
 // RANDOMIZATION ENGINE (AUTO SHUFFLE)
 // ==========================================
 function randomizeEngine() {
-    const modes = ['geometric', 'retro', 'topology', 'mandala'];
+    const modes = Array.from(modeSelect.options).map(opt => opt.value);
     const randomMode = modes[Math.floor(Math.random() * modes.length)];
     
     const randomDensity = Math.floor(Math.random() * (150 - 10 + 1)) + 10;
     const randomFreq = Math.floor(Math.random() * 100) + 1;
     const randomThick = Math.floor(Math.random() * 100) + 1;
-    
     const randomAmp = Math.floor(Math.random() * (200 - 50 + 1)) + 50; 
     const randomPhase = Math.floor(Math.random() * 360);
     const randomChaos = Math.floor(Math.random() * 30); 
@@ -353,7 +422,7 @@ function randomizeEngine() {
     generateDynamicArt();
 }
 
-const shuffleBtn = document.querySelector('.btn-shuffle');
+const shuffleBtn = document.querySelector('.btn-shuffle:not(#toggle-safe-area)');
 if (shuffleBtn) {
     shuffleBtn.addEventListener('click', randomizeEngine);
 }
@@ -362,13 +431,21 @@ if (shuffleBtn) {
 randomizeEngine();
 updatePosterCount();
 
-
-// Master SVG Download Logic
+// ==========================================
+// MASTER DOWNLOAD LOGIC (Hides Safe Area)
+// ==========================================
 document.getElementById('downloadBtn').addEventListener('click', () => {
+    // Hide safe areas temporarily before saving
+    let wasSafeVisible = safeAreaVisible;
+    if(wasSafeVisible) {
+        for(let i=1; i<=4; i++) document.getElementById(`safe-${i}`).style.display = 'none';
+    }
+
     const svgElement = document.getElementById('masterCanvas');
     const serializer = new XMLSerializer();
     let source = serializer.serializeToString(svgElement);
     if (!source.match(/^<\?xml[^>]+>/)) source = '<?xml version="1.0" standalone="no"?>\r\n' + source;
+    
     const url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(source);
     const downloadLink = document.createElement("a");
     downloadLink.href = url;
@@ -376,4 +453,9 @@ document.getElementById('downloadBtn').addEventListener('click', () => {
     document.body.appendChild(downloadLink);
     downloadLink.click();
     document.body.removeChild(downloadLink);
+
+    // Restore safe areas if they were visible
+    if(wasSafeVisible) {
+        for(let i=1; i<=4; i++) document.getElementById(`safe-${i}`).style.display = 'block';
+    }
 });
