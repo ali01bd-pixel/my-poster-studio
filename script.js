@@ -76,6 +76,7 @@ const modeSelect = document.getElementById('design-mode');
 const ampSlider = document.getElementById('eng-amp');
 const phaseSlider = document.getElementById('eng-phase');
 const chaosSlider = document.getElementById('eng-chaos');
+const depth3dSlider = document.getElementById('eng-3d'); // NEW 3D Slider
 
 // Deterministic Pseudo-Random Number Generator for smooth chaos
 function randomSeed(seed) {
@@ -96,6 +97,7 @@ function generateDynamicArt() {
     const amp = parseInt(ampSlider.value) / 100;    
     const phase = parseInt(phaseSlider.value);      
     const chaos = parseInt(chaosSlider.value);      
+    const depth3d = parseInt(depth3dSlider.value);  
     const mode = modeSelect.value;
 
     const W = 1830; 
@@ -103,6 +105,13 @@ function generateDynamicArt() {
     const midX = W / 2;
     const midY = H / 2;
     
+    // Apply Universal 3D Extrusion
+    const shadowFilter = document.getElementById('shadow-layer');
+    if (shadowFilter) {
+        shadowFilter.setAttribute('dx', depth3d);
+        shadowFilter.setAttribute('dy', depth3d);
+    }
+
     let paths = ["", "", "", ""];
     
     // Determine if the design mode uses solid shapes (fill) or outlines (stroke)
@@ -116,21 +125,60 @@ function generateDynamicArt() {
         if (useFill) {
             el.setAttribute('fill', `url(#stroke-grad-${i})`);
             el.setAttribute('stroke', 'none');
-            // Give fill modes a beautiful glassy transparency so overlapping shapes look good
-            el.setAttribute('style', 'opacity: 0.85;');
+            if (['watercolor_bubble', 'gradient_grain', 'aura'].includes(mode)) {
+                el.setAttribute('style', 'mix-blend-mode: overlay; opacity: 0.9;');
+            } else {
+                el.setAttribute('style', 'mix-blend-mode: normal; opacity: 1;');
+            }
         } else {
             el.setAttribute('fill', 'none');
             el.setAttribute('stroke', `url(#stroke-grad-${i})`);
             el.setAttribute('stroke-width', thick * (1 + (i*0.1))); 
-            el.setAttribute('style', 'opacity: 1;');
+            el.setAttribute('style', 'mix-blend-mode: normal; opacity: 1;');
         }
     }
 
     for (let p = 0; p < 4; p++) {
         let path = "";
         
-        // 1. MINIMALIST CONTINUOUS LINE ART
-        if (mode === 'minimalist_line') {
+        // ----------------------------------------------------
+        // TRUE 3D MODES
+        // ----------------------------------------------------
+        if (mode === '3d_wireframe') {
+            // Draw spherical grid that rotates based on Phase
+            for(let i=0; i<=density; i++) {
+                let rScale = (W/2 * amp) * (i/density);
+                let ry = W/2 * amp;
+                path += `M ${midX-rScale},${midY} a ${rScale},${ry} 0 1,0 ${rScale*2},0 a ${rScale},${ry} 0 1,0 -${rScale*2},0 `;
+            }
+            let latCount = Math.floor(density/1.5);
+            for(let i=1; i<latCount; i++) {
+                let yOffset = (W/2 * amp) * (i/latCount);
+                let tilt = phase * 0.01; // Simulates 3D tilt
+                let rx = Math.sqrt(Math.abs(Math.pow(W/2*amp, 2) - Math.pow(yOffset, 2)));
+                let ry = rx * (0.1 + tilt);
+                path += `M ${midX-rx},${midY-yOffset} a ${rx},${ry} 0 1,0 ${rx*2},0 a ${rx},${ry} 0 1,0 -${rx*2},0 `;
+                path += `M ${midX-rx},${midY+yOffset} a ${rx},${ry} 0 1,0 ${rx*2},0 a ${rx},${ry} 0 1,0 -${rx*2},0 `;
+            }
+        }
+        else if (mode === '3d_ribbon') {
+            // Draws an intersecting helical tube
+            let steps = density * 2;
+            for(let i=0; i<steps; i++) {
+                let y = (H/steps) * i;
+                let rad = phase * (Math.PI/180);
+                let xOffset = Math.sin((y * freq * 0.005) + rad + p) * 600 * amp;
+                let zScale = Math.cos((y * freq * 0.005) + rad + p); 
+                let width = (400 * amp) * (0.5 + zScale * 0.5); // Perspective scaling
+                let cx = midX + xOffset + getJitter(i, chaos);
+                path += `M ${cx-width/2},${y} C ${cx-width/2},${y+(H/steps)} ${cx+width/2},${y+(H/steps)} ${cx+width/2},${y} `;
+            }
+        }
+
+        // ----------------------------------------------------
+        // ORIGINAL ARCHITECTURAL MODES
+        // ----------------------------------------------------
+        else if (mode === 'minimalist_line') {
             let points = density / 10 + 3;
             path += `M 0,${midY} `;
             for(let i=1; i<=points; i++) {
@@ -141,8 +189,6 @@ function generateDynamicArt() {
                 path += `C ${cp1x},${cp1y} ${cp2x},${cp2y} ${x},${y} `;
             }
         }
-        
-        // 2. BAUHAUS GEOMETRIC
         else if (mode === 'bauhaus') {
             let shapes = Math.floor(density / 10) + 2;
             for(let i=0; i<shapes; i++) {
@@ -151,17 +197,15 @@ function generateDynamicArt() {
                 let y = randomSeed(i*p+3) * H;
                 let type = Math.floor(randomSeed(i*p+4) * 3);
                 
-                if (type === 0) { // Circle
+                if (type === 0) {
                     path += `M ${x},${y} m -${s},0 a ${s},${s} 0 1,0 ${s*2},0 a ${s},${s} 0 1,0 -${s*2},0 `;
-                } else if (type === 1) { // Rectangle
+                } else if (type === 1) {
                     path += `M ${x},${y} L ${x+s*1.5},${y} L ${x+s*1.5},${y+s} L ${x},${y+s} Z `;
-                } else { // Triangle
+                } else {
                     path += `M ${x},${y} L ${x+s*2},${y+s*2} L ${x},${y+s*2} Z `;
                 }
             }
         }
-
-        // 3. BOHO TERRAZZO & ARCH
         else if (mode === 'boho_terrazzo') {
             let archW = 400 * amp + (p*50);
             let archH = 1000 * amp;
@@ -177,8 +221,6 @@ function generateDynamicArt() {
                 path += `M ${fx},${fy} L ${fx+fs},${fy+fs*0.5} L ${fx+fs*0.8},${fy+fs*1.2} L ${fx-fs*0.2},${fy+fs} Z `;
             }
         }
-
-        // 4. 80s SYNTHWAVE GRID
         else if (mode === 'synthwave') {
             let horizon = midY + 200;
             let sr = 400 * amp;
@@ -195,8 +237,6 @@ function generateDynamicArt() {
                 if (y < H) path += `M 0,${y} L ${W},${y} `;
             }
         }
-
-        // 5. 70s PSYCHEDELIC TYPOGRAPHY
         else if (mode === 'psychedelic' || mode === 'retro') {
             let waves = density / 2;
             for(let i=0; i<waves; i++) {
@@ -206,8 +246,6 @@ function generateDynamicArt() {
                 path += `M 0,${y+j} C 400,${y-waveDepth} 600,${y+waveDepth} 900,${y} C 1200,${y-waveDepth} 1400,${y+waveDepth} 1830,${y+j} `;
             }
         }
-
-        // 6. Y2K CYBER GRAPHICS
         else if (mode === 'y2k') {
             let stars = Math.floor(density / 10) + 1;
             for(let i=0; i<stars; i++) {
@@ -222,8 +260,6 @@ function generateDynamicArt() {
                 path += `M ${eX-rx},${eY} a ${rx},${ry} 0 1,0 ${rx*2},0 a ${rx},${ry} 0 1,0 -${rx*2},0 `;
             }
         }
-
-        // 7. WATERCOLOR BUBBLES / AURA
         else if (mode === 'watercolor_bubble' || mode === 'aura' || mode === 'gradient_grain') {
             let circles = density / 2;
             for(let i=0; i<circles; i++) {
@@ -233,8 +269,6 @@ function generateDynamicArt() {
                 path += `M ${cx-r},${cy} a ${r},${r} 0 1,0 ${r*2},0 a ${r},${r} 0 1,0 -${r*2},0 `;
             }
         }
-
-        // 8. MANDALA ART
         else if (mode === 'mandala') {
             let layers = Math.floor(density / 5) + 3; 
             let petals = Math.floor(freq / 3) + 8;    
@@ -258,8 +292,6 @@ function generateDynamicArt() {
                 }
             }
         }
-
-        // 9. TOPOLOGY
         else if (mode === 'topology') {
             for (let i = 0; i < density; i++) {
                 let yBase = ((H / density) * i);
@@ -271,8 +303,6 @@ function generateDynamicArt() {
                 }
             }
         }
-
-        // 10. DEFAULT / GEOMETRIC
         else {
             for (let i = 0; i < density; i++) {
                 let y = ((H / density) * i);
@@ -285,7 +315,7 @@ function generateDynamicArt() {
         paths[p] = path;
     }
 
-    // Push coordinates to HTML
+    // Push to HTML
     for(let i=1; i<=4; i++) {
         let lineEl = document.getElementById(`svg-p${i}-line`);
         if (lineEl) lineEl.setAttribute('d', paths[i-1]);
@@ -293,20 +323,33 @@ function generateDynamicArt() {
 }
 
 // ==========================================
-// BACKGROUND & LINE GRADIENT SHUFFLE ENGINE
+// HYPER-VIBRANT COLOR SHUFFLE ENGINE
 // ==========================================
 function randomizeColors() {
+    // Ultra vibrant neon backgrounds
     const bgGradients = [
-        ['#ece9e6', '#ffffff'], ['#0f2027', '#203a43'], ['#2c3e50', '#000000'], 
-        ['#fff1eb', '#ace0f9'], ['#a18cd1', '#fbc2eb'], ['#141e30', '#243b55'], 
-        ['#000000', '#1a1a1a'], ['#e0c3fc', '#8ec5fc'], ['#f6d365', '#fda085'], 
-        ['#1e130c', '#9a8478']
+        ['#000000', '#1a1a24'], // Pitch dark
+        ['#2b0255', '#e21051'], // Cyberpunk pink/purple
+        ['#0f2027', '#203a43'], // Space
+        ['#141e30', '#243b55'], // Deep Blue
+        ['#ffecd2', '#fcb69f'], // Soft peach
+        ['#0f0c29', '#302b63'], // Synthwave night
+        ['#000428', '#004e92'], // Dark aqua
+        ['#ece9e6', '#ffffff'], // Clean White
+        ['#000000', '#000000']  // Solid Black
     ];
 
+    // Ultra bright contrast lines
     const lineGradients = [
-        ['#111111', '#333333'], ['#ff0844', '#ffb199'], ['#00c6ff', '#0072ff'], 
-        ['#f12711', '#f5af19'], ['#7F00FF', '#E100FF'], ['#11998e', '#38ef7d'], 
-        ['#c31432', '#240b36'], ['#ffffff', '#f0f0f0'], ['#fdfc47', '#24fe41']
+        ['#00ff87', '#60efff'], // Neon Green/Cyan
+        ['#ff0844', '#ffb199'], // Toxic Pink
+        ['#f12711', '#f5af19'], // Fire Orange
+        ['#7F00FF', '#E100FF'], // Laser Purple
+        ['#00c6ff', '#0072ff'], // Bright Azure
+        ['#fdfc47', '#24fe41'], // Acid Green
+        ['#ffe259', '#ffa751'], // Bright Gold
+        ['#ffffff', '#e0e0e0'], // White Gloss
+        ['#111111', '#333333']  // Dark Ink
     ];
     
     for (let i = 1; i <= 4; i++) {
@@ -335,14 +378,14 @@ function randomizeColors() {
     }
 }
 
-// Ensure the UI sliders trigger redraws
-['eng-density', 'eng-freq', 'eng-thick', 'eng-amp', 'eng-phase', 'eng-chaos'].forEach(id => {
+// Trigger Redraws
+['eng-density', 'eng-freq', 'eng-thick', 'eng-amp', 'eng-phase', 'eng-chaos', 'eng-3d'].forEach(id => {
     const slider = document.getElementById(id);
     if (slider) {
         slider.addEventListener('input', (e) => {
             let valText = e.target.value;
-            if(id === 'eng-freq' || id === 'eng-amp' || id === 'eng-chaos') valText += '%';
-            if(id === 'eng-thick') valText += 'PX';
+            if(['eng-freq', 'eng-amp', 'eng-chaos'].includes(id)) valText += '%';
+            if(['eng-thick', 'eng-3d'].includes(id)) valText += 'PX';
             if(id === 'eng-phase') valText += '°';
             
             let label = document.getElementById(`val-${id.split('eng-')[1]}`);
@@ -361,7 +404,7 @@ if (modeSelect) {
 }
 
 // ==========================================
-// RANDOMIZATION ENGINE (AUTO SHUFFLE)
+// RANDOMIZATION ENGINE
 // ==========================================
 function randomizeEngine() {
     if (!modeSelect) return;
@@ -375,6 +418,7 @@ function randomizeEngine() {
     const randomAmp = Math.floor(Math.random() * (150 - 50 + 1)) + 50; 
     const randomPhase = Math.floor(Math.random() * 360);
     const randomChaos = Math.floor(Math.random() * 15); 
+    const random3d = Math.floor(Math.random() * 20); // Keep 3D effect tasteful
 
     modeSelect.value = randomMode;
     if(densitySlider) densitySlider.value = randomDensity;
@@ -383,6 +427,7 @@ function randomizeEngine() {
     if(ampSlider) ampSlider.value = randomAmp;
     if(phaseSlider) phaseSlider.value = randomPhase;
     if(chaosSlider) chaosSlider.value = randomChaos;
+    if(depth3dSlider) depth3dSlider.value = random3d;
 
     if(document.getElementById('val-density')) document.getElementById('val-density').innerText = randomDensity;
     if(document.getElementById('val-freq')) document.getElementById('val-freq').innerText = randomFreq + '%';
@@ -390,6 +435,7 @@ function randomizeEngine() {
     if(document.getElementById('val-amp')) document.getElementById('val-amp').innerText = randomAmp + '%';
     if(document.getElementById('val-phase')) document.getElementById('val-phase').innerText = randomPhase + '°';
     if(document.getElementById('val-chaos')) document.getElementById('val-chaos').innerText = randomChaos + '%';
+    if(document.getElementById('val-3d')) document.getElementById('val-3d').innerText = random3d + 'PX';
 
     randomizeColors();
     generateDynamicArt();
