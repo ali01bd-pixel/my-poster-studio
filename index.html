@@ -141,6 +141,8 @@
                         <option value="retro">Retro Waves</option>
                         <option value="topology">Complex Topology</option>
                         <option value="mandala">Mandala Art</option>
+                        <option value="3d_wireframe">3D Wireframe Sphere</option>
+                        <option value="3d_ribbon">3D Helical Ribbon</option>
                         <option value="watercolor_bubble">Watercolor Bubble Poster</option>
                         <option value="retro_poster">Retro Poster (Concentric)</option>
                         <option value="psychedelic">70s Psychedelic Waves</option>
@@ -188,6 +190,11 @@
                     <div class="slider-header"><label>CHAOS / বিশৃঙ্খলা</label><span id="val-chaos">0%</span></div>
                     <input type="range" id="eng-chaos" min="0" max="150" value="0">
                 </div>
+
+                <div class="slider-group">
+                    <div class="slider-header"><label>3D DEPTH / থ্রিডি এফেক্ট</label><span id="val-3d">0PX</span></div>
+                    <input type="range" id="eng-3d" min="0" max="150" value="0">
+                </div>
             </div>
 
             <button id="downloadBtn" class="download-btn">DOWNLOAD SVG</button>
@@ -197,6 +204,10 @@
             <svg id="masterCanvas" viewBox="0 0 7920 2520" xmlns="http://www.w3.org/2000/svg">
                 <defs>
                     <clipPath id="posterClip"><rect width="1830" height="2520" /></clipPath>
+                    
+                    <filter id="shadow-3d" x="-50%" y="-50%" width="200%" height="200%">
+                        <feDropShadow id="shadow-layer" dx="0" dy="0" stdDeviation="0" flood-color="#000000" flood-opacity="0.8"/>
+                    </filter>
                     
                     <linearGradient id="bg-grad-1" x1="0%" y1="0%" x2="0%" y2="100%">
                         <stop id="p1-bg1-stop" offset="0%" stop-color="#0f2027" />
@@ -237,25 +248,25 @@
 
                 <g id="art-1" transform="translate(0, 0)" clip-path="url(#posterClip)">
                     <rect id="svg-p1-bg" x="0" width="1830" height="2520" fill="url(#bg-grad-1)" />
-                    <path id="svg-p1-line" d="" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path id="svg-p1-line" filter="url(#shadow-3d)" d="" stroke-linecap="round" stroke-linejoin="round"/>
                     <rect id="safe-1" x="150" y="150" width="1530" height="2220" fill="none" stroke="#00e5ff" stroke-width="6" stroke-dasharray="30, 20" style="display:none; pointer-events:none;" />
                 </g>
 
                 <g id="art-2" transform="translate(2030, 0)" clip-path="url(#posterClip)">
                     <rect id="svg-p2-bg" x="0" width="1830" height="2520" fill="url(#bg-grad-2)" />
-                    <path id="svg-p2-line" d="" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path id="svg-p2-line" filter="url(#shadow-3d)" d="" stroke-linecap="round" stroke-linejoin="round"/>
                     <rect id="safe-2" x="150" y="150" width="1530" height="2220" fill="none" stroke="#00e5ff" stroke-width="6" stroke-dasharray="30, 20" style="display:none; pointer-events:none;" />
                 </g>
 
                 <g id="art-3" transform="translate(4060, 0)" clip-path="url(#posterClip)">
                     <rect id="svg-p3-bg" x="0" width="1830" height="2520" fill="url(#bg-grad-3)" />
-                    <path id="svg-p3-line" d="" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path id="svg-p3-line" filter="url(#shadow-3d)" d="" stroke-linecap="round" stroke-linejoin="round"/>
                     <rect id="safe-3" x="150" y="150" width="1530" height="2220" fill="none" stroke="#00e5ff" stroke-width="6" stroke-dasharray="30, 20" style="display:none; pointer-events:none;" />
                 </g>
 
                 <g id="art-4" transform="translate(6090, 0)" clip-path="url(#posterClip)">
                     <rect id="svg-p4-bg" x="0" width="1830" height="2520" fill="url(#bg-grad-4)" />
-                    <path id="svg-p4-line" d="" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path id="svg-p4-line" filter="url(#shadow-3d)" d="" stroke-linecap="round" stroke-linejoin="round"/>
                     <rect id="safe-4" x="150" y="150" width="1530" height="2220" fill="none" stroke="#00e5ff" stroke-width="6" stroke-dasharray="30, 20" style="display:none; pointer-events:none;" />
                 </g>
             </svg>
