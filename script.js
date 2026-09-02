@@ -68,7 +68,6 @@
     };
   }
 
-  // Pure Vector Gradients (NO SVG Blur/Shadow Filters)
   function commonDefs(id,p,rnd){
     return `<defs>
       <linearGradient id="${id}_bg" x1="${rnd()*20}%" y1="100%" x2="${80+rnd()*20}%" y2="0%">
@@ -96,13 +95,19 @@
     </defs>`;
   }
 
-  // --- NEW: SHARP GEOMETRIC BEAMS (Matches Reference Image) ---
+  function addLight(out,id,w,h,rnd,p){
+    const fade = Number(state.edgeFade)/100;
+    if(fade<=0) return out;
+    out += `<ellipse cx="${(w*(.14+rnd()*.20)).toFixed(1)}" cy="${(h*(.08+rnd()*.20)).toFixed(1)}" rx="${(w*.30).toFixed(1)}" ry="${(h*.18).toFixed(1)}" fill="url(#${id}_hero)" opacity="${(.15+fade*.15).toFixed(2)}"/>`;
+    out += `<ellipse cx="${(w*(.86-rnd()*.10)).toFixed(1)}" cy="${(h*(.78-rnd()*.10)).toFixed(1)}" rx="${(w*.24).toFixed(1)}" ry="${(h*.17).toFixed(1)}" fill="url(#${id}_bg)" opacity="${(.15+fade*.15).toFixed(2)}"/>`;
+    return out;
+  }
+
   function sharpBeams(id,w,h,p,rnd,index) {
     const s = sizeFactor();
     const shadowColor = mixHex(p.dark, "#000000", 0.6);
     let out = "";
 
-    // Poster 1: Stepped Gradient Fluid/Curves
     if(index % 5 === 0) {
         out += `<rect width="${w}" height="${h}" fill="url(#${id}_dark)"/>`;
         const steps = Math.max(12, Math.floor(Number(state.density)*2));
@@ -120,7 +125,6 @@
         return out;
     }
     
-    // Poster 2: Sweeping Sharp Blades
     if(index % 5 === 1) {
         out += `<rect width="${w}" height="${h}" fill="${p.dark}"/>`;
         const blades = Math.max(8, Math.floor(Number(state.density)*1.5));
@@ -140,7 +144,6 @@
         return out;
     }
 
-    // Poster 3: Radiating Spokes from Left
     if(index % 5 === 2) {
         out += `<rect width="${w}" height="${h}" fill="${p.dark}"/>`;
         const beams = Math.max(8, Number(state.density)*2);
@@ -159,7 +162,6 @@
         return out;
     }
 
-    // Poster 4: Woven Intersecting Bars
     if(index % 5 === 3) {
         out += `<rect width="${w}" height="${h}" fill="${p.dark}"/>`;
         const bars = Math.max(6, Number(state.density)*1.2);
@@ -176,7 +178,6 @@
         return out;
     }
 
-    // Poster 5: Jagged Center Void
     out += `<rect width="${w}" height="${h}" fill="${p.light}"/>`;
     const spikes = Math.max(10, Number(state.density)*2);
     const cx = w*0.5, cy = h*0.5;
@@ -198,8 +199,8 @@
 
   function circleGrid(id,w,h,p,rnd){
     let out=""; const cols=4+(Number(state.density)>12?1:0), rows=6+(Number(state.density)%4), s=sizeFactor();
-    const cellW=w/(cols+1), cellH=h/(rows+1), base=Math.min(cellW,cellH)*.43*s;
     const shadowColor = mixHex(p.dark, "#000000", 0.6);
+    const cellW=w/(cols+1), cellH=h/(rows+1), base=Math.min(cellW,cellH)*.43*s;
     for(let row=0;row<rows;row++) for(let col=0;col<cols;col++){
       const x=cellW*(col+1)+Math.sin(row+col)*cellW*.05, y=cellH*(row+1)+Math.cos(col*.8)*cellH*.035;
       const r=base*(.62+rnd()*.48), fill=(row+col)%3===0?`url(#${id}_orb)`:(row%2?`url(#${id}_hero)`:p.b);
@@ -509,7 +510,6 @@
     const fill = index%4===1 ? "#e0e0e0" : "#ffffff";
     const fs = Math.max(18,Math.round(Math.min(w,h)*.026));
 
-    // Custom Typography for the Sharp Beams mode
     if (state.designMode === "sharpBeams") {
       const bigFs = Math.max(30, Math.round(Math.min(w,h)*0.09));
       const textColor = index%2 === 0 ? p.light : p.text;
@@ -534,9 +534,9 @@
       </g>`;
     }
 
-    const titles = state.designMode === "blueEditorial" ? ["DESIGN INSPIRATION","ABSTRACT POSTER","ABSTRACT / 01","INSPIRATION","CREATE","BLUE FORM","VISUAL STUDY","MODERN ART"] : state.designMode === "pastelEditorial" ? ["DESIGN INSPIRATION","INSPIRATION","MODERN COVER","COVER DESIGN","MODERN ART","COLOR STUDY","DESIGN POSTER","SOFT FORM"] : ["VIVID MOTION","COLOR / FORM","SOFT IMPACT","NEW DIMENSION","VISUAL ENERGY","LIQUID SYSTEM","LIGHT / VOLUME","MODERN OBJECT"];
+    const titles = ["VIVID MOTION","COLOR / FORM","SOFT IMPACT","NEW DIMENSION","VISUAL ENERGY","LIQUID SYSTEM","LIGHT / VOLUME","MODERN OBJECT"];
     const title=titles[index%titles.length];
-    const sub = state.designMode === "blueEditorial" ? ["DESIGN STUDY","POSTER SYSTEM","BLUE EDITORIAL","VISUAL REFERENCE","FORM / VOLUME"][index%5] : state.designMode === "pastelEditorial" ? ["DESIGN STUDY","POSTER SERIES","MODERN COVER","VISUAL SYSTEM","COLOR / FORM"][index%5] : ["ABSTRACT SERIES","GENERATIVE STUDY","EDITED IN SVG","DESIGN OBJECT","COLOR EXPLORATION"][index%5];
+    const sub = ["ABSTRACT SERIES","GENERATIVE STUDY","EDITED IN SVG","DESIGN OBJECT","COLOR EXPLORATION"][index%5];
     
     return `<g font-family="Arial, Helvetica, sans-serif" fill="${fill}" opacity="${(.68+.28*amount).toFixed(2)}">
       <text x="${(w*.08).toFixed(1)}" y="${(h*.10).toFixed(1)}" font-size="${fs}" font-weight="900" letter-spacing="${Math.max(2,fs*.18).toFixed(1)}">${esc(title)}</text>
@@ -589,39 +589,30 @@
   }
 
   function readControls(){
-    ["posterCount","shapeSize","density","gradientSoftness","spacing","edgeFade","textAmount"].forEach(k=>state[k]=Number($(k).value));
-    ["designMode","theme","format","quality","darkColor","lightColor","seed"].forEach(k=>state[k]=$(k).value);
+    ["posterCount","shapeSize","density","gradientSoftness","spacing","edgeFade","textAmount"].forEach(k=> {
+        if($(k)) state[k]=Number($(k).value)
+    });
+    ["designMode","theme","format","quality","darkColor","lightColor","seed"].forEach(k=>{
+        if($(k)) state[k]=$(k).value
+    });
     state.seed=Number(state.seed)||1;
-    state.depth=document.querySelector(".segment.active")?.dataset.depth || state.depth;
+    const activeSeg = document.querySelector(".segment.active");
+    if(activeSeg) state.depth=activeSeg.dataset.depth;
   }
 
   function updateOutputs(){
     const map={posterCount:["posterCountVal",v=>v],shapeSize:["shapeSizeVal",v=>`${v}%`],density:["densityVal",v=>v],gradientSoftness:["gradientSoftnessVal",v=>`${v}%`],spacing:["spacingVal",v=>`${v}%`],edgeFade:["edgeFadeVal",v=>`${v}%`],textAmount:["textAmountVal",v=>`${v}%`]};
-    Object.entries(map).forEach(([id,[oid,fn]])=>$(oid).textContent=fn($(id).value));
-    $("collectionCount").textContent=$("posterCount").value;
-    const modeLabel=$("designMode").selectedOptions[0]?.textContent || "VIBRANT GENERATOR";
-    $("workspaceTitle").textContent=modeLabel.toUpperCase();
-    $("statusMode").textContent=state.depth === "3d" ? "VECTOR SHADOW ENGINE" : "VIBRANT GENERATOR";
-    $("statusText").textContent=state.depth === "3d" ? "Crisp offset geometric shadows enabled" : "Pure vector rendering";
-    $("workspaceSubtitle").textContent = state.depth === "3d" ? "Each design uses clean geometric shadows for a sharp 3D look." : "Every card uses rich, vivid colors with crisp, sharp geometry.";
-  }
-
-  function render(){
-    readControls(); updateOutputs(); generated=[];
-    const grid=$("posterGrid"); grid.innerHTML="";
-    const tpl=$("posterTemplate");
-    for(let i=0;i<state.posterCount;i++){
-      const node=tpl.content.firstElementChild.cloneNode(true), svg=makeSvg(i);
-      generated.push(svg);
-      node.querySelector(".poster-number").textContent=`DESIGN ${String(i+1).padStart(2,"0")}`;
-      node.querySelector(".poster-mode").textContent=`${state.depth.toUpperCase()} / ${String(i+1).padStart(2,"0")}`;
-      node.querySelector(".poster-frame").innerHTML=svg;
-      node.querySelector(".download-one").addEventListener("click",()=>download(`ali-studio-${state.theme}-${state.depth}-${String(i+1).padStart(2,"0")}.svg`,svg));
-      node.querySelector(".copy-one").addEventListener("click",()=>copyText(svg));
-      grid.appendChild(node);
-    }
-    grid.style.gridTemplateColumns=`repeat(${Math.min(4,state.posterCount)},minmax(0,1fr))`;
-    applyZoom();
+    Object.entries(map).forEach(([id,[oid,fn]])=>{
+        if($(oid) && $(id)) $(oid).textContent=fn($(id).value);
+    });
+    if($("collectionCount") && $("posterCount")) $("collectionCount").textContent=$("posterCount").value;
+    
+    const dMode = $("designMode");
+    if(dMode && $("workspaceTitle")) $("workspaceTitle").textContent = (dMode.options[dMode.selectedIndex].text).toUpperCase();
+    
+    if($("statusMode")) $("statusMode").textContent=state.depth === "3d" ? "VECTOR SHADOW ENGINE" : "VIBRANT GENERATOR";
+    if($("statusText")) $("statusText").textContent=state.depth === "3d" ? "Crisp offset geometric shadows enabled" : "Pure vector rendering";
+    if($("workspaceSubtitle")) $("workspaceSubtitle").textContent = state.depth === "3d" ? "Each design uses clean geometric shadows for a sharp 3D look." : "Every card uses rich, vivid colors with crisp, sharp geometry.";
   }
 
   function applyZoom(){ 
@@ -636,9 +627,46 @@
       grid.style.marginBottom = `${heightDifference > 0 ? heightDifference + 80 : 80}px`;
   }
 
+  function render(){
+    try {
+        readControls(); updateOutputs(); generated=[];
+        const grid=$("posterGrid"); 
+        if(!grid) return;
+        grid.innerHTML="";
+        const tpl=$("posterTemplate");
+        if(!tpl) return;
+        
+        for(let i=0;i<state.posterCount;i++){
+          const node=tpl.content.firstElementChild.cloneNode(true);
+          const svg=makeSvg(i);
+          generated.push(svg);
+          
+          let pNum = node.querySelector(".poster-number");
+          let pMode = node.querySelector(".poster-mode");
+          let pFrame = node.querySelector(".poster-frame");
+          let dBtn = node.querySelector(".download-one");
+          let cBtn = node.querySelector(".copy-one");
+
+          if(pNum) pNum.textContent=`DESIGN ${String(i+1).padStart(2,"0")}`;
+          if(pMode) pMode.textContent=`${state.depth.toUpperCase()} / ${String(i+1).padStart(2,"0")}`;
+          if(pFrame) pFrame.innerHTML=svg;
+          if(dBtn) dBtn.addEventListener("click",()=>download(`ali-studio-${state.theme}-${state.depth}-${String(i+1).padStart(2,"0")}.svg`,svg));
+          if(cBtn) cBtn.addEventListener("click",()=>copyText(svg));
+          grid.appendChild(node);
+        }
+        grid.style.gridTemplateColumns=`repeat(${Math.min(4,state.posterCount)},minmax(0,1fr))`;
+        applyZoom();
+    } catch (e) {
+        console.error("Render Error:", e);
+    }
+  }
+
   ["posterCount","designMode","theme","shapeSize","density","gradientSoftness","spacing","edgeFade","textAmount","seed","format","quality","darkColor","lightColor"].forEach(id=>{
-    $(id).addEventListener("input",()=>{updateOutputs();render();});
-    $(id).addEventListener("change",()=>{updateOutputs();render();});
+    let el = $(id);
+    if(el) {
+        el.addEventListener("input",()=>{updateOutputs();render();});
+        el.addEventListener("change",()=>{updateOutputs();render();});
+    }
   });
 
   document.querySelectorAll(".segment").forEach(btn=>btn.addEventListener("click",()=>{
@@ -646,23 +674,31 @@
     btn.classList.add("active"); state.depth=btn.dataset.depth; updateOutputs(); render();
   }));
 
-  $("regenerate").addEventListener("click",render);
-  $("randomize").addEventListener("click",()=>{
-    $("seed").value=Math.floor(Math.random()*99999999)+1;
-    $("shapeSize").value=60+Math.floor(Math.random()*86);
-    $("density").value=4+Math.floor(Math.random()*13);
-    $("gradientSoftness").value=48+Math.floor(Math.random()*53);
-    $("spacing").value=10+Math.floor(Math.random()*51);
-    $("edgeFade").value=12+Math.floor(Math.random()*65);
-    const themes=Object.keys(THEMES); $("theme").value=themes[Math.floor(Math.random()*themes.length)];
-    const modes=["sharpBeams","vibrantMix","blueEditorial","pastelEditorial","liquid","glass","prism","organic","waves","minimal"]; $("designMode").value=modes[Math.floor(Math.random()*modes.length)];
+  if($("regenerate")) $("regenerate").addEventListener("click",render);
+  if($("randomize")) $("randomize").addEventListener("click",()=>{
+    if($("seed")) $("seed").value=Math.floor(Math.random()*99999999)+1;
+    if($("shapeSize")) $("shapeSize").value=60+Math.floor(Math.random()*86);
+    if($("density")) $("density").value=4+Math.floor(Math.random()*13);
+    if($("gradientSoftness")) $("gradientSoftness").value=48+Math.floor(Math.random()*53);
+    if($("spacing")) $("spacing").value=10+Math.floor(Math.random()*51);
+    if($("edgeFade")) $("edgeFade").value=12+Math.floor(Math.random()*65);
+    
+    const themes=Object.keys(THEMES); 
+    if($("theme")) $("theme").value=themes[Math.floor(Math.random()*themes.length)];
+    
+    const modes=["sharpBeams","vibrantMix","blueEditorial","pastelEditorial","liquid","glass","prism","organic","waves","minimal"]; 
+    if($("designMode")) $("designMode").value=modes[Math.floor(Math.random()*modes.length)];
+    
     updateOutputs(); render();
   });
 
-  $("downloadAll").addEventListener("click",()=>download(`ali-studio-${state.theme}-${state.depth}-collection.svg`,makeCombinedSvg()));
-  $("downloadJson").addEventListener("click",()=>download("ali-studio-settings.json",JSON.stringify(state,null,2),"application/json"));
-  $("zoomIn").addEventListener("click",()=>{zoom=clamp(zoom+.1,.5,1.8);applyZoom();});
-  $("zoomOut").addEventListener("click",()=>{zoom=clamp(zoom-.1,.5,1.8);applyZoom();});
+  if($("downloadAll")) $("downloadAll").addEventListener("click",()=>download(`ali-studio-${state.theme}-${state.depth}-collection.svg`,makeCombinedSvg()));
+  if($("downloadJson")) $("downloadJson").addEventListener("click",()=>download("ali-studio-settings.json",JSON.stringify(state,null,2),"application/json"));
+  
+  if($("zoomIn")) $("zoomIn").addEventListener("click",()=>{zoom=clamp(zoom+.1,.3,2);applyZoom();});
+  if($("zoomOut")) $("zoomOut").addEventListener("click",()=>{zoom=clamp(zoom-.1,.3,2);applyZoom();});
 
-  updateOutputs(); render();
+  // START ENGINE
+  updateOutputs(); 
+  render();
 })();
