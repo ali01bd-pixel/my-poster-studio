@@ -213,9 +213,9 @@
         let x = w*rnd(); let y = h*rnd(); let s = w * 0.05 * sizeFactor() * (1+rnd()*2);
         let col = [p.a, p.b, p.dark][i%3];
         if(state.depth==="3d") {
-            if(type===0) out += `<circle cx="${x+10}" cy="${y+10}" r="${s}" fill="${shadowColor}"/>`;
-            if(type===1) out += `<rect x="${x+10}" y="${y+10}" width="${s*1.5}" height="${s*1.5}" fill="none" stroke="${shadowColor}" stroke-width="${s*0.2}"/>`;
-            if(type===2) out += `<polygon points="${x+10},${y-s+10} ${x+s+10},${y+s+10} ${x-s+10},${y+s+10}" fill="${shadowColor}"/>`;
+            if(type===0) out += `<circle cx="${x+10}" cy="${y+10}" r="${s}" fill="${shadowColor}" opacity="0.5"/>`;
+            if(type===1) out += `<rect x="${x+10}" y="${y+10}" width="${s*1.5}" height="${s*1.5}" fill="none" stroke="${shadowColor}" stroke-width="${s*0.2}" opacity="0.5"/>`;
+            if(type===2) out += `<polygon points="${x+10},${y-s+10} ${x+s+10},${y+s+10} ${x-s+10},${y+s+10}" fill="${shadowColor}" opacity="0.5"/>`;
         }
         if(type===0) out += `<circle cx="${x}" cy="${y}" r="${s}" fill="${col}"/>`;
         if(type===1) out += `<rect x="${x}" y="${y}" width="${s*1.5}" height="${s*1.5}" fill="none" stroke="${col}" stroke-width="${s*0.2}"/>`;
@@ -339,7 +339,7 @@
   // INTELLIGENT ROUTING ENGINE
   // ==========================================
   function layoutByMode(index,w,h,p,rnd,id){
-    const mode = state.designMode.toLowerCase();
+    const mode = (state.designMode || "").toLowerCase();
     
     if (mode.includes('memphis') || mode.includes('playful') || mode.includes('retro')) return memphis(id,w,h,p,rnd);
     if (mode.includes('y2k') || mode.includes('cyber') || mode.includes('tech') || mode.includes('synthwave')) return cyberTopography(id,w,h,p,rnd);
@@ -349,8 +349,9 @@
     if (mode.includes('bubble')) return spheres(id,w,h,p,rnd);
     if (mode.includes('pattern') || mode.includes('halftone') || mode.includes('dot') || mode.includes('checkerboard') || mode.includes('grid')) return patternGrid(id,w,h,p,rnd, mode);
     if (mode.includes('liquid') || mode.includes('fluid') || mode.includes('ink') || mode.includes('paint') || mode.includes('splash')) return liquid(id,w,h,p,rnd);
+    if (mode.includes('wave')) return waves(id,w,h,p,rnd);
 
-    if (mode.includes('geometry') || mode.includes('geometric')) {
+    if (mode.includes('geometry') || mode.includes('geometric') || mode.includes('editorial')) {
         if (mode.includes('cyan') || mode.includes('bold')) return sharpBeams(id,w,h,p,rnd,index);
         if (mode.includes('soft') || mode.includes('organic')) return liquid(id,w,h,p,rnd);
         return sharpBeams(id,w,h,p,rnd,index);
@@ -359,7 +360,7 @@
     if (mode.includes('abstract')) {
         if (mode.includes('bold')) return sharpBeams(id,w,h,p,rnd,index);
         if (mode.includes('organic')) return petals(id,w,h,p,rnd);
-        return waves(id,w,h,p,rnd);
+        return memphis(id,w,h,p,rnd);
     }
 
     return sharpBeams(id,w,h,p,rnd,index); // Default fallback
@@ -374,9 +375,9 @@
     
     const fill = index%4===1 ? "#e0e0e0" : "#ffffff";
     const fs = Math.max(18,Math.round(Math.min(w,h)*.026));
-    const modeName = state.designMode.toUpperCase();
+    const modeName = (state.designMode || "VIBRANT VECTOR").toUpperCase();
 
-    if (state.designMode === "Cyan Geometric Editorial" || state.designMode === "sharpBeams") {
+    if (modeName.includes("BEAMS") || modeName.includes("EDITORIAL")) {
       const bigFs = Math.max(30, Math.round(Math.min(w,h)*0.09));
       const textColor = index%2 === 0 ? p.light : p.text;
       if (index % 5 === 0) {
@@ -441,34 +442,45 @@
   }
 
   function readControls(){
-    ["posterCount","shapeSize","density","gradientSoftness","spacing","edgeFade","textAmount"].forEach(k=>state[k]=Number($(k).value));
-    ["designMode","theme","format","quality","darkColor","lightColor","seed"].forEach(k=>state[k]=$(k).value);
+    ["posterCount","shapeSize","density","gradientSoftness","spacing","edgeFade","textAmount"].forEach(k=>{if($(k))state[k]=Number($(k).value)});
+    ["designMode","theme","format","quality","darkColor","lightColor","seed"].forEach(k=>{if($(k))state[k]=$(k).value});
     state.seed=Number(state.seed)||1;
-    state.depth=document.querySelector(".segment.active")?.dataset.depth || state.depth;
+    const activeSeg = document.querySelector(".segment.active");
+    if(activeSeg) state.depth = activeSeg.dataset.depth;
   }
 
   function updateOutputs(){
     const map={posterCount:["posterCountVal",v=>v],shapeSize:["shapeSizeVal",v=>`${v}%`],density:["densityVal",v=>v],gradientSoftness:["gradientSoftnessVal",v=>`${v}%`],spacing:["spacingVal",v=>`${v}%`],edgeFade:["edgeFadeVal",v=>`${v}%`],textAmount:["textAmountVal",v=>`${v}%`]};
-    Object.entries(map).forEach(([id,[oid,fn]])=>$(oid).textContent=fn($(id).value));
-    $("collectionCount").textContent=$("posterCount").value;
-    const modeLabel=$("designMode").selectedOptions[0]?.textContent || "VIBRANT GENERATOR";
-    $("workspaceTitle").textContent=modeLabel.toUpperCase();
-    $("statusMode").textContent=state.depth === "3d" ? "VECTOR SHADOW ENGINE" : "VIBRANT GENERATOR";
-    $("statusText").textContent=state.depth === "3d" ? "Crisp offset geometric shadows enabled" : "Pure vector rendering";
+    Object.entries(map).forEach(([id,[oid,fn]])=>{if($(oid) && $(id)) $(oid).textContent=fn($(id).value)});
+    if($("collectionCount") && $("posterCount")) $("collectionCount").textContent=$("posterCount").value;
+    const dMode=$("designMode");
+    if(dMode && $("workspaceTitle")) $("workspaceTitle").textContent=(dMode.options[dMode.selectedIndex]?.text || "VIBRANT").toUpperCase();
+    if($("statusMode")) $("statusMode").textContent=state.depth === "3d" ? "VECTOR SHADOW ENGINE" : "VIBRANT GENERATOR";
+    if($("statusText")) $("statusText").textContent=state.depth === "3d" ? "Crisp offset geometric shadows enabled" : "Pure vector rendering";
   }
 
   function render(){
     readControls(); updateOutputs(); generated=[];
-    const grid=$("posterGrid"); grid.innerHTML="";
+    const grid=$("posterGrid"); 
+    if(!grid) return;
+    grid.innerHTML="";
     const tpl=$("posterTemplate");
+    if(!tpl) return;
+    
     for(let i=0;i<state.posterCount;i++){
       const node=tpl.content.firstElementChild.cloneNode(true), svg=makeSvg(i);
       generated.push(svg);
-      node.querySelector(".poster-number").textContent=`DESIGN ${String(i+1).padStart(2,"0")}`;
-      node.querySelector(".poster-mode").textContent=`${state.depth.toUpperCase()} / ${String(i+1).padStart(2,"0")}`;
-      node.querySelector(".poster-frame").innerHTML=svg;
-      node.querySelector(".download-one").addEventListener("click",()=>download(`ali-studio-${state.theme}-${state.depth}-${String(i+1).padStart(2,"0")}.svg`,svg));
-      node.querySelector(".copy-one").addEventListener("click",()=>copyText(svg));
+      const num = node.querySelector(".poster-number");
+      const mode = node.querySelector(".poster-mode");
+      const frame = node.querySelector(".poster-frame");
+      const dBtn = node.querySelector(".download-one");
+      const cBtn = node.querySelector(".copy-one");
+      
+      if(num) num.textContent=`DESIGN ${String(i+1).padStart(2,"0")}`;
+      if(mode) mode.textContent=`${state.depth.toUpperCase()} / ${String(i+1).padStart(2,"0")}`;
+      if(frame) frame.innerHTML=svg;
+      if(dBtn) dBtn.addEventListener("click",()=>download(`ali-studio-${state.theme}-${state.depth}-${String(i+1).padStart(2,"0")}.svg`,svg));
+      if(cBtn) cBtn.addEventListener("click",()=>copyText(svg));
       grid.appendChild(node);
     }
     grid.style.gridTemplateColumns=`repeat(${Math.min(4,state.posterCount)},minmax(0,1fr))`;
@@ -487,8 +499,11 @@
   }
 
   ["posterCount","designMode","theme","shapeSize","density","gradientSoftness","spacing","edgeFade","textAmount","seed","format","quality","darkColor","lightColor"].forEach(id=>{
-    $(id).addEventListener("input",()=>{updateOutputs();render();});
-    $(id).addEventListener("change",()=>{updateOutputs();render();});
+    let el = $(id);
+    if(el){
+        el.addEventListener("input",()=>{updateOutputs();render();});
+        el.addEventListener("change",()=>{updateOutputs();render();});
+    }
   });
 
   document.querySelectorAll(".segment").forEach(btn=>btn.addEventListener("click",()=>{
@@ -496,22 +511,33 @@
     btn.classList.add("active"); state.depth=btn.dataset.depth; updateOutputs(); render();
   }));
 
-  $("regenerate").addEventListener("click",render);
-  $("randomize").addEventListener("click",()=>{
-    $("seed").value=Math.floor(Math.random()*99999999)+1;
-    $("shapeSize").value=60+Math.floor(Math.random()*86);
-    $("density").value=4+Math.floor(Math.random()*13);
-    $("gradientSoftness").value=48+Math.floor(Math.random()*53);
-    $("spacing").value=10+Math.floor(Math.random()*51);
-    $("edgeFade").value=12+Math.floor(Math.random()*65);
-    const themes=Object.keys(THEMES); $("theme").value=themes[Math.floor(Math.random()*themes.length)];
-    updateOutputs(); render();
-  });
+  if($("regenerate")) $("regenerate").addEventListener("click",render);
+  if($("randomize")) {
+      $("randomize").addEventListener("click",()=>{
+        if($("seed")) $("seed").value=Math.floor(Math.random()*99999999)+1;
+        if($("shapeSize")) $("shapeSize").value=60+Math.floor(Math.random()*86);
+        if($("density")) $("density").value=4+Math.floor(Math.random()*13);
+        if($("gradientSoftness")) $("gradientSoftness").value=48+Math.floor(Math.random()*53);
+        if($("spacing")) $("spacing").value=10+Math.floor(Math.random()*51);
+        if($("edgeFade")) $("edgeFade").value=12+Math.floor(Math.random()*65);
+        
+        const themes=Object.keys(THEMES); 
+        if($("theme")) $("theme").value=themes[Math.floor(Math.random()*themes.length)];
+        
+        const select = $("designMode");
+        if (select && select.options.length > 0) {
+            const opts = Array.from(select.options).filter(o => o.value);
+            const randomOpt = opts[Math.floor(Math.random() * opts.length)];
+            select.value = randomOpt.value;
+        }
+        updateOutputs(); render();
+      });
+  }
 
-  $("downloadAll").addEventListener("click",()=>download(`ali-studio-${state.theme}-${state.depth}-collection.svg`,makeCombinedSvg()));
-  $("downloadJson").addEventListener("click",()=>download("ali-studio-settings.json",JSON.stringify(state,null,2),"application/json"));
-  $("zoomIn").addEventListener("click",()=>{zoom=clamp(zoom+.1,.5,1.8);applyZoom();});
-  $("zoomOut").addEventListener("click",()=>{zoom=clamp(zoom-.1,.5,1.8);applyZoom();});
+  if($("downloadAll")) $("downloadAll").addEventListener("click",()=>download(`ali-studio-${state.theme}-${state.depth}-collection.svg`,makeCombinedSvg()));
+  if($("downloadJson")) $("downloadJson").addEventListener("click",()=>download("ali-studio-settings.json",JSON.stringify(state,null,2),"application/json"));
+  if($("zoomIn")) $("zoomIn").addEventListener("click",()=>{zoom=clamp(zoom+.1,.5,1.8);applyZoom();});
+  if($("zoomOut")) $("zoomOut").addEventListener("click",()=>{zoom=clamp(zoom-.1,.5,1.8);applyZoom();});
 
   updateOutputs(); render();
 })();
