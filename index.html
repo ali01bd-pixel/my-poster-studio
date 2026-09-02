@@ -4,16 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="description" content="ALI STUDIO dynamic abstract poster and 3D design generator">
-  <title>ALI STUDIO — Vibrant Poster & 3D Design Generator</title>
-  <link rel="stylesheet" href="style.css">
+  <title>ALI STUDIO 2.0 — Dynamic Poster & 3D Design Generator</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <header class="topbar">
   <div class="brand">
     <span class="brand-mark">✦</span>
     <span class="brand-copy">
-      <span class="brand-name">ALI STUDIO</span>
-      <span class="brand-sub">Dynamic Poster Lab</span>
+      <span class="brand-name">ALI STUDIO 2.0</span>
+      <span class="brand-sub">Dynamic Motion Lab</span>
     </span>
   </div>
   <div class="status-pill">
@@ -32,8 +32,8 @@
   <aside class="sidebar">
     <section class="hero-card">
       <div class="eyebrow">CREATE A NEW SET</div>
-      <h1>Vibrant abstract<br><span>design generator</span></h1>
-      <p>Each poster is deliberately varied in composition, gradient, lighting and color harmony.</p>
+      <h1>Live dynamic<br><span>design generator</span></h1>
+      <p>Each poster features varied compositions, 3D depth, and live SVG motion.</p>
       <div class="hero-swatches" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
     </section>
 
@@ -47,7 +47,8 @@
     <section class="control-block">
       <label for="designMode">DESIGN FAMILY</label>
       <select id="designMode">
-        <option value="vibrantMix" selected>Vibrant Abstract Mix</option>
+        <option value="cyberTopography" selected>NEW: Cyber Topography</option>
+        <option value="vibrantMix">Vibrant Abstract Mix</option>
         <option value="blueEditorial">Blue Editorial Reference</option>
         <option value="pastelEditorial">Pastel Editorial Reference</option>
         <option value="liquid">Liquid Flow</option>
@@ -57,14 +58,15 @@
         <option value="waves">Editorial Waves</option>
         <option value="minimal">Minimal Geometry</option>
       </select>
-      <div class="reference-chip">NEW • BLUE + PASTEL EDITORIAL</div>
-      <div class="mode-note">Blue Editorial uses blue/black layouts; Pastel Editorial uses soft cream, coral, orange, pink and yellow reference-inspired compositions.</div>
+      <div class="reference-chip">UPDATED ENGINE</div>
+      <div class="mode-note">Select a base mathematical layout. Try Cyber Topography with the Neon glow!</div>
     </section>
 
     <section class="control-block">
       <label for="theme">COLOR THEME</label>
       <select id="theme">
-        <option value="candy" selected>Candy Sunset</option>
+        <option value="cyber" selected>Cyber Neon (New)</option>
+        <option value="candy">Candy Sunset</option>
         <option value="electric">Electric Blue</option>
         <option value="tropical">Tropical Pop</option>
         <option value="berry">Berry Voltage</option>
@@ -87,7 +89,24 @@
         <button type="button" class="segment active" data-depth="flat">Flat</button>
         <button type="button" class="segment" data-depth="3d">3D Depth</button>
       </div>
-      <div class="mode-note">3D Depth adds editable SVG lighting, extrusion, blur and drop-shadow effects.</div>
+    </section>
+
+    <!-- NEW: MOTION SETTINGS -->
+    <section class="control-block feature-card" style="margin-top: 15px;">
+      <div class="feature-head">
+        <div>
+          <label for="motionMode">SVG MOTION</label>
+          <small>Live vector animations</small>
+        </div>
+        <span class="pro-chip" style="background: linear-gradient(135deg, #00f0ff, #7000ff);">LIVE</span>
+      </div>
+      <select id="motionMode" style="margin-top:10px;">
+        <option value="static" selected>Static (No Motion)</option>
+        <option value="breathe">Breathing Pulse</option>
+        <option value="orbit">Slow Orbit</option>
+        <option value="drift">Liquid Drift</option>
+      </select>
+      <div class="mode-note">Injects native animation tags directly into your downloaded SVGs.</div>
     </section>
 
     <section class="control-block range-control">
@@ -140,8 +159,8 @@
     </section>
 
     <section class="control-block color-row">
-      <div><label for="darkColor">BASE DARK</label><input id="darkColor" type="color" value="#12052d"></div>
-      <div><label for="lightColor">BASE LIGHT</label><input id="lightColor" type="color" value="#ffe28a"></div>
+      <div><label for="darkColor">BASE DARK</label><input id="darkColor" type="color" value="#050814"></div>
+      <div><label for="lightColor">BASE LIGHT</label><input id="lightColor" type="color" value="#00f0ff"></div>
     </section>
 
     <section class="control-block">
@@ -159,14 +178,14 @@
       <button id="downloadJson" class="btn secondary">⚙ SAVE SETTINGS JSON</button>
     </div>
 
-    <p class="privacy">Everything is generated in your browser. SVG files remain editable in Illustrator or compatible vector apps.</p>
+    <p class="privacy">Everything is generated in your browser. SVG files remain editable and animated in compatible apps.</p>
   </aside>
 
   <section class="workspace">
     <div class="workspace-head">
       <div>
-        <div class="workspace-kicker">ALI STUDIO / GENERATOR</div>
-        <h2 id="workspaceTitle">VIBRANT ABSTRACT MIX</h2>
+        <div class="workspace-kicker">ALI STUDIO 2.0 / GENERATOR</div>
+        <h2 id="workspaceTitle">CYBER TOPOGRAPHY</h2>
         <p id="workspaceSubtitle">Every card gets a different composition and coordinated color palette.</p>
       </div>
       <div class="workspace-actions">
@@ -176,7 +195,7 @@
         <button id="zoomIn" class="icon-btn" title="Zoom in">+</button>
       </div>
     </div>
-    <div class="canvas-wrap">
+    <div class="canvas-wrap" id="canvasWrap">
       <div class="canvas-glow"></div>
       <div id="posterGrid" class="poster-grid"></div>
     </div>
@@ -197,6 +216,6 @@
   </article>
 </template>
 
-<script src="script.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
