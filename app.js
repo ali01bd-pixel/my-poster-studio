@@ -12,7 +12,6 @@
   };
   const TAU = Math.PI * 2;
 
-  // NEW CYBER-NEON COLOR THEME INCLUDED
   const THEMES = {
     cyber:    { dark:"#050814", mid:"#1f0a45", a:"#7000ff", b:"#00f0ff", light:"#e0ffff", text:"#ffffff" },
     candy:    { dark:"#21062e", mid:"#b31965", a:"#ff4fd8", b:"#ff7d62", light:"#ffe18a", text:"#ffffff" },
@@ -34,8 +33,8 @@
   let generated = [], zoom = 1;
 
   function dims(){
-    const base = {portrait:{w:1200,h:1800},square:{w:1600,h:1600},landscape:{w:1800,h:1200}}[state.format];
-    const q = {standard:1,large:1.35,xl:1.8}[state.quality];
+    const base = {portrait:{w:1200,h:1800},square:{w:1600,h:1600},landscape:{w:1800,h:1200}}[state.format] || {w:1200,h:1800};
+    const q = {standard:1,large:1.35,xl:1.8}[state.quality] || 1.35;
     return {w:Math.round(base.w*q),h:Math.round(base.h*q)};
   }
 
@@ -113,7 +112,6 @@
     return out;
   }
 
-  // --- NEW: CYBER TOPOGRAPHY DESIGN MODE ---
   function cyberTopography(id,w,h,p,rnd) {
     let out = ""; const s = sizeFactor();
     out += `<rect width="${w}" height="${h}" fill="${p.dark}"/>`;
@@ -223,7 +221,6 @@
     return out;
   }
 
-  // --- Editorial specific reference functions retained ---
   function referenceEditorial(id,w,h,p,rnd,index){
     const s = sizeFactor(); const blue3 = state.lightColor || "#b9e3ff"; const bright = "#e7f7ff"; const black = "#01050b";
     const shadow = `url(#${id}_shadow)`; const glow = `url(#${id}_glow)`; let out = "";
@@ -240,6 +237,15 @@
       return out;
     }
     if(index % 5 === 1){
+      out += `<rect width="${w}" height="${h}" fill="${black}"/>`;
+      out += `<rect width="${w}" height="${h}" fill="url(#${id}_bg)" opacity=".58"/>`;
+      const bx=w*(.34+rnd()*.16), by=h*(.42+rnd()*.12);
+      out += `<path d="M ${w*.41} ${h*1.05} C ${w*.40} ${h*.77}, ${w*.28} ${h*.46}, ${w*.45} ${h*.07} C ${w*.59} ${h*.23}, ${w*.66} ${h*.60}, ${w*.54} ${h*1.04} Z"
+        fill="url(#${id}_hero)" opacity=".74" filter="${glow}"/>`;
+      out += `<ellipse cx="${bx.toFixed(1)}" cy="${by.toFixed(1)}" rx="${(w*.15).toFixed(1)}" ry="${(h*.36).toFixed(1)}" fill="${bright}" opacity=".22" filter="${glow}"/>`;
+      return out;
+    }
+    if(index % 5 === 2){
       out += `<rect width="${w}" height="${h}" fill="${black}"/>`;
       const steps = Math.max(12, Math.floor(Number(state.density)*1.7));
       const centerX = w*(.48 + (rnd()-.5)*.08), baseY = h*(.72 + rnd()*.07), band = h*.028*s;
@@ -265,7 +271,7 @@
   }
 
   function pastelEditorial(id,w,h,p,rnd,index){
-    const s = sizeFactor(); const C = {bg: "#f1e2d0", cream: "#f8ecd9", peach: "#ffb266", orange: "#ff7b35", coral: "#ff5f6f", pink: "#ee4a9c", rose: "#d62c77", yellow: "#ffd86b", red: "#f23d52", ink: "#4b2030"};
+    const s = sizeFactor(); const C = {bg: "#f1e2d0", cream: "#f8ecd9", peach: "#ffb266", orange: "#ff7b35", coral: "#ff5f6f", pink: "#ee4a9c", yellow: "#ffd86b", ink: "#4b2030"};
     const shadow = `url(#${id}_shadow)`; let out = "";
     if(index % 5 === 0){
       out += `<rect width="${w}" height="${h}" fill="${C.bg}"/>`;
@@ -274,7 +280,6 @@
         const x = gap*(i+1), yy = h*(.18 + (i%2)*.10 + rnd()*.05), bh = h*(.18 + rnd()*.16)*s, bw = gap*(.52 + rnd()*.14);
         const col = [C.pink,C.peach,C.orange,C.yellow,C.coral][(i+index)%5];
         out += `<rect x="${(x-bw/2).toFixed(1)}" y="${yy.toFixed(1)}" width="${bw.toFixed(1)}" height="${bh.toFixed(1)}" rx="${(bw*.48).toFixed(1)}" fill="${col}" opacity=".95" filter="${shadow}"/>`;
-        out += `<ellipse cx="${x.toFixed(1)}" cy="${(yy+bh).toFixed(1)}" rx="${(bw*.48).toFixed(1)}" ry="${(bw*.46).toFixed(1)}" fill="${col}" opacity=".98"/>`;
       }
       return out;
     }
@@ -286,14 +291,13 @@
         const fill = i%4===0?C.yellow:(i%4===1?C.peach:(i%4===2?C.orange:C.coral));
         out += `<rect x="${(x-bw/2).toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${bh.toFixed(1)}" fill="${fill}" opacity="${(.25+.58*(i/bars)).toFixed(2)}"/>`;
       }
-      out += `<rect x="0" y="${(h*.62).toFixed(1)}" width="${w}" height="${(h*.38).toFixed(1)}" fill="${C.cream}" opacity=".28"/>`;
       return out;
     }
     out += `<rect width="${w}" height="${h}" fill="${C.cream}"/>`;
     const rings = Math.max(6, Math.floor(Number(state.density)/2));
     for(let j=0;j<rings;j++){
         const r=(Math.min(w,h)*.22)*(1-j/rings*.82);
-        const col=[C.pink,C.orange,C.yellow,C.coral,C.red][j%5];
+        const col=[C.pink,C.orange,C.yellow,C.coral,C.pink][j%5];
         out += `<circle cx="${(w*.5).toFixed(1)}" cy="${(h*.4).toFixed(1)}" r="${r.toFixed(1)}" fill="none" stroke="${col}" stroke-width="${Math.max(7,r*.18).toFixed(1)}" stroke-opacity="${(.28+.56*(1-j/rings)).toFixed(2)}"/>`;
     }
     return out;
@@ -344,12 +348,8 @@
       out += `<circle cx="${(w*.83).toFixed(1)}" cy="${(h*.16).toFixed(1)}" r="${(Math.min(w,h)*.09).toFixed(1)}" fill="${p.light}" opacity=".25" filter="url(#${id}_glow)"/>`;
     }
     
-    // Core Layout Generation
     let layoutOut = layoutByMode(index,w,h,p,rnd,id);
     
-    // ==========================================
-    // NEW: LIVE SVG MOTION ANIMATION INJECTION
-    // ==========================================
     if (state.motion !== 'static') {
         const cx = w/2; const cy = h/2;
         if (state.motion === 'breathe') {
@@ -398,61 +398,80 @@
   }
 
   function readControls(){
-    ["posterCount","shapeSize","density","gradientSoftness","spacing","edgeFade","textAmount"].forEach(k=>state[k]=Number($(k).value));
-    ["designMode","theme","format","quality","darkColor","lightColor","seed", "motionMode"].forEach(k=>state[k]=$(k).value);
+    ["posterCount","shapeSize","density","gradientSoftness","spacing","edgeFade","textAmount"].forEach(k=>{
+        if($(k)) state[k] = Number($(k).value);
+    });
+    ["designMode","theme","format","quality","darkColor","lightColor","seed", "motionMode"].forEach(k=>{
+        if($(k)) state[k] = $(k).value;
+    });
     state.seed=Number(state.seed)||1;
-    state.motion=state.motionMode;
+    state.motion=state.motionMode || "static";
     state.depth=document.querySelector(".segment.active")?.dataset.depth || state.depth;
   }
 
   function updateOutputs(){
     const map={posterCount:["posterCountVal",v=>v],shapeSize:["shapeSizeVal",v=>`${v}%`],density:["densityVal",v=>v],gradientSoftness:["gradientSoftnessVal",v=>`${v}%`],spacing:["spacingVal",v=>`${v}%`],edgeFade:["edgeFadeVal",v=>`${v}%`],textAmount:["textAmountVal",v=>`${v}%`]};
-    Object.entries(map).forEach(([id,[oid,fn]])=>$(oid).textContent=fn($(id).value));
-    $("collectionCount").textContent=$("posterCount").value;
-    const modeLabel=$("designMode").selectedOptions[0]?.textContent || "VIBRANT GENERATOR";
-    $("workspaceTitle").textContent=modeLabel.toUpperCase();
-    $("statusMode").textContent=state.depth === "3d" ? "3D DEPTH GENERATOR" : "VIBRANT GENERATOR";
-    $("statusText").textContent=state.depth === "3d" ? "Editable light + depth effects enabled" : "Unique look for every poster";
-    $("workspaceSubtitle").textContent = state.depth === "3d" ? "Each design gets a different dimensional composition with editable SVG lighting." : "Every card gets a different composition and coordinated color palette.";
+    Object.entries(map).forEach(([id,[oid,fn]])=>{
+        if($(oid) && $(id)) $(oid).textContent=fn($(id).value);
+    });
+    if($("collectionCount") && $("posterCount")) $("collectionCount").textContent=$("posterCount").value;
+    const modeLabel=$("designMode")?.selectedOptions?.[0]?.textContent || "VIBRANT GENERATOR";
+    if($("workspaceTitle")) $("workspaceTitle").textContent=modeLabel.toUpperCase();
+    if($("statusMode")) $("statusMode").textContent=state.depth === "3d" ? "3D DEPTH GENERATOR" : "VIBRANT GENERATOR";
+    if($("statusText")) $("statusText").textContent=state.depth === "3d" ? "Editable light + depth effects enabled" : "Unique look for every poster";
+    if($("workspaceSubtitle")) $("workspaceSubtitle").textContent = state.depth === "3d" ? "Each design gets a different dimensional composition with editable SVG lighting." : "Every card gets a different composition and coordinated color palette.";
   }
 
-  function render(){
-    readControls(); updateOutputs(); generated=[];
-    const grid=$("posterGrid"); grid.innerHTML="";
-    const tpl=$("posterTemplate");
-    for(let i=0;i<state.posterCount;i++){
-      const node=tpl.content.firstElementChild.cloneNode(true), svg=makeSvg(i);
-      generated.push(svg);
-      node.querySelector(".poster-number").textContent=`DESIGN ${String(i+1).padStart(2,"0")}`;
-      node.querySelector(".poster-mode").textContent=`${state.depth.toUpperCase()} / ${String(i+1).padStart(2,"0")}`;
-      node.querySelector(".poster-frame").innerHTML=svg;
-      node.querySelector(".download-one").addEventListener("click",()=>download(`ali-studio-${state.theme}-${state.depth}-${String(i+1).padStart(2,"0")}.svg`,svg));
-      node.querySelector(".copy-one").addEventListener("click",()=>copyText(svg));
-      grid.appendChild(node);
-    }
-    grid.style.gridTemplateColumns=`repeat(${Math.min(4,state.posterCount)},minmax(0,1fr))`;
-    applyZoom();
-  }
-
-  // ==========================================
-  // SCROLLING OVERFLOW BUG FIX 
-  // ==========================================
   function applyZoom(){ 
       const grid = $("posterGrid");
+      if (!grid) return;
       grid.style.transform = `scale(${zoom})`; 
-      $("zoomLabel").textContent = `${Math.round(zoom*100)}%`; 
+      if($("zoomLabel")) $("zoomLabel").textContent = `${Math.round(zoom*100)}%`; 
       
-      // Fixes the scroll issue when scaling or generating 8-12 artboards
-      // Calculates how much the grid expands downwards and reserves that space
       const originalHeight = grid.offsetHeight;
       const scaledHeight = originalHeight * zoom;
       const heightDifference = scaledHeight - originalHeight;
       grid.style.marginBottom = `${heightDifference > 0 ? heightDifference + 80 : 80}px`;
   }
 
+  function render(){
+    try {
+        readControls(); updateOutputs(); generated=[];
+        const grid=$("posterGrid"); 
+        if(!grid) return;
+        grid.innerHTML="";
+        const tpl=$("posterTemplate");
+        if(!tpl) return;
+        
+        for(let i=0;i<state.posterCount;i++){
+          const node=tpl.content.firstElementChild.cloneNode(true), svg=makeSvg(i);
+          generated.push(svg);
+          let pNum = node.querySelector(".poster-number");
+          let pMode = node.querySelector(".poster-mode");
+          let pFrame = node.querySelector(".poster-frame");
+          let dBtn = node.querySelector(".download-one");
+          let cBtn = node.querySelector(".copy-one");
+
+          if(pNum) pNum.textContent=`DESIGN ${String(i+1).padStart(2,"0")}`;
+          if(pMode) pMode.textContent=`${state.depth.toUpperCase()} / ${String(i+1).padStart(2,"0")}`;
+          if(pFrame) pFrame.innerHTML=svg;
+          if(dBtn) dBtn.addEventListener("click",()=>download(`ali-studio-${state.theme}-${state.depth}-${String(i+1).padStart(2,"0")}.svg`,svg));
+          if(cBtn) cBtn.addEventListener("click",()=>copyText(svg));
+          grid.appendChild(node);
+        }
+        grid.style.gridTemplateColumns=`repeat(${Math.min(4,state.posterCount)},minmax(0,1fr))`;
+        applyZoom();
+    } catch (e) {
+        console.error("Render Error:", e);
+    }
+  }
+
   ["posterCount","designMode","theme","shapeSize","density","gradientSoftness","spacing","edgeFade","textAmount","seed","format","quality","darkColor","lightColor", "motionMode"].forEach(id=>{
-    $(id).addEventListener("input",()=>{updateOutputs();render();});
-    $(id).addEventListener("change",()=>{updateOutputs();render();});
+    let el = $(id);
+    if(el) {
+        el.addEventListener("input",()=>{updateOutputs();render();});
+        el.addEventListener("change",()=>{updateOutputs();render();});
+    }
   });
 
   document.querySelectorAll(".segment").forEach(btn=>btn.addEventListener("click",()=>{
@@ -460,25 +479,29 @@
     btn.classList.add("active"); state.depth=btn.dataset.depth; updateOutputs(); render();
   }));
 
-  $("regenerate").addEventListener("click",render);
-  $("randomize").addEventListener("click",()=>{
-    $("seed").value=Math.floor(Math.random()*99999999)+1;
-    $("shapeSize").value=60+Math.floor(Math.random()*86);
-    $("density").value=4+Math.floor(Math.random()*13);
-    $("gradientSoftness").value=48+Math.floor(Math.random()*53);
-    $("spacing").value=10+Math.floor(Math.random()*51);
-    $("edgeFade").value=12+Math.floor(Math.random()*65);
-    const themes=Object.keys(THEMES); $("theme").value=themes[Math.floor(Math.random()*themes.length)];
+  if($("regenerate")) $("regenerate").addEventListener("click",render);
+  if($("randomize")) $("randomize").addEventListener("click",()=>{
+    if($("seed")) $("seed").value=Math.floor(Math.random()*99999999)+1;
+    if($("shapeSize")) $("shapeSize").value=60+Math.floor(Math.random()*86);
+    if($("density")) $("density").value=4+Math.floor(Math.random()*13);
+    if($("gradientSoftness")) $("gradientSoftness").value=48+Math.floor(Math.random()*53);
+    if($("spacing")) $("spacing").value=10+Math.floor(Math.random()*51);
+    if($("edgeFade")) $("edgeFade").value=12+Math.floor(Math.random()*65);
+    
+    const themes=Object.keys(THEMES); 
+    if($("theme")) $("theme").value=themes[Math.floor(Math.random()*themes.length)];
+    
     const modes=["cyberTopography","vibrantMix","blueEditorial","pastelEditorial","liquid","glass","prism","organic","waves","minimal"]; 
-    $("designMode").value=modes[Math.floor(Math.random()*modes.length)];
+    if($("designMode")) $("designMode").value=modes[Math.floor(Math.random()*modes.length)];
+    
     updateOutputs(); render();
   });
 
-  $("downloadAll").addEventListener("click",()=>download(`ali-studio-${state.theme}-${state.depth}-collection.svg`,makeCombinedSvg()));
-  $("downloadJson").addEventListener("click",()=>download("ali-studio-settings.json",JSON.stringify(state,null,2),"application/json"));
+  if($("downloadAll")) $("downloadAll").addEventListener("click",()=>download(`ali-studio-${state.theme}-${state.depth}-collection.svg`,makeCombinedSvg()));
+  if($("downloadJson")) $("downloadJson").addEventListener("click",()=>download("ali-studio-settings.json",JSON.stringify(state,null,2),"application/json"));
   
-  $("zoomIn").addEventListener("click",()=>{zoom=clamp(zoom+.1,.3,2);applyZoom();});
-  $("zoomOut").addEventListener("click",()=>{zoom=clamp(zoom-.1,.3,2);applyZoom();});
+  if($("zoomIn")) $("zoomIn").addEventListener("click",()=>{zoom=clamp(zoom+.1,.3,2);applyZoom();});
+  if($("zoomOut")) $("zoomOut").addEventListener("click",()=>{zoom=clamp(zoom-.1,.3,2);applyZoom();});
 
   updateOutputs(); render();
 })();
