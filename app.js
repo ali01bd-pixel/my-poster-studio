@@ -12,6 +12,7 @@
   };
   const TAU = Math.PI * 2;
 
+  // Includes the new Cyber Neon theme
   const THEMES = {
     cyber:    { dark:"#050814", mid:"#1f0a45", a:"#7000ff", b:"#00f0ff", light:"#e0ffff", text:"#ffffff" },
     candy:    { dark:"#21062e", mid:"#b31965", a:"#ff4fd8", b:"#ff7d62", light:"#ffe18a", text:"#ffffff" },
@@ -25,7 +26,7 @@
   };
 
   const state = {
-    posterCount:5, designMode:"cyberTopography", theme:"cyber", depth:"flat", motion:"static",
+    posterCount:5, designMode:"cyberTopography", theme:"cyber", depth:"flat", motionMode:"static",
     shapeSize:100, density:8, gradientSoftness:72, spacing:24, edgeFade:34, textAmount:55,
     seed:260831, format:"portrait", quality:"large", darkColor:"#050814", lightColor:"#00f0ff"
   };
@@ -33,8 +34,8 @@
   let generated = [], zoom = 1;
 
   function dims(){
-    const base = {portrait:{w:1200,h:1800},square:{w:1600,h:1600},landscape:{w:1800,h:1200}}[state.format] || {w:1200,h:1800};
-    const q = {standard:1,large:1.35,xl:1.8}[state.quality] || 1.35;
+    const base = {portrait:{w:1200,h:1800},square:{w:1600,h:1600},landscape:{w:1800,h:1200}}[state.format];
+    const q = {standard:1,large:1.35,xl:1.8}[state.quality];
     return {w:Math.round(base.w*q),h:Math.round(base.h*q)};
   }
 
@@ -98,9 +99,9 @@
         <feGaussianBlur stdDeviation="${softness}"/>
       </filter>
       <filter id="${id}_shadow" x="-50%" y="-50%" width="200%" height="200%">
-        <feDropShadow dx="0" dy="${depth ? 16 : 7}" stdDeviation="${depth ? 14 : 8}" flood-color="#080715" flood-opacity="${depth ? .68 : .22}"/>
+        <feDropShadow dx="0" dy="${depth ? 16 : 7}" stdDeviation="${depth ? 14 : 8}" flood-color="#080715" flood-opacity="${depth ? .48 : .22}"/>
       </filter>
-      <filter id="${id}_glow" x="-70%" y="-70%" width="240%" height="240%"><feGaussianBlur stdDeviation="${depth ? 24 : 12}"/></filter>
+      <filter id="${id}_glow" x="-70%" y="-70%" width="240%" height="240%"><feGaussianBlur stdDeviation="${depth ? 18 : 12}"/></filter>
     </defs>`;
   }
 
@@ -112,6 +113,7 @@
     return out;
   }
 
+  // --- NEW: CYBER TOPOGRAPHY DESIGN MODE ---
   function cyberTopography(id,w,h,p,rnd) {
     let out = ""; const s = sizeFactor();
     out += `<rect width="${w}" height="${h}" fill="${p.dark}"/>`;
@@ -132,6 +134,7 @@
     return out;
   }
 
+  // --- STANDARD DESIGN MODES ---
   function circleGrid(id,w,h,p,rnd){
     let out=""; const cols=4+(Number(state.density)>12?1:0), rows=6+(Number(state.density)%4), s=sizeFactor();
     const cellW=w/(cols+1), cellH=h/(rows+1), base=Math.min(cellW,cellH)*.43*s;
@@ -221,9 +224,16 @@
     return out;
   }
 
+
   function referenceEditorial(id,w,h,p,rnd,index){
-    const s = sizeFactor(); const blue3 = state.lightColor || "#b9e3ff"; const bright = "#e7f7ff"; const black = "#01050b";
-    const shadow = `url(#${id}_shadow)`; const glow = `url(#${id}_glow)`; let out = "";
+    const s = sizeFactor();
+    const blue3 = state.lightColor || "#b9e3ff";
+    const bright = "#e7f7ff";
+    const black = "#01050b";
+    const shadow = `url(#${id}_shadow)`;
+    const glow = `url(#${id}_glow)`;
+    let out = "";
+
     if(index % 5 === 0){
       out += `<rect width="${w}" height="${h}" fill="${black}"/>`;
       const r1=Math.min(w,h)*(.35+rnd()*.07)*s, r2=Math.min(w,h)*(.28+rnd()*.06)*s, r3=Math.min(w,h)*(.23+rnd()*.05)*s;
@@ -240,8 +250,7 @@
       out += `<rect width="${w}" height="${h}" fill="${black}"/>`;
       out += `<rect width="${w}" height="${h}" fill="url(#${id}_bg)" opacity=".58"/>`;
       const bx=w*(.34+rnd()*.16), by=h*(.42+rnd()*.12);
-      out += `<path d="M ${w*.41} ${h*1.05} C ${w*.40} ${h*.77}, ${w*.28} ${h*.46}, ${w*.45} ${h*.07} C ${w*.59} ${h*.23}, ${w*.66} ${h*.60}, ${w*.54} ${h*1.04} Z"
-        fill="url(#${id}_hero)" opacity=".74" filter="${glow}"/>`;
+      out += `<path d="M ${w*.41} ${h*1.05} C ${w*.40} ${h*.77}, ${w*.28} ${h*.46}, ${w*.45} ${h*.07} C ${w*.59} ${h*.23}, ${w*.66} ${h*.60}, ${w*.54} ${h*1.04} Z" fill="url(#${id}_hero)" opacity=".74" filter="${glow}"/>`;
       out += `<ellipse cx="${bx.toFixed(1)}" cy="${by.toFixed(1)}" rx="${(w*.15).toFixed(1)}" ry="${(h*.36).toFixed(1)}" fill="${bright}" opacity=".22" filter="${glow}"/>`;
       return out;
     }
@@ -271,7 +280,8 @@
   }
 
   function pastelEditorial(id,w,h,p,rnd,index){
-    const s = sizeFactor(); const C = {bg: "#f1e2d0", cream: "#f8ecd9", peach: "#ffb266", orange: "#ff7b35", coral: "#ff5f6f", pink: "#ee4a9c", yellow: "#ffd86b", ink: "#4b2030"};
+    const s = sizeFactor(); 
+    const C = {bg: "#f1e2d0", cream: "#f8ecd9", peach: "#ffb266", orange: "#ff7b35", coral: "#ff5f6f", pink: "#ee4a9c", yellow: "#ffd86b", ink: "#4b2030"};
     const shadow = `url(#${id}_shadow)`; let out = "";
     if(index % 5 === 0){
       out += `<rect width="${w}" height="${h}" fill="${C.bg}"/>`;
@@ -348,15 +358,17 @@
       out += `<circle cx="${(w*.83).toFixed(1)}" cy="${(h*.16).toFixed(1)}" r="${(Math.min(w,h)*.09).toFixed(1)}" fill="${p.light}" opacity=".25" filter="url(#${id}_glow)"/>`;
     }
     
+    // Core Layout Generation
     let layoutOut = layoutByMode(index,w,h,p,rnd,id);
     
-    if (state.motion !== 'static') {
+    // SVG Motion logic
+    if (state.motionMode !== 'static') {
         const cx = w/2; const cy = h/2;
-        if (state.motion === 'breathe') {
+        if (state.motionMode === 'breathe') {
             layoutOut = `<g style="transform-origin: ${cx}px ${cy}px;"><animateTransform attributeName="transform" type="scale" values="1; 1.04; 0.96; 1" keyTimes="0; 0.3; 0.7; 1" dur="${8+rnd()*4}s" repeatCount="indefinite" />${layoutOut}</g>`;
-        } else if (state.motion === 'orbit') {
+        } else if (state.motionMode === 'orbit') {
             layoutOut = `<g style="transform-origin: ${cx}px ${cy}px;"><animateTransform attributeName="transform" type="rotate" values="0;360" dur="${30+rnd()*20}s" repeatCount="indefinite" />${layoutOut}</g>`;
-        } else if (state.motion === 'drift') {
+        } else if (state.motionMode === 'drift') {
             layoutOut = `<g><animateTransform attributeName="transform" type="translate" values="0 0; ${w*.03} ${h*.03}; -${w*.03} ${h*.01}; 0 0" dur="${12+rnd()*6}s" repeatCount="indefinite" />${layoutOut}</g>`;
         }
     }
@@ -397,6 +409,9 @@
     catch{const ta=document.createElement("textarea");ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove();alert("SVG copied to clipboard.");}
   }
 
+  // ==========================================
+  // STATE MANAGEMENT
+  // ==========================================
   function readControls(){
     ["posterCount","shapeSize","density","gradientSoftness","spacing","edgeFade","textAmount"].forEach(k=>{
         if($(k)) state[k] = Number($(k).value);
@@ -405,23 +420,38 @@
         if($(k)) state[k] = $(k).value;
     });
     state.seed=Number(state.seed)||1;
-    state.motion=state.motionMode || "static";
-    state.depth=document.querySelector(".segment.active")?.dataset.depth || state.depth;
+    // Capture segment button manually
+    const activeSeg = document.querySelector(".segment.active");
+    if(activeSeg) state.depth = activeSeg.dataset.depth;
   }
 
   function updateOutputs(){
-    const map={posterCount:["posterCountVal",v=>v],shapeSize:["shapeSizeVal",v=>`${v}%`],density:["densityVal",v=>v],gradientSoftness:["gradientSoftnessVal",v=>`${v}%`],spacing:["spacingVal",v=>`${v}%`],edgeFade:["edgeFadeVal",v=>`${v}%`],textAmount:["textAmountVal",v=>`${v}%`]};
+    const map={
+        posterCount:["posterCountVal",v=>v],
+        shapeSize:["shapeSizeVal",v=>`${v}%`],
+        density:["densityVal",v=>v],
+        gradientSoftness:["gradientSoftnessVal",v=>`${v}%`],
+        spacing:["spacingVal",v=>`${v}%`],
+        edgeFade:["edgeFadeVal",v=>`${v}%`],
+        textAmount:["textAmountVal",v=>`${v}%`]
+    };
     Object.entries(map).forEach(([id,[oid,fn]])=>{
         if($(oid) && $(id)) $(oid).textContent=fn($(id).value);
     });
+    
     if($("collectionCount") && $("posterCount")) $("collectionCount").textContent=$("posterCount").value;
-    const modeLabel=$("designMode")?.selectedOptions?.[0]?.textContent || "VIBRANT GENERATOR";
-    if($("workspaceTitle")) $("workspaceTitle").textContent=modeLabel.toUpperCase();
+    
+    const dMode = $("designMode");
+    if(dMode && $("workspaceTitle")) $("workspaceTitle").textContent = (dMode.options[dMode.selectedIndex].text).toUpperCase();
+    
     if($("statusMode")) $("statusMode").textContent=state.depth === "3d" ? "3D DEPTH GENERATOR" : "VIBRANT GENERATOR";
     if($("statusText")) $("statusText").textContent=state.depth === "3d" ? "Editable light + depth effects enabled" : "Unique look for every poster";
     if($("workspaceSubtitle")) $("workspaceSubtitle").textContent = state.depth === "3d" ? "Each design gets a different dimensional composition with editable SVG lighting." : "Every card gets a different composition and coordinated color palette.";
   }
 
+  // ==========================================
+  // SCROLLING OVERFLOW BUG FIX 
+  // ==========================================
   function applyZoom(){ 
       const grid = $("posterGrid");
       if (!grid) return;
@@ -444,8 +474,10 @@
         if(!tpl) return;
         
         for(let i=0;i<state.posterCount;i++){
-          const node=tpl.content.firstElementChild.cloneNode(true), svg=makeSvg(i);
+          const node=tpl.content.firstElementChild.cloneNode(true);
+          const svg=makeSvg(i);
           generated.push(svg);
+          
           let pNum = node.querySelector(".poster-number");
           let pMode = node.querySelector(".poster-mode");
           let pFrame = node.querySelector(".poster-frame");
@@ -466,6 +498,9 @@
     }
   }
 
+  // ==========================================
+  // EVENT BINDINGS
+  // ==========================================
   ["posterCount","designMode","theme","shapeSize","density","gradientSoftness","spacing","edgeFade","textAmount","seed","format","quality","darkColor","lightColor", "motionMode"].forEach(id=>{
     let el = $(id);
     if(el) {
@@ -503,5 +538,7 @@
   if($("zoomIn")) $("zoomIn").addEventListener("click",()=>{zoom=clamp(zoom+.1,.3,2);applyZoom();});
   if($("zoomOut")) $("zoomOut").addEventListener("click",()=>{zoom=clamp(zoom-.1,.3,2);applyZoom();});
 
-  updateOutputs(); render();
+  // START ENGINE
+  updateOutputs(); 
+  render();
 })();
