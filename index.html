@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="description" content="ALI STUDIO dynamic abstract poster and 3D design generator">
-  <title>ALI STUDIO 2.0 — Dynamic Poster & 3D Design Generator</title>
-  <link rel="stylesheet" href="style.css">
+  <title>ALI STUDIO 2.0 — Dynamic Poster Generator</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <header class="topbar">
@@ -13,13 +13,13 @@
     <span class="brand-mark">✦</span>
     <span class="brand-copy">
       <span class="brand-name">ALI STUDIO 2.0</span>
-      <span class="brand-sub">Dynamic Motion Lab</span>
+      <span class="brand-sub">Pure Vector Lab</span>
     </span>
   </div>
   <div class="status-pill">
     <span class="status-dot"></span>
-    <strong id="statusMode">VIBRANT GENERATOR</strong>
-    <span id="statusText">Unique look for every poster</span>
+    <strong id="statusMode">VECTOR GENERATOR</strong>
+    <span id="statusText">Crisp geometry & elegant gradients</span>
   </div>
   <div class="account">
     <div class="avatar">M</div>
@@ -32,8 +32,8 @@
   <aside class="sidebar">
     <section class="hero-card">
       <div class="eyebrow">CREATE A NEW SET</div>
-      <h1>Live dynamic<br><span>design generator</span></h1>
-      <p>Each poster features varied compositions, 3D depth, and live SVG motion.</p>
+      <h1>Live elegant<br><span>vector generator</span></h1>
+      <p>Each poster features crisp vectors, deep gradients, and no blurry filters.</p>
       <div class="hero-swatches" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
     </section>
 
@@ -47,25 +47,24 @@
     <section class="control-block">
       <label for="designMode">DESIGN FAMILY</label>
       <select id="designMode">
-        <option value="cyberTopography" selected>NEW: Cyber Topography</option>
+        <option value="sharpBeams" selected>NEW: Sharp Geometric Beams</option>
         <option value="vibrantMix">Vibrant Abstract Mix</option>
         <option value="blueEditorial">Blue Editorial Reference</option>
         <option value="pastelEditorial">Pastel Editorial Reference</option>
         <option value="liquid">Liquid Flow</option>
-        <option value="glass">Glass Orbs</option>
+        <option value="glass">Geometric Spheres</option>
         <option value="prism">Geometric Prism</option>
         <option value="organic">Organic Forms</option>
         <option value="waves">Editorial Waves</option>
         <option value="minimal">Minimal Geometry</option>
       </select>
-      <div class="reference-chip">UPDATED ENGINE</div>
-      <div class="mode-note">Select a base mathematical layout. Try Cyber Topography with the Neon glow!</div>
+      <div class="reference-chip">PURE VECTOR ENGINE</div>
     </section>
 
     <section class="control-block">
       <label for="theme">COLOR THEME</label>
       <select id="theme">
-        <option value="cyber" selected>Cyber Neon (New)</option>
+        <option value="crimson" selected>Crimson Dark (New)</option>
         <option value="candy">Candy Sunset</option>
         <option value="electric">Electric Blue</option>
         <option value="tropical">Tropical Pop</option>
@@ -81,31 +80,14 @@
       <div class="feature-head">
         <div>
           <label for="depthMode">DEPTH STYLE</label>
-          <small>Optional dimensional rendering</small>
+          <small>Sharp vector shading</small>
         </div>
         <span class="pro-chip">3D</span>
       </div>
       <div class="segmented" role="group" aria-label="Depth style">
         <button type="button" class="segment active" data-depth="flat">Flat</button>
-        <button type="button" class="segment" data-depth="3d">3D Depth</button>
+        <button type="button" class="segment" data-depth="3d">Vector 3D Offset</button>
       </div>
-    </section>
-
-    <section class="control-block feature-card" style="margin-top: 15px;">
-      <div class="feature-head">
-        <div>
-          <label for="motionMode">SVG MOTION</label>
-          <small>Live vector animations</small>
-        </div>
-        <span class="pro-chip" style="background: linear-gradient(135deg, #00f0ff, #7000ff);">LIVE</span>
-      </div>
-      <select id="motionMode" style="margin-top:10px;">
-        <option value="static" selected>Static (No Motion)</option>
-        <option value="breathe">Breathing Pulse</option>
-        <option value="orbit">Slow Orbit</option>
-        <option value="drift">Liquid Drift</option>
-      </select>
-      <div class="mode-note">Injects native animation tags directly into your downloaded SVGs.</div>
     </section>
 
     <section class="control-block range-control">
@@ -119,7 +101,7 @@
     </section>
 
     <section class="control-block range-control">
-      <div class="label-row"><label for="gradientSoftness">LIGHT SOFTNESS</label><output id="gradientSoftnessVal">72%</output></div>
+      <div class="label-row"><label for="gradientSoftness">GRADIENT BLEND</label><output id="gradientSoftnessVal">72%</output></div>
       <input id="gradientSoftness" type="range" min="10" max="100" value="72">
     </section>
 
@@ -129,7 +111,7 @@
     </section>
 
     <section class="control-block range-control">
-      <div class="label-row"><label for="edgeFade">EDGE LIGHT</label><output id="edgeFadeVal">34%</output></div>
+      <div class="label-row"><label for="edgeFade">EDGE BALANCE</label><output id="edgeFadeVal">34%</output></div>
       <input id="edgeFade" type="range" min="0" max="80" value="34">
     </section>
 
@@ -158,8 +140,8 @@
     </section>
 
     <section class="control-block color-row">
-      <div><label for="darkColor">BASE DARK</label><input id="darkColor" type="color" value="#050814"></div>
-      <div><label for="lightColor">BASE LIGHT</label><input id="lightColor" type="color" value="#00f0ff"></div>
+      <div><label for="darkColor">BASE DARK</label><input id="darkColor" type="color" value="#1a0404"></div>
+      <div><label for="lightColor">BASE LIGHT</label><input id="lightColor" type="color" value="#ffecd6"></div>
     </section>
 
     <section class="control-block">
@@ -177,15 +159,15 @@
       <button id="downloadJson" class="btn secondary">⚙ SAVE SETTINGS JSON</button>
     </div>
 
-    <p class="privacy">Everything is generated in your browser. SVG files remain editable and animated in compatible apps.</p>
+    <p class="privacy">Everything is generated in your browser. Pure scalable vectors ready for print or web.</p>
   </aside>
 
   <section class="workspace">
     <div class="workspace-head">
       <div>
         <div class="workspace-kicker">ALI STUDIO 2.0 / GENERATOR</div>
-        <h2 id="workspaceTitle">CYBER TOPOGRAPHY</h2>
-        <p id="workspaceSubtitle">Every card gets a different composition and coordinated color palette.</p>
+        <h2 id="workspaceTitle">SHARP GEOMETRIC BEAMS</h2>
+        <p id="workspaceSubtitle">Every card uses rich, vivid colors with crisp, sharp geometry.</p>
       </div>
       <div class="workspace-actions">
         <div class="collection-meta"><strong id="collectionCount">5</strong><span>DESIGNS</span></div>
@@ -205,7 +187,7 @@
   <article class="poster-card">
     <div class="poster-toolbar">
       <span class="poster-number">DESIGN 01</span>
-      <span class="poster-mode">VIBRANT / 01</span>
+      <span class="poster-mode">VECTOR / 01</span>
       <div>
         <button class="mini-btn download-one" title="Download SVG">⇩</button>
         <button class="mini-btn copy-one" title="Copy SVG">⧉</button>
@@ -215,6 +197,6 @@
   </article>
 </template>
 
-<script src="script.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
