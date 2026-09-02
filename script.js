@@ -25,7 +25,7 @@
   };
 
   const state = {
-    posterCount:5, designMode:"sharpBeams", theme:"crimson", depth:"flat",
+    posterCount:5, designMode:"Cyan Geometric Editorial", theme:"crimson", depth:"flat",
     shapeSize:100, density:8, gradientSoftness:72, spacing:24, edgeFade:34, textAmount:55,
     seed:260831, format:"portrait", quality:"large", darkColor:"#1a0404", lightColor:"#ffecd6"
   };
@@ -33,8 +33,8 @@
   let generated = [], zoom = 1;
 
   function dims(){
-    const base = {portrait:{w:1200,h:1800},square:{w:1600,h:1600},landscape:{w:1800,h:1200}}[state.format];
-    const q = {standard:1,large:1.35,xl:1.8}[state.quality];
+    const base = {portrait:{w:1200,h:1800},square:{w:1600,h:1600},landscape:{w:1800,h:1200}}[state.format] || {w:1200,h:1800};
+    const q = {standard:1,large:1.35,xl:1.8}[state.quality] || 1.35;
     return {w:Math.round(base.w*q),h:Math.round(base.h*q)};
   }
 
@@ -103,39 +103,31 @@
     return out;
   }
 
-  function sharpBeams(id,w,h,p,rnd,index) {
-    const s = sizeFactor();
-    const shadowColor = mixHex(p.dark, "#000000", 0.6);
-    let out = "";
+  // ==========================================
+  // CORE GEOMETRIC ENGINES
+  // ==========================================
 
+  // 1. SHARP BEAMS (Editorial / Minimal / Bold)
+  function sharpBeams(id,w,h,p,rnd,index) {
+    const s = sizeFactor(); const shadowColor = mixHex(p.dark, "#000000", 0.6); let out = "";
     if(index % 5 === 0) {
         out += `<rect width="${w}" height="${h}" fill="url(#${id}_dark)"/>`;
         const steps = Math.max(12, Math.floor(Number(state.density)*2));
         for(let i=0; i<steps; i++) {
-            let scale = 1 - (i/steps);
-            let rX = w * 1.6 * scale * s;
-            let rY = h * 1.3 * scale * s;
-            let cx = w * 0.9 - (i * w * 0.02);
-            let cy = h * 0.8 + (i * h * 0.01);
-            let fill = i%2===0 ? `url(#${id}_hero)` : p.light;
-            if(i > steps - 4) fill = p.light;
+            let scale = 1 - (i/steps); let rX = w * 1.6 * scale * s; let rY = h * 1.3 * scale * s;
+            let cx = w * 0.9 - (i * w * 0.02); let cy = h * 0.8 + (i * h * 0.01);
+            let fill = i%2===0 ? `url(#${id}_hero)` : p.light; if(i > steps - 4) fill = p.light;
             if(state.depth==="3d") out += `<ellipse cx="${cx+15}" cy="${cy+15}" rx="${rX}" ry="${rY}" fill="${shadowColor}" opacity="0.3"/>`;
             out += `<ellipse cx="${cx}" cy="${cy}" rx="${rX}" ry="${rY}" fill="${fill}" />`;
         }
         return out;
     }
-    
     if(index % 5 === 1) {
         out += `<rect width="${w}" height="${h}" fill="${p.dark}"/>`;
         const blades = Math.max(8, Math.floor(Number(state.density)*1.5));
         for(let i=0; i<blades; i++) {
-            let x1 = w * (rnd() * 1.2 - 0.2);
-            let y1 = -h * 0.2;
-            let x2 = w * (rnd() * 1.5 - 0.2);
-            let y2 = h * 1.2;
-            let ctrlX = w * (rnd() * 0.5);
-            let ctrlY = h * 0.5;
-            let thick = w * (0.15 + rnd()*0.15) * s;
+            let x1 = w * (rnd() * 1.2 - 0.2); let y1 = -h * 0.2; let x2 = w * (rnd() * 1.5 - 0.2); let y2 = h * 1.2;
+            let ctrlX = w * (rnd() * 0.5); let ctrlY = h * 0.5; let thick = w * (0.15 + rnd()*0.15) * s;
             let fill = i%2===0 ? `url(#${id}_hero)` : `url(#${id}_dark)`;
             let pathD = `M ${x1} ${y1} Q ${ctrlX} ${ctrlY} ${x2} ${y2} L ${x2+thick} ${y2} Q ${ctrlX+thick} ${ctrlY} ${x1+thick} ${y1} Z`;
             if(state.depth==="3d") out += `<path d="${pathD}" transform="translate(15, 15)" fill="${shadowColor}" opacity="0.5"/>`;
@@ -143,14 +135,12 @@
         }
         return out;
     }
-
     if(index % 5 === 2) {
         out += `<rect width="${w}" height="${h}" fill="${p.dark}"/>`;
         const beams = Math.max(8, Number(state.density)*2);
         const fx = -w*0.05; const fy = h*0.5; 
         for(let i=0; i<beams; i++) {
-            let angle1 = -Math.PI/2 + (i/beams) * Math.PI; 
-            let angle2 = -Math.PI/2 + ((i+0.6)/beams) * Math.PI;
+            let angle1 = -Math.PI/2 + (i/beams) * Math.PI; let angle2 = -Math.PI/2 + ((i+0.6)/beams) * Math.PI;
             let r = Math.max(w,h) * 2;
             let x1 = fx + Math.cos(angle1)*r; let y1 = fy + Math.sin(angle1)*r;
             let x2 = fx + Math.cos(angle2)*r; let y2 = fy + Math.sin(angle2)*r;
@@ -161,68 +151,130 @@
         }
         return out;
     }
-
     if(index % 5 === 3) {
         out += `<rect width="${w}" height="${h}" fill="${p.dark}"/>`;
         const bars = Math.max(6, Number(state.density)*1.2);
         for(let i=0; i<bars; i++) {
-            let cx = w * (rnd() > 0.5 ? 0.1 : 0.9);
-            let cy = h * (rnd() > 0.5 ? 0.1 : 0.9);
-            let rot = rnd() * 180;
-            let bw = w * 3;
-            let bh = h * (0.15 + rnd()*0.15) * s;
+            let cx = w * (rnd() > 0.5 ? 0.1 : 0.9); let cy = h * (rnd() > 0.5 ? 0.1 : 0.9);
+            let rot = rnd() * 180; let bw = w * 3; let bh = h * (0.15 + rnd()*0.15) * s;
             let fill = i%2===0 ? `url(#${id}_hero)` : `url(#${id}_dark)`;
             if(state.depth==="3d") out += `<rect x="${cx-bw/2+15}" y="${cy-bh/2+15}" width="${bw}" height="${bh}" transform="rotate(${rot} ${cx+15} ${cy+15})" fill="${shadowColor}" opacity="0.5"/>`;
             out += `<rect x="${cx-bw/2}" y="${cy-bh/2}" width="${bw}" height="${bh}" transform="rotate(${rot} ${cx} ${cy})" fill="${fill}"/>`;
         }
         return out;
     }
-
     out += `<rect width="${w}" height="${h}" fill="${p.light}"/>`;
-    const spikes = Math.max(10, Number(state.density)*2);
-    const cx = w*0.5, cy = h*0.5;
-    const inR = w * 0.35 * s;
-    const outR = Math.max(w,h) * 1.5;
+    const spikes = Math.max(10, Number(state.density)*2); const cx = w*0.5, cy = h*0.5;
+    const inR = w * 0.35 * s; const outR = Math.max(w,h) * 1.5;
     for(let i=0; i<spikes; i++) {
-        let a1 = (i/spikes) * TAU;
-        let a2 = ((i+1)/spikes) * TAU;
+        let a1 = (i/spikes) * TAU; let a2 = ((i+1)/spikes) * TAU;
         let x1 = cx + Math.cos(a1)*inR; let y1 = cy + Math.sin(a1)*inR;
         let ox1 = cx + Math.cos(a1 - 0.2)*outR; let oy1 = cy + Math.sin(a1 - 0.2)*outR;
         let ox2 = cx + Math.cos(a2 - 0.2)*outR; let oy2 = cy + Math.sin(a2 - 0.2)*outR;
-        let fill = `url(#${id}_hero)`; 
         let pts = `${x1},${y1} ${ox1},${oy1} ${ox2},${oy2}`;
         if(state.depth==="3d") out += `<polygon points="${pts}" transform="translate(10, 10)" fill="${shadowColor}" opacity="0.3"/>`;
-        out += `<polygon points="${pts}" fill="${fill}"/>`;
+        out += `<polygon points="${pts}" fill="url(#${id}_hero)"/>`;
     }
     return out;
   }
 
-  function circleGrid(id,w,h,p,rnd){
-    let out=""; const cols=4+(Number(state.density)>12?1:0), rows=6+(Number(state.density)%4), s=sizeFactor();
+  // 2. LIQUID FLOW (Fluid/Organic)
+  function liquid(id,w,h,p,rnd){
+    let out=""; const s=sizeFactor(); const blobs=5+Math.floor(Number(state.density)/4);
     const shadowColor = mixHex(p.dark, "#000000", 0.6);
-    const cellW=w/(cols+1), cellH=h/(rows+1), base=Math.min(cellW,cellH)*.43*s;
-    for(let row=0;row<rows;row++) for(let col=0;col<cols;col++){
-      const x=cellW*(col+1)+Math.sin(row+col)*cellW*.05, y=cellH*(row+1)+Math.cos(col*.8)*cellH*.035;
-      const r=base*(.62+rnd()*.48), fill=(row+col)%3===0?`url(#${id}_orb)`:(row%2?`url(#${id}_hero)`:p.b);
-      if(state.depth==="3d") out += `<circle cx="${(x+14).toFixed(1)}" cy="${(y+14).toFixed(1)}" r="${r.toFixed(1)}" fill="${shadowColor}" opacity="0.5"/>`;
-      out += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r.toFixed(1)}" fill="${fill}"/>`;
+    for(let i=0;i<blobs;i++){
+      const x=w*(.12+rnd()*.76), y=h*(.14+rnd()*.72), rx=w*(.10+rnd()*.20)*s, ry=h*(.06+rnd()*.16)*s;
+      const d=`M ${x-rx} ${y} C ${x-rx*.7} ${y-ry*1.15}, ${x+rx*.2} ${y-ry*.8}, ${x+rx} ${y-rnd()*ry*.1} C ${x+rx*.7} ${y+ry*1.1}, ${x-rx*.1} ${y+ry*.9}, ${x-rx} ${y} Z`;
+      if(state.depth==="3d") out += `<path d="${d}" transform="translate(14, 14)" fill="${shadowColor}" opacity="0.4"/>`;
+      out += `<path d="${d}" fill="${i%2?`url(#${id}_hero)`:p.a}"/>`;
     }
     return out;
   }
 
-  function ribbonBars(id,w,h,p,rnd){
-    let out=""; const s=sizeFactor(), gap=Number(state.spacing)/100, bars=3+(Number(state.density)%5);
-    const barH=h*(.13+.06*s), width=w*(.63+.25*(1-gap));
-    const shadowColor = mixHex(p.dark, "#000000", 0.6);
-    for(let i=0;i<bars;i++){
-      const y=h*(.17+i*(.74/Math.max(1,bars-1))), dx=(rnd()-.5)*w*.10*gap;
-      const rot=(rnd()-.5)*9;
-      if(state.depth==="3d") out += `<g transform="translate(${(dx+14).toFixed(1)} ${(y+14).toFixed(1)}) rotate(${rot.toFixed(1)})"><rect x="${(-width/2).toFixed(1)}" y="${(-barH/2).toFixed(1)}" width="${width.toFixed(1)}" height="${barH.toFixed(1)}" rx="${(barH*.42).toFixed(1)}" fill="${shadowColor}" opacity="0.5"/></g>`;
-      out += `<g transform="translate(${dx.toFixed(1)} ${y.toFixed(1)}) rotate(${rot.toFixed(1)})"><rect x="${(-width/2).toFixed(1)}" y="${(-barH/2).toFixed(1)}" width="${width.toFixed(1)}" height="${barH.toFixed(1)}" rx="${(barH*.42).toFixed(1)}" fill="${i%2?`url(#${id}_hero)`:p.a}"/><rect x="${(-width*.30).toFixed(1)}" y="${(-barH*.28).toFixed(1)}" width="${(width*.62).toFixed(1)}" height="${(barH*.16).toFixed(1)}" rx="20" fill="#fff" opacity=".25"/></g>`;
+  // 3. GRADIENT MESH (Iridescent/Holographic)
+  function gradientMesh(id,w,h,p,rnd){
+    let out = `<rect width="${w}" height="${h}" fill="${p.dark}"/>`;
+    const count = Math.max(3, Math.floor(Number(state.density)/2));
+    for(let i=0; i<count; i++){
+        let cx = w * rnd(); let cy = h * rnd();
+        let rx = w * (0.4 + rnd()*0.6) * sizeFactor(); let ry = h * (0.4 + rnd()*0.6) * sizeFactor();
+        out += `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="${i%2===0 ? `url(#${id}_hero)` : `url(#${id}_orb)`}" opacity="0.7"/>`;
     }
     return out;
   }
 
+  // 4. MEMPHIS / RETRO (Playful/Collage)
+  function memphis(id,w,h,p,rnd){
+    let out = `<rect width="${w}" height="${h}" fill="${p.light}"/>`;
+    const items = Math.max(10, Number(state.density)*2);
+    const shadowColor = mixHex(p.dark, "#000000", 0.4);
+    for(let i=0; i<items; i++){
+        let type = Math.floor(rnd()*4);
+        let x = w*rnd(); let y = h*rnd(); let s = w * 0.05 * sizeFactor() * (1+rnd()*2);
+        let col = [p.a, p.b, p.dark][i%3];
+        if(state.depth==="3d") {
+            if(type===0) out += `<circle cx="${x+10}" cy="${y+10}" r="${s}" fill="${shadowColor}"/>`;
+            if(type===1) out += `<rect x="${x+10}" y="${y+10}" width="${s*1.5}" height="${s*1.5}" fill="none" stroke="${shadowColor}" stroke-width="${s*0.2}"/>`;
+            if(type===2) out += `<polygon points="${x+10},${y-s+10} ${x+s+10},${y+s+10} ${x-s+10},${y+s+10}" fill="${shadowColor}"/>`;
+        }
+        if(type===0) out += `<circle cx="${x}" cy="${y}" r="${s}" fill="${col}"/>`;
+        if(type===1) out += `<rect x="${x}" y="${y}" width="${s*1.5}" height="${s*1.5}" fill="none" stroke="${col}" stroke-width="${s*0.2}"/>`;
+        if(type===2) out += `<polygon points="${x},${y-s} ${x+s},${y+s} ${x-s},${y+s}" fill="${col}"/>`;
+        if(type===3) out += `<path d="M ${x} ${y} Q ${x+s} ${y-s} ${x+s*2} ${y} T ${x+s*4} ${y}" fill="none" stroke="${col}" stroke-width="${s*0.3}" stroke-linecap="round"/>`;
+    }
+    return out;
+  }
+
+  // 5. MANDALA / SACRED GEOMETRY
+  function mandala(id,w,h,p,rnd){
+    let out = `<rect width="${w}" height="${h}" fill="${p.dark}"/>`;
+    const cx = w/2; const cy = h/2;
+    const rings = Math.max(3, Math.floor(Number(state.density)/2));
+    const segments = 12;
+    for(let i=1; i<=rings; i++){
+        let r = (Math.min(w,h)*0.4 / rings) * i * sizeFactor();
+        out += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${p.a}" stroke-width="${w*0.002}"/>`;
+        for(let j=0; j<segments; j++){
+            let a = (j/segments) * TAU;
+            let x1 = cx + Math.cos(a)*r; let y1 = cy + Math.sin(a)*r;
+            let x2 = cx + Math.cos(a+TAU/(segments*2))*(r*1.2); let y2 = cy + Math.sin(a+TAU/(segments*2))*(r*1.2);
+            out += `<path d="M ${cx} ${cy} L ${x1} ${y1} L ${x2} ${y2} Z" fill="none" stroke="${i%2===0?p.b:p.light}" stroke-width="${w*0.001}"/>`;
+            out += `<circle cx="${x1}" cy="${y1}" r="${r*0.1}" fill="url(#${id}_hero)"/>`;
+        }
+    }
+    return out;
+  }
+
+  // 6. PATTERN GRID (Halftone/Checkerboard)
+  function patternGrid(id,w,h,p,rnd, modeStr){
+    let out = `<rect width="${w}" height="${h}" fill="${p.dark}"/>`;
+    let isChecker = modeStr.includes('checker');
+    let isLine = modeStr.includes('line');
+    let step = Math.max(20, (150 - Number(state.density)*5) * sizeFactor());
+    if (isLine) {
+        for(let y=0; y<h; y+=step) out += `<line x1="0" y1="${y}" x2="${w}" y2="${y}" stroke="${p.a}" stroke-width="${step*0.3}"/>`;
+    } else if (isChecker) {
+        let row=0;
+        for(let y=0; y<h; y+=step){
+            let col=0;
+            for(let x=0; x<w; x+=step){
+                if((row+col)%2===0) out += `<rect x="${x}" y="${y}" width="${step}" height="${step}" fill="${p.b}"/>`;
+                col++;
+            }
+            row++;
+        }
+    } else {
+        for(let y=0; y<h; y+=step){
+            for(let x=0; x<w; x+=step){
+                let r = (Math.sin(x*0.01) + Math.cos(y*0.01)) * step * 0.4;
+                if(r>0) out += `<circle cx="${x}" cy="${y}" r="${r}" fill="${p.light}"/>`;
+            }
+        }
+    }
+    return out;
+  }
+
+  // 7. SPHERES (Bubbles/Glass)
   function spheres(id,w,h,p,rnd){
     let out=""; const s=sizeFactor(), count=5+Math.floor(Number(state.density)/4), min=Math.min(w,h);
     const shadowColor = mixHex(p.dark, "#000000", 0.6);
@@ -236,6 +288,7 @@
     return out;
   }
 
+  // 8. PETALS (Floral/Organic)
   function petals(id,w,h,p,rnd){
     let out=""; const cx=w*(.5+rnd()*.08-.04), cy=h*(.49+rnd()*.10-.05), R=Math.min(w,h)*.30*sizeFactor();
     const petals=5+Math.round(Number(state.density)/5);
@@ -246,22 +299,35 @@
       if(state.depth==="3d") out += `<ellipse cx="${(x+10).toFixed(1)}" cy="${(y+10).toFixed(1)}" rx="${rx.toFixed(1)}" ry="${ry.toFixed(1)}" transform="rotate(${rot.toFixed(1)} ${(x+10).toFixed(1)} ${(y+10).toFixed(1)})" fill="${shadowColor}" opacity="0.4"/>`;
       out += `<ellipse cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" rx="${rx.toFixed(1)}" ry="${ry.toFixed(1)}" transform="rotate(${rot.toFixed(1)} ${x.toFixed(1)} ${y.toFixed(1)})" fill="${i%2?`url(#${id}_hero)`:p.a}"/>`;
     }
-    if(state.depth==="3d") out += `<circle cx="${(cx+10).toFixed(1)}" cy="${(cy+10).toFixed(1)}" r="${(R*.26).toFixed(1)}" fill="${shadowColor}" opacity="0.4"/>`;
-    out += `<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${(R*.26).toFixed(1)}" fill="url(#${id}_orb)"/>`;
     return out;
   }
 
+  // 9. CYBER (Synthwave / Y2K)
+  function cyberTopography(id,w,h,p,rnd) {
+    let out = `<rect width="${w}" height="${h}" fill="${p.dark}"/>`; const s = sizeFactor();
+    const lines = Math.max(12, Math.floor(Number(state.density)*1.8));
+    for(let i=0; i<lines; i++) {
+      let y = h*(0.15 + (i/lines)*0.7); let pts = [];
+      for(let x=0; x<=w; x+=w/15) {
+        let offY = Math.sin(x*0.01 + i + rnd()*2)*h*0.12*s;
+        pts.push(`${x.toFixed(1)},${(y+offY).toFixed(1)}`);
+      }
+      out += `<polyline points="${pts.join(" ")}" fill="none" stroke="${i%2?p.a:p.b}" stroke-width="${Math.max(3, w*.004).toFixed(1)}" opacity="0.85"/>`;
+    }
+    const cr = Math.min(w,h)*0.2*s;
+    out += `<circle cx="${w*0.5}" cy="${h*0.5}" r="${cr}" fill="none" stroke="${p.light}" stroke-width="${Math.max(4, w*.01)}"/>`;
+    return out;
+  }
+
+  // 10. WAVES
   function waves(id,w,h,p,rnd){
     let out=""; const lines=4+Math.floor(Number(state.density)/3), amp=h*.045*sizeFactor();
     const shadowColor = mixHex(p.dark, "#000000", 0.6);
     for(let j=0;j<lines;j++){
-      const y=h*(.18+j*.16), pts=[], shadowPts=[];
-      const segments=16;
+      const y=h*(.18+j*.16), pts=[], shadowPts=[]; const segments=16;
       for(let i=0;i<=segments;i++){
-          const x=w*(i/segments); 
-          const yy=y+Math.sin(i*.75+j*.9)*amp*(.6+rnd()*.65); 
-          pts.push(`${x.toFixed(1)},${yy.toFixed(1)}`);
-          shadowPts.push(`${(x+10).toFixed(1)},${(yy+10).toFixed(1)}`);
+          const x=w*(i/segments); const yy=y+Math.sin(i*.75+j*.9)*amp*(.6+rnd()*.65); 
+          pts.push(`${x.toFixed(1)},${yy.toFixed(1)}`); shadowPts.push(`${(x+10).toFixed(1)},${(yy+10).toFixed(1)}`);
       }
       if(state.depth==="3d") out += `<polyline points="${shadowPts.join(" ")}" fill="none" stroke="${shadowColor}" stroke-width="${Math.max(9,w*.010*sizeFactor()).toFixed(1)}" stroke-linecap="round" opacity="0.4"/>`;
       out += `<polyline points="${pts.join(" ")}" fill="none" stroke="${j%2?p.light:p.a}" stroke-width="${Math.max(9,w*.010*sizeFactor()).toFixed(1)}" stroke-linecap="round" opacity="${(.8+j*.05).toFixed(2)}"/>`;
@@ -269,278 +335,64 @@
     return out;
   }
 
-  function prisms(id,w,h,p,rnd){
-    let out=""; const count=5+Math.floor(Number(state.density)/5), s=sizeFactor();
-    const shadowColor = mixHex(p.dark, "#000000", 0.6);
-    for(let i=0;i<count;i++){
-      const cx=w*(.16+rnd()*.68), cy=h*(.14+rnd()*.72), r=Math.min(w,h)*(.08+rnd()*.12)*s;
-      const pts=[0,1,2,3,4,5].map(k=>{const a=-Math.PI/2+k*TAU/6+(rnd()-.5)*.2; return `${(cx+Math.cos(a)*r).toFixed(1)},${(cy+Math.sin(a)*r).toFixed(1)}`}).join(" ");
-      const sPts=[0,1,2,3,4,5].map(k=>{const a=-Math.PI/2+k*TAU/6+(rnd()-.5)*.2; return `${(cx+14+Math.cos(a)*r).toFixed(1)},${(cy+14+Math.sin(a)*r).toFixed(1)}`}).join(" ");
-      
-      if(state.depth==="3d") out += `<polygon points="${sPts}" fill="${shadowColor}" opacity="0.5"/>`;
-      out += `<polygon points="${pts}" fill="${i%2?`url(#${id}_hero)`:p.dark}"/>`;
-      if(state.depth==="3d") out += `<polygon points="${pts}" fill="none" stroke="#fff" stroke-opacity=".4" stroke-width="${Math.max(3,w*.003)}"/>`;
-    }
-    return out;
-  }
-
-  function minimal(id,w,h,p,rnd){
-    let out=""; const s=sizeFactor();
-    const blocks=3+Math.floor(Number(state.density)/5);
-    const shadowColor = mixHex(p.dark, "#000000", 0.6);
-    for(let i=0;i<blocks;i++){
-      const x=w*(.12+rnd()*.60), y=h*(.16+rnd()*.64), ww=w*(.14+rnd()*.25)*s, hh=h*(.08+rnd()*.15)*s;
-      const rot=(rnd()-.5)*24;
-      if(state.depth==="3d") out += `<rect x="${(x+14).toFixed(1)}" y="${(y+14).toFixed(1)}" width="${ww.toFixed(1)}" height="${hh.toFixed(1)}" rx="${Math.min(80,hh*.35).toFixed(1)}" transform="rotate(${rot.toFixed(1)} ${(x+14).toFixed(1)} ${(y+14).toFixed(1)})" fill="${shadowColor}" opacity="0.4"/>`;
-      out += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${ww.toFixed(1)}" height="${hh.toFixed(1)}" rx="${Math.min(80,hh*.35).toFixed(1)}" transform="rotate(${rot.toFixed(1)} ${x.toFixed(1)} ${y.toFixed(1)})" fill="${i%2?`url(#${id}_hero)`:p.a}"/>`;
-    }
-    return out;
-  }
-
-  function liquid(id,w,h,p,rnd){
-    let out=""; const s=sizeFactor();
-    const blobs=5+Math.floor(Number(state.density)/4);
-    const shadowColor = mixHex(p.dark, "#000000", 0.6);
-    for(let i=0;i<blobs;i++){
-      const x=w*(.12+rnd()*.76), y=h*(.14+rnd()*.72), rx=w*(.10+rnd()*.20)*s, ry=h*(.06+rnd()*.16)*s;
-      const d=`M ${x-rx} ${y} C ${x-rx*.7} ${y-ry*1.15}, ${x+rx*.2} ${y-ry*.8}, ${x+rx} ${y-rnd()*ry*.1} C ${x+rx*.7} ${y+ry*1.1}, ${x-rx*.1} ${y+ry*.9}, ${x-rx} ${y} Z`;
-      if(state.depth==="3d") out += `<path d="${d}" transform="translate(14, 14)" fill="${shadowColor}" opacity="0.4"/>`;
-      out += `<path d="${d}" fill="${i%2?`url(#${id}_hero)`:p.a}"/>`;
-    }
-    return out;
-  }
-
-  function referenceEditorial(id,w,h,p,rnd,index){
-    const s = sizeFactor();
-    const blue3 = state.lightColor || "#b9e3ff";
-    const bright = "#e7f7ff";
-    const black = "#01050b";
-    let out = "";
-
-    if(index % 5 === 0){
-      out += `<rect width="${w}" height="${h}" fill="${black}"/>`;
-      const r1=Math.min(w,h)*(.35+rnd()*.07)*s, r2=Math.min(w,h)*(.28+rnd()*.06)*s, r3=Math.min(w,h)*(.23+rnd()*.05)*s;
-      const c1x=w*(.27+rnd()*.06), c1y=h*(.16+rnd()*.09);
-      const c2x=w*(.71+rnd()*.06), c2y=h*(.43+rnd()*.08);
-      const c3x=w*(.28+rnd()*.08), c3y=h*(.82-rnd()*.05);
-      
-      out += `<circle cx="${c1x.toFixed(1)}" cy="${c1y.toFixed(1)}" r="${r1.toFixed(1)}" fill="url(#${id}_orb)"/>`;
-      out += `<circle cx="${c2x.toFixed(1)}" cy="${c2y.toFixed(1)}" r="${r2.toFixed(1)}" fill="url(#${id}_hero)"/>`;
-      out += `<circle cx="${c3x.toFixed(1)}" cy="${c3y.toFixed(1)}" r="${r3.toFixed(1)}" fill="url(#${id}_dark)"/>`;
-      out += `<circle cx="${c2x.toFixed(1)}" cy="${c2y.toFixed(1)}" r="${(r2+5).toFixed(1)}" fill="none" stroke="${bright}" stroke-width="${Math.max(3,w*.0025).toFixed(1)}"/>`;
-      out += `<ellipse cx="${(w*.45).toFixed(1)}" cy="${(h*.13).toFixed(1)}" rx="${(w*.23).toFixed(1)}" ry="${(h*.11).toFixed(1)}" fill="${blue3}" opacity=".4"/>`;
-      return out;
-    }
-
-    if(index % 5 === 1){
-      out += `<rect width="${w}" height="${h}" fill="${black}"/>`;
-      out += `<rect width="${w}" height="${h}" fill="url(#${id}_bg)" opacity=".8"/>`;
-      const bx=w*(.34+rnd()*.16), by=h*(.42+rnd()*.12);
-      out += `<path d="M ${w*.41} ${h*1.05} C ${w*.40} ${h*.77}, ${w*.28} ${h*.46}, ${w*.45} ${h*.07} C ${w*.59} ${h*.23}, ${w*.66} ${h*.60}, ${w*.54} ${h*1.04} Z" fill="url(#${id}_hero)"/>`;
-      out += `<ellipse cx="${bx.toFixed(1)}" cy="${by.toFixed(1)}" rx="${(w*.15).toFixed(1)}" ry="${(h*.36).toFixed(1)}" fill="${bright}" opacity=".4"/>`;
-      out += `<ellipse cx="${(bx+w*.04).toFixed(1)}" cy="${(by-h*.05).toFixed(1)}" rx="${(w*.065).toFixed(1)}" ry="${(h*.20).toFixed(1)}" fill="${bright}" opacity=".3"/>`;
-      out += `<path d="M ${w*.06} ${h*.84} C ${w*.22} ${h*.68}, ${w*.37} ${h*.58}, ${w*.68} ${h*.28}" fill="none" stroke="${blue3}" stroke-width="${Math.max(10,w*.012)}"/>`;
-      return out;
-    }
-
-    if(index % 5 === 2){
-      out += `<rect width="${w}" height="${h}" fill="${black}"/>`;
-      const steps = Math.max(12, Math.floor(Number(state.density)*1.7));
-      const centerX = w*(.48 + (rnd()-.5)*.08);
-      const baseY = h*(.72 + rnd()*.07);
-      const band = h*.028*s;
-      for(let i=0;i<steps;i++){
-        const t=i/(steps-1), side=i<steps/2?-1:1, u=Math.abs(t-.5)*2;
-        const x=centerX + side*(w*.38*u);
-        const y=baseY - h*.23*(1-u) - h*.035*Math.sin(t*10);
-        const bh=band*(1.38-.52*u), bw=w*(.026+.020*(1-u));
-        const fill=i%3===0?`url(#${id}_orb)`:`url(#${id}_hero)`;
-        out += `<rect x="${(x-bw/2).toFixed(1)}" y="${(y-bh/2).toFixed(1)}" width="${bw.toFixed(1)}" height="${bh.toFixed(1)}" fill="${fill}"/>`;
-      }
-      out += `<path d="M ${w*.12} ${h*.82} Q ${w*.49} ${h*.50} ${w*.88} ${h*.82}" fill="none" stroke="${bright}" stroke-width="${Math.max(10,w*.008)}"/>`;
-      return out;
-    }
-
-    if(index % 5 === 3){
-      out += `<rect width="${w}" height="${h}" fill="${black}"/>`;
-      const lines=Math.max(24,Math.floor(Number(state.density)*3.6));
-      const centerX=w*(.51+rnd()*.04), centerY=h*(.66+rnd()*.08);
-      for(let i=0;i<lines;i++){
-        const t=i/(lines-1), spread=w*(.08+t*.44), y0=h*(.04+t*.52), leftX=centerX-spread, rightX=centerX+spread;
-        const bend=h*(.18+.08*Math.sin(t*TAU));
-        const stroke=i%4===0?bright:(i%2?blue3:p.a);
-        const sw=Math.max(1.6,w*(.0012+.00075*(1-t)));
-        out += `<path d="M ${leftX.toFixed(1)} ${y0.toFixed(1)} C ${(leftX+spread*.40).toFixed(1)} ${(y0+bend).toFixed(1)}, ${(centerX-spread*.28).toFixed(1)} ${(centerY-bend*.30).toFixed(1)}, ${centerX.toFixed(1)} ${centerY.toFixed(1)} C ${(centerX+spread*.28).toFixed(1)} ${(centerY-bend*.18).toFixed(1)}, ${(rightX-spread*.35).toFixed(1)} ${(y0+bend*.8).toFixed(1)}, ${rightX.toFixed(1)} ${y0.toFixed(1)}" fill="none" stroke="${stroke}" stroke-width="${sw.toFixed(1)}"/>`;
-      }
-      out += `<ellipse cx="${centerX.toFixed(1)}" cy="${centerY.toFixed(1)}" rx="${(w*.18).toFixed(1)}" ry="${(h*.08).toFixed(1)}" fill="${blue3}" opacity=".4"/>`;
-      return out;
-    }
-
-    out += `<rect width="${w}" height="${h}" fill="url(#${id}_bg)"/>`;
-    const cx=w*(.78+rnd()*.05), cy=h*(.73+rnd()*.07), arcCount=Math.max(6,Math.floor(Number(state.density)/2));
-    for(let i=0;i<arcCount;i++){
-      const rx=w*(.30+i*.075), ry=h*(.14+i*.052);
-      const startX=cx-rx, startY=cy-ry*.20, endX=cx+rx*.05, endY=cy-ry;
-      const curve=`M ${startX.toFixed(1)} ${startY.toFixed(1)} C ${(cx-rx*.52).toFixed(1)} ${(cy-ry*.95).toFixed(1)}, ${(cx-rx*.08).toFixed(1)} ${(cy-ry*1.03).toFixed(1)}, ${endX.toFixed(1)} ${endY.toFixed(1)}`;
-      const stroke=i%3===0?bright:(i%2?blue3:p.a);
-      out += `<path d="${curve}" fill="none" stroke="${stroke}" stroke-width="${Math.max(4,w*.0045*(1-i*.025)).toFixed(1)}" stroke-linecap="round"/>`;
-    }
-    out += `<path d="M ${w*.02} ${h*.28} C ${w*.28} ${h*.06}, ${w*.50} ${h*.12}, ${w*.66} ${h*.30}" fill="none" stroke="${blue3}" stroke-width="${Math.max(5,w*.006)}"/>`;
-    return out;
-  }
-
-  function pastelEditorial(id,w,h,p,rnd,index){
-    const s = sizeFactor();
-    const C = {
-      bg: "#f1e2d0", cream: "#f8ecd9", peach: "#ffb266", orange: "#ff7b35", 
-      coral: "#ff5f6f", pink: "#ee4a9c", rose: "#d62c77", yellow: "#ffd86b", 
-      red: "#f23d52", ink: "#4b2030"
-    };
-    const shadowColor = "rgba(0,0,0,0.15)";
-    let out = "";
-
-    if(index % 5 === 0){
-      out += `<rect width="${w}" height="${h}" fill="${C.bg}"/>`;
-      const cols = Math.max(5, Math.floor(Number(state.density)/2)+2);
-      const gap = w/(cols+1);
-      for(let i=0;i<cols;i++){
-        const x = gap*(i+1);
-        const yy = h*(.18 + (i%2)*.10 + rnd()*.05);
-        const bh = h*(.18 + rnd()*.16)*s;
-        const bw = gap*(.52 + rnd()*.14);
-        const col = [C.pink,C.peach,C.orange,C.yellow,C.coral][(i+index)%5];
-        if(state.depth==="3d") out += `<rect x="${(x-bw/2+10).toFixed(1)}" y="${(yy+10).toFixed(1)}" width="${bw.toFixed(1)}" height="${bh.toFixed(1)}" rx="${(bw*.48).toFixed(1)}" fill="${shadowColor}"/>`;
-        out += `<rect x="${(x-bw/2).toFixed(1)}" y="${yy.toFixed(1)}" width="${bw.toFixed(1)}" height="${bh.toFixed(1)}" rx="${(bw*.48).toFixed(1)}" fill="${col}"/>`;
-        out += `<ellipse cx="${x.toFixed(1)}" cy="${(yy+bh).toFixed(1)}" rx="${(bw*.48).toFixed(1)}" ry="${(bw*.46).toFixed(1)}" fill="${col}"/>`;
-      }
-      out += `<ellipse cx="${w*.74}" cy="${h*.20}" rx="${w*.21}" ry="${h*.10}" fill="${C.yellow}" opacity=".4"/>`;
-      return out;
-    }
-
-    if(index % 5 === 1){
-      out += `<rect width="${w}" height="${h}" fill="${C.cream}"/>`;
-      const centers = [
-        [w*.27,h*.28,Math.min(w,h)*.15],
-        [w*.67,h*.27,Math.min(w,h)*.22],
-        [w*.40,h*.68,Math.min(w,h)*.19],
-        [w*.76,h*.68,Math.min(w,h)*.11]
-      ];
-      centers.forEach((c,ci)=>{
-        const [cx,cy,R]=c;
-        const rings = Math.max(6, Math.floor(Number(state.density)/2));
-        for(let j=0;j<rings;j++){
-          const r=R*(1-j/rings*.82);
-          const col=[C.pink,C.orange,C.yellow,C.coral,C.red][(j+ci)%5];
-          const yy = cy + Math.sin(j*.55+ci)*R*.035;
-          if(state.depth==="3d") out += `<circle cx="${(cx+8).toFixed(1)}" cy="${(yy+8).toFixed(1)}" r="${r.toFixed(1)}" fill="none" stroke="${shadowColor}" stroke-width="${Math.max(7,r*.18).toFixed(1)}"/>`;
-          out += `<circle cx="${cx.toFixed(1)}" cy="${yy.toFixed(1)}" r="${r.toFixed(1)}" fill="none" stroke="${col}" stroke-width="${Math.max(7,r*.18).toFixed(1)}"/>`;
-        }
-        out += `<circle cx="${(cx-R*.13).toFixed(1)}" cy="${(cy-R*.14).toFixed(1)}" r="${(R*.15).toFixed(1)}" fill="${C.yellow}" opacity=".6"/>`;
-      });
-      return out;
-    }
-
-    if(index % 5 === 2){
-      out += `<rect width="${w}" height="${h}" fill="${C.bg}"/>`;
-      const bars = Math.max(9, Number(state.density)+4);
-      const bw = w/(bars*1.6);
-      for(let i=0;i<bars;i++){
-        const x=w*.13 + i*(w*.74/(bars-1));
-        const bh=h*(.26 + .045*i)*(0.82+rnd()*.30)*s;
-        const y=h*.77-bh;
-        const fill = i%4===0?C.yellow:(i%4===1?C.peach:(i%4===2?C.orange:C.coral));
-        out += `<rect x="${(x-bw/2).toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${bh.toFixed(1)}" fill="${fill}"/>`;
-      }
-      out += `<rect x="0" y="${(h*.62).toFixed(1)}" width="${w}" height="${(h*.38).toFixed(1)}" fill="${C.cream}"/>`;
-      out += `<ellipse cx="${w*.51}" cy="${h*.66}" rx="${w*.22}" ry="${h*.13}" fill="${C.yellow}" opacity=".5"/>`;
-      return out;
-    }
-
-    if(index % 5 === 3){
-      out += `<rect width="${w}" height="${h}" fill="${C.bg}"/>`;
-      const cx=w*.49, cy=h*.36;
-      const rings=Math.max(7, Math.floor(Number(state.density)/2)+4);
-      for(let i=0;i<rings;i++){
-        const R=Math.min(w,h)*(.33+i*.055)*s;
-        const col=[C.coral,C.orange,C.peach,C.yellow,C.pink,C.red][i%6];
-        if(state.depth==="3d") out += `<circle cx="${(cx+10).toFixed(1)}" cy="${(cy+10).toFixed(1)}" r="${R.toFixed(1)}" fill="none" stroke="${shadowColor}" stroke-width="${Math.max(18,R*.13).toFixed(1)}"/>`;
-        out += `<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${R.toFixed(1)}" fill="none" stroke="${col}" stroke-width="${Math.max(18,R*.13).toFixed(1)}"/>`;
-      }
-      if(state.depth==="3d") out += `<rect x="${(w*.18+10).toFixed(1)}" y="${(h*.33+10).toFixed(1)}" width="${(w*.64).toFixed(1)}" height="${(h*.22).toFixed(1)}" fill="${shadowColor}"/>`;
-      out += `<rect x="${(w*.18).toFixed(1)}" y="${(h*.33).toFixed(1)}" width="${(w*.64).toFixed(1)}" height="${(h*.22).toFixed(1)}" fill="${C.cream}"/>`;
-      out += `<text x="${(w*.50).toFixed(1)}" y="${(h*.455).toFixed(1)}" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="${Math.round(Math.min(w,h)*.060)}" font-weight="900" fill="${C.ink}">COVER</text>`;
-      out += `<text x="${(w*.50).toFixed(1)}" y="${(h*.495).toFixed(1)}" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="${Math.round(Math.min(w,h)*.060)}" font-weight="900" fill="${C.ink}">DESIGN</text>`;
-      return out;
-    }
-
-    out += `<rect width="${w}" height="${h}" fill="${C.red}"/>`;
-    const stripes=Math.max(16, Math.floor(Number(state.density)*2.2));
-    const stripeH=h*.036;
-    for(let i=-3;i<stripes+3;i++){
-      const y=i*(h/(stripes));
-      const col=[C.pink,C.orange,C.yellow,C.coral,C.rose][i%5];
-      const slant=w*.16;
-      out += `<path d="M ${(w*.02-slant).toFixed(1)} ${(y+stripeH).toFixed(1)} L ${(w*.02).toFixed(1)} ${y.toFixed(1)} L ${(w*.98).toFixed(1)} ${(y.toFixed(1))} L ${(w*.98+slant).toFixed(1)} ${(y+stripeH).toFixed(1)} Z" fill="${col}"/>`;
-    }
-    if(state.depth==="3d") out += `<rect x="${(w*.10+12).toFixed(1)}" y="${(h*.73+12).toFixed(1)}" width="${(w*.80).toFixed(1)}" height="${(h*.13).toFixed(1)}" rx="${(h*.03).toFixed(1)}" fill="${shadowColor}"/>`;
-    out += `<rect x="${(w*.10).toFixed(1)}" y="${(h*.73).toFixed(1)}" width="${(w*.80).toFixed(1)}" height="${(h*.13).toFixed(1)}" rx="${(h*.03).toFixed(1)}" fill="${C.cream}"/>`;
-    return out;
-  }
-
+  // ==========================================
+  // INTELLIGENT ROUTING ENGINE
+  // ==========================================
   function layoutByMode(index,w,h,p,rnd,id){
-    const mode = state.designMode;
-    if(mode === "sharpBeams") return sharpBeams(id,w,h,p,rnd,index);
-    if(mode === "liquid") return liquid(id,w,h,p,rnd);
-    if(mode === "glass") return spheres(id,w,h,p,rnd);
-    if(mode === "prism") return prisms(id,w,h,p,rnd);
-    if(mode === "organic") return petals(id,w,h,p,rnd);
-    if(mode === "waves") return waves(id,w,h,p,rnd);
-    if(mode === "minimal") return minimal(id,w,h,p,rnd);
-    if(mode === "blueEditorial") return referenceEditorial(id,w,h,p,rnd,index);
-    if(mode === "pastelEditorial") return pastelEditorial(id,w,h,p,rnd,index);
-    const options=[sharpBeams,circleGrid,ribbonBars,spheres,prisms,petals,waves,liquid,minimal];
-    const fn=options[index%options.length];
-    return fn(id,w,h,p,rnd,index);
+    const mode = state.designMode.toLowerCase();
+    
+    if (mode.includes('memphis') || mode.includes('playful') || mode.includes('retro')) return memphis(id,w,h,p,rnd);
+    if (mode.includes('y2k') || mode.includes('cyber') || mode.includes('tech') || mode.includes('synthwave')) return cyberTopography(id,w,h,p,rnd);
+    if (mode.includes('gradient') || mode.includes('iridescent') || mode.includes('holographic') || mode.includes('chromatic')) return gradientMesh(id,w,h,p,rnd);
+    if (mode.includes('mandala') || mode.includes('sacred') || mode.includes('kaleidoscope') || mode.includes('radial') || mode.includes('ornament') || mode.includes('islamic') || mode.includes('moroccan')) return mandala(id,w,h,p,rnd);
+    if (mode.includes('botanical') || mode.includes('floral') || mode.includes('leaf') || mode.includes('nature') || mode.includes('petal')) return petals(id,w,h,p,rnd);
+    if (mode.includes('bubble')) return spheres(id,w,h,p,rnd);
+    if (mode.includes('pattern') || mode.includes('halftone') || mode.includes('dot') || mode.includes('checkerboard') || mode.includes('grid')) return patternGrid(id,w,h,p,rnd, mode);
+    if (mode.includes('liquid') || mode.includes('fluid') || mode.includes('ink') || mode.includes('paint') || mode.includes('splash')) return liquid(id,w,h,p,rnd);
+
+    if (mode.includes('geometry') || mode.includes('geometric')) {
+        if (mode.includes('cyan') || mode.includes('bold')) return sharpBeams(id,w,h,p,rnd,index);
+        if (mode.includes('soft') || mode.includes('organic')) return liquid(id,w,h,p,rnd);
+        return sharpBeams(id,w,h,p,rnd,index);
+    }
+
+    if (mode.includes('abstract')) {
+        if (mode.includes('bold')) return sharpBeams(id,w,h,p,rnd,index);
+        if (mode.includes('organic')) return petals(id,w,h,p,rnd);
+        return waves(id,w,h,p,rnd);
+    }
+
+    return sharpBeams(id,w,h,p,rnd,index); // Default fallback
   }
 
+  // ==========================================
+  // TEXT & RENDERING
+  // ==========================================
   function textLayer(id,index,w,h,p){
     const amount=Number(state.textAmount)/100;
     if(amount<=0) return "";
     
     const fill = index%4===1 ? "#e0e0e0" : "#ffffff";
     const fs = Math.max(18,Math.round(Math.min(w,h)*.026));
+    const modeName = state.designMode.toUpperCase();
 
-    if (state.designMode === "sharpBeams") {
+    if (state.designMode === "Cyan Geometric Editorial" || state.designMode === "sharpBeams") {
       const bigFs = Math.max(30, Math.round(Math.min(w,h)*0.09));
       const textColor = index%2 === 0 ? p.light : p.text;
-      
       if (index % 5 === 0) {
-        return `<g font-family="Arial, sans-serif" fill="${textColor}" opacity="${(.7+.3*amount).toFixed(2)}">
-          <text x="${w*0.06}" y="${h*0.1}" font-size="${bigFs}" font-weight="900" letter-spacing="4">DESIGN</text>
-          <text x="${w*0.06}" y="${h*0.13}" font-size="${bigFs*0.2}" font-weight="400" letter-spacing="2">LOREM IPSUM DOLOR SIT AMET</text>
-        </g>`;
+        return `<g font-family="Arial, sans-serif" fill="${textColor}" opacity="${(.7+.3*amount).toFixed(2)}"><text x="${w*0.06}" y="${h*0.1}" font-size="${bigFs}" font-weight="900" letter-spacing="4">DESIGN</text><text x="${w*0.06}" y="${h*0.13}" font-size="${bigFs*0.2}" font-weight="400" letter-spacing="2">LOREM IPSUM DOLOR SIT AMET</text></g>`;
       } 
       else if (index % 5 === 2) {
         let textOut = `<g font-family="Arial, sans-serif" fill="${textColor}" opacity="${(.7+.3*amount).toFixed(2)}">`;
-        const chars = "DESIGN".split("");
-        chars.forEach((c, i) => {
-            textOut += `<text x="${w*0.06}" y="${h*0.12 + i*bigFs*1.05}" font-size="${bigFs}" font-weight="300">${c}</text>`;
-        });
-        textOut += `</g>`;
-        return textOut;
+        "DESIGN".split("").forEach((c, i) => { textOut += `<text x="${w*0.06}" y="${h*0.12 + i*bigFs*1.05}" font-size="${bigFs}" font-weight="300">${c}</text>`; });
+        textOut += `</g>`; return textOut;
       }
-      return `<g font-family="Arial, sans-serif" fill="${textColor}" opacity="${(.7+.3*amount).toFixed(2)}">
-        <text x="${w*0.06}" y="${h*0.1}" font-size="${bigFs*0.25}" font-weight="600" letter-spacing="4">ALI STUDIO // VIBRANT</text>
-      </g>`;
+      return `<g font-family="Arial, sans-serif" fill="${textColor}" opacity="${(.7+.3*amount).toFixed(2)}"><text x="${w*0.06}" y="${h*0.1}" font-size="${bigFs*0.25}" font-weight="600" letter-spacing="4">ALI STUDIO // VIBRANT</text></g>`;
     }
-
-    const titles = ["VIVID MOTION","COLOR / FORM","SOFT IMPACT","NEW DIMENSION","VISUAL ENERGY","LIQUID SYSTEM","LIGHT / VOLUME","MODERN OBJECT"];
-    const title=titles[index%titles.length];
-    const sub = ["ABSTRACT SERIES","GENERATIVE STUDY","EDITED IN SVG","DESIGN OBJECT","COLOR EXPLORATION"][index%5];
     
     return `<g font-family="Arial, Helvetica, sans-serif" fill="${fill}" opacity="${(.68+.28*amount).toFixed(2)}">
-      <text x="${(w*.08).toFixed(1)}" y="${(h*.10).toFixed(1)}" font-size="${fs}" font-weight="900" letter-spacing="${Math.max(2,fs*.18).toFixed(1)}">${esc(title)}</text>
-      <text x="${(w*.08).toFixed(1)}" y="${(h*.13).toFixed(1)}" font-size="${Math.round(fs*.38)}" font-weight="600" letter-spacing="${Math.max(1,fs*.07).toFixed(1)}">${esc(sub)}</text>
+      <text x="${(w*.08).toFixed(1)}" y="${(h*.10).toFixed(1)}" font-size="${fs}" font-weight="900" letter-spacing="${Math.max(2,fs*.18).toFixed(1)}">${esc(modeName)}</text>
+      <text x="${(w*.08).toFixed(1)}" y="${(h*.13).toFixed(1)}" font-size="${Math.round(fs*.38)}" font-weight="600" letter-spacing="${Math.max(1,fs*.07).toFixed(1)}">DESIGN / ${String(index+1).padStart(2,"0")}</text>
       <text x="${(w*.08).toFixed(1)}" y="${(h*.92).toFixed(1)}" font-size="${Math.round(fs*.34)}" font-weight="800" letter-spacing="${Math.max(1,fs*.08).toFixed(1)}">ALI STUDIO / ${String(index+1).padStart(2,"0")}</text>
       <text x="${(w*.08).toFixed(1)}" y="${(h*.946).toFixed(1)}" font-size="${Math.round(fs*.25)}" font-weight="600" letter-spacing="${Math.max(1,fs*.055).toFixed(1)}">VIBRANT VECTOR SERIES</text>
     </g>`;
@@ -589,30 +441,38 @@
   }
 
   function readControls(){
-    ["posterCount","shapeSize","density","gradientSoftness","spacing","edgeFade","textAmount"].forEach(k=> {
-        if($(k)) state[k]=Number($(k).value)
-    });
-    ["designMode","theme","format","quality","darkColor","lightColor","seed"].forEach(k=>{
-        if($(k)) state[k]=$(k).value
-    });
+    ["posterCount","shapeSize","density","gradientSoftness","spacing","edgeFade","textAmount"].forEach(k=>state[k]=Number($(k).value));
+    ["designMode","theme","format","quality","darkColor","lightColor","seed"].forEach(k=>state[k]=$(k).value);
     state.seed=Number(state.seed)||1;
-    const activeSeg = document.querySelector(".segment.active");
-    if(activeSeg) state.depth=activeSeg.dataset.depth;
+    state.depth=document.querySelector(".segment.active")?.dataset.depth || state.depth;
   }
 
   function updateOutputs(){
     const map={posterCount:["posterCountVal",v=>v],shapeSize:["shapeSizeVal",v=>`${v}%`],density:["densityVal",v=>v],gradientSoftness:["gradientSoftnessVal",v=>`${v}%`],spacing:["spacingVal",v=>`${v}%`],edgeFade:["edgeFadeVal",v=>`${v}%`],textAmount:["textAmountVal",v=>`${v}%`]};
-    Object.entries(map).forEach(([id,[oid,fn]])=>{
-        if($(oid) && $(id)) $(oid).textContent=fn($(id).value);
-    });
-    if($("collectionCount") && $("posterCount")) $("collectionCount").textContent=$("posterCount").value;
-    
-    const dMode = $("designMode");
-    if(dMode && $("workspaceTitle")) $("workspaceTitle").textContent = (dMode.options[dMode.selectedIndex].text).toUpperCase();
-    
-    if($("statusMode")) $("statusMode").textContent=state.depth === "3d" ? "VECTOR SHADOW ENGINE" : "VIBRANT GENERATOR";
-    if($("statusText")) $("statusText").textContent=state.depth === "3d" ? "Crisp offset geometric shadows enabled" : "Pure vector rendering";
-    if($("workspaceSubtitle")) $("workspaceSubtitle").textContent = state.depth === "3d" ? "Each design uses clean geometric shadows for a sharp 3D look." : "Every card uses rich, vivid colors with crisp, sharp geometry.";
+    Object.entries(map).forEach(([id,[oid,fn]])=>$(oid).textContent=fn($(id).value));
+    $("collectionCount").textContent=$("posterCount").value;
+    const modeLabel=$("designMode").selectedOptions[0]?.textContent || "VIBRANT GENERATOR";
+    $("workspaceTitle").textContent=modeLabel.toUpperCase();
+    $("statusMode").textContent=state.depth === "3d" ? "VECTOR SHADOW ENGINE" : "VIBRANT GENERATOR";
+    $("statusText").textContent=state.depth === "3d" ? "Crisp offset geometric shadows enabled" : "Pure vector rendering";
+  }
+
+  function render(){
+    readControls(); updateOutputs(); generated=[];
+    const grid=$("posterGrid"); grid.innerHTML="";
+    const tpl=$("posterTemplate");
+    for(let i=0;i<state.posterCount;i++){
+      const node=tpl.content.firstElementChild.cloneNode(true), svg=makeSvg(i);
+      generated.push(svg);
+      node.querySelector(".poster-number").textContent=`DESIGN ${String(i+1).padStart(2,"0")}`;
+      node.querySelector(".poster-mode").textContent=`${state.depth.toUpperCase()} / ${String(i+1).padStart(2,"0")}`;
+      node.querySelector(".poster-frame").innerHTML=svg;
+      node.querySelector(".download-one").addEventListener("click",()=>download(`ali-studio-${state.theme}-${state.depth}-${String(i+1).padStart(2,"0")}.svg`,svg));
+      node.querySelector(".copy-one").addEventListener("click",()=>copyText(svg));
+      grid.appendChild(node);
+    }
+    grid.style.gridTemplateColumns=`repeat(${Math.min(4,state.posterCount)},minmax(0,1fr))`;
+    applyZoom();
   }
 
   function applyZoom(){ 
@@ -620,53 +480,15 @@
       if (!grid) return;
       grid.style.transform = `scale(${zoom})`; 
       if($("zoomLabel")) $("zoomLabel").textContent = `${Math.round(zoom*100)}%`; 
-      
       const originalHeight = grid.offsetHeight;
       const scaledHeight = originalHeight * zoom;
       const heightDifference = scaledHeight - originalHeight;
       grid.style.marginBottom = `${heightDifference > 0 ? heightDifference + 80 : 80}px`;
   }
 
-  function render(){
-    try {
-        readControls(); updateOutputs(); generated=[];
-        const grid=$("posterGrid"); 
-        if(!grid) return;
-        grid.innerHTML="";
-        const tpl=$("posterTemplate");
-        if(!tpl) return;
-        
-        for(let i=0;i<state.posterCount;i++){
-          const node=tpl.content.firstElementChild.cloneNode(true);
-          const svg=makeSvg(i);
-          generated.push(svg);
-          
-          let pNum = node.querySelector(".poster-number");
-          let pMode = node.querySelector(".poster-mode");
-          let pFrame = node.querySelector(".poster-frame");
-          let dBtn = node.querySelector(".download-one");
-          let cBtn = node.querySelector(".copy-one");
-
-          if(pNum) pNum.textContent=`DESIGN ${String(i+1).padStart(2,"0")}`;
-          if(pMode) pMode.textContent=`${state.depth.toUpperCase()} / ${String(i+1).padStart(2,"0")}`;
-          if(pFrame) pFrame.innerHTML=svg;
-          if(dBtn) dBtn.addEventListener("click",()=>download(`ali-studio-${state.theme}-${state.depth}-${String(i+1).padStart(2,"0")}.svg`,svg));
-          if(cBtn) cBtn.addEventListener("click",()=>copyText(svg));
-          grid.appendChild(node);
-        }
-        grid.style.gridTemplateColumns=`repeat(${Math.min(4,state.posterCount)},minmax(0,1fr))`;
-        applyZoom();
-    } catch (e) {
-        console.error("Render Error:", e);
-    }
-  }
-
   ["posterCount","designMode","theme","shapeSize","density","gradientSoftness","spacing","edgeFade","textAmount","seed","format","quality","darkColor","lightColor"].forEach(id=>{
-    let el = $(id);
-    if(el) {
-        el.addEventListener("input",()=>{updateOutputs();render();});
-        el.addEventListener("change",()=>{updateOutputs();render();});
-    }
+    $(id).addEventListener("input",()=>{updateOutputs();render();});
+    $(id).addEventListener("change",()=>{updateOutputs();render();});
   });
 
   document.querySelectorAll(".segment").forEach(btn=>btn.addEventListener("click",()=>{
@@ -674,31 +496,22 @@
     btn.classList.add("active"); state.depth=btn.dataset.depth; updateOutputs(); render();
   }));
 
-  if($("regenerate")) $("regenerate").addEventListener("click",render);
-  if($("randomize")) $("randomize").addEventListener("click",()=>{
-    if($("seed")) $("seed").value=Math.floor(Math.random()*99999999)+1;
-    if($("shapeSize")) $("shapeSize").value=60+Math.floor(Math.random()*86);
-    if($("density")) $("density").value=4+Math.floor(Math.random()*13);
-    if($("gradientSoftness")) $("gradientSoftness").value=48+Math.floor(Math.random()*53);
-    if($("spacing")) $("spacing").value=10+Math.floor(Math.random()*51);
-    if($("edgeFade")) $("edgeFade").value=12+Math.floor(Math.random()*65);
-    
-    const themes=Object.keys(THEMES); 
-    if($("theme")) $("theme").value=themes[Math.floor(Math.random()*themes.length)];
-    
-    const modes=["sharpBeams","vibrantMix","blueEditorial","pastelEditorial","liquid","glass","prism","organic","waves","minimal"]; 
-    if($("designMode")) $("designMode").value=modes[Math.floor(Math.random()*modes.length)];
-    
+  $("regenerate").addEventListener("click",render);
+  $("randomize").addEventListener("click",()=>{
+    $("seed").value=Math.floor(Math.random()*99999999)+1;
+    $("shapeSize").value=60+Math.floor(Math.random()*86);
+    $("density").value=4+Math.floor(Math.random()*13);
+    $("gradientSoftness").value=48+Math.floor(Math.random()*53);
+    $("spacing").value=10+Math.floor(Math.random()*51);
+    $("edgeFade").value=12+Math.floor(Math.random()*65);
+    const themes=Object.keys(THEMES); $("theme").value=themes[Math.floor(Math.random()*themes.length)];
     updateOutputs(); render();
   });
 
-  if($("downloadAll")) $("downloadAll").addEventListener("click",()=>download(`ali-studio-${state.theme}-${state.depth}-collection.svg`,makeCombinedSvg()));
-  if($("downloadJson")) $("downloadJson").addEventListener("click",()=>download("ali-studio-settings.json",JSON.stringify(state,null,2),"application/json"));
-  
-  if($("zoomIn")) $("zoomIn").addEventListener("click",()=>{zoom=clamp(zoom+.1,.3,2);applyZoom();});
-  if($("zoomOut")) $("zoomOut").addEventListener("click",()=>{zoom=clamp(zoom-.1,.3,2);applyZoom();});
+  $("downloadAll").addEventListener("click",()=>download(`ali-studio-${state.theme}-${state.depth}-collection.svg`,makeCombinedSvg()));
+  $("downloadJson").addEventListener("click",()=>download("ali-studio-settings.json",JSON.stringify(state,null,2),"application/json"));
+  $("zoomIn").addEventListener("click",()=>{zoom=clamp(zoom+.1,.5,1.8);applyZoom();});
+  $("zoomOut").addEventListener("click",()=>{zoom=clamp(zoom-.1,.5,1.8);applyZoom();});
 
-  // START ENGINE
-  updateOutputs(); 
-  render();
+  updateOutputs(); render();
 })();
