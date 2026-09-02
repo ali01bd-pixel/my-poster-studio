@@ -13,6 +13,7 @@
   const TAU = Math.PI * 2;
 
   const THEMES = {
+    crimson:  { dark:"#120202", mid:"#6b0313", a:"#d10022", b:"#ff1a3c", light:"#ffeedb", text:"#ffffff" },
     candy:    { dark:"#21062e", mid:"#b31965", a:"#ff4fd8", b:"#ff7d62", light:"#ffe18a", text:"#ffffff" },
     electric: { dark:"#03142c", mid:"#0849a7", a:"#28b9ff", b:"#6560ff", light:"#d8f7ff", text:"#ffffff" },
     tropical: { dark:"#042b2a", mid:"#078f76", a:"#2de7c7", b:"#8dff72", light:"#ffe56b", text:"#08231f" },
@@ -24,9 +25,9 @@
   };
 
   const state = {
-    posterCount:5, designMode:"vibrantMix", theme:"candy", depth:"flat",
+    posterCount:5, designMode:"sharpBeams", theme:"crimson", depth:"flat",
     shapeSize:100, density:8, gradientSoftness:72, spacing:24, edgeFade:34, textAmount:55,
-    seed:260831, format:"portrait", quality:"large", darkColor:"#12052d", lightColor:"#ffe28a"
+    seed:260831, format:"portrait", quality:"large", darkColor:"#1a0404", lightColor:"#ffecd6"
   };
 
   let generated = [], zoom = 1;
@@ -52,7 +53,7 @@
   function sizeFactor(){ return clamp(Number(state.shapeSize)/100,.35,1.55); }
 
   function palette(index){
-    const base = THEMES[state.theme] || THEMES.candy;
+    const base = THEMES[state.theme] || THEMES.crimson;
     const themeKeys = Object.keys(THEMES);
     const shift = (Math.floor((Number(state.seed)||1)/17) + index * 3) % themeKeys.length;
     const alt = THEMES[themeKeys[shift]];
@@ -95,12 +96,103 @@
     </defs>`;
   }
 
-  // Geometric translucent orbs instead of blurry lights
-  function addLight(out,id,w,h,rnd,p){
-    const fade = Number(state.edgeFade)/100;
-    if(fade<=0) return out;
-    out += `<ellipse cx="${(w*(.14+rnd()*.20)).toFixed(1)}" cy="${(h*(.08+rnd()*.20)).toFixed(1)}" rx="${(w*.30).toFixed(1)}" ry="${(h*.18).toFixed(1)}" fill="url(#${id}_hero)" opacity="${(.15+fade*.15).toFixed(2)}"/>`;
-    out += `<ellipse cx="${(w*(.86-rnd()*.10)).toFixed(1)}" cy="${(h*(.78-rnd()*.10)).toFixed(1)}" rx="${(w*.24).toFixed(1)}" ry="${(h*.17).toFixed(1)}" fill="url(#${id}_bg)" opacity="${(.15+fade*.15).toFixed(2)}"/>`;
+  // --- NEW: SHARP GEOMETRIC BEAMS (Matches Reference Image) ---
+  function sharpBeams(id,w,h,p,rnd,index) {
+    const s = sizeFactor();
+    const shadowColor = mixHex(p.dark, "#000000", 0.6);
+    let out = "";
+
+    // Poster 1: Stepped Gradient Fluid/Curves
+    if(index % 5 === 0) {
+        out += `<rect width="${w}" height="${h}" fill="url(#${id}_dark)"/>`;
+        const steps = Math.max(12, Math.floor(Number(state.density)*2));
+        for(let i=0; i<steps; i++) {
+            let scale = 1 - (i/steps);
+            let rX = w * 1.6 * scale * s;
+            let rY = h * 1.3 * scale * s;
+            let cx = w * 0.9 - (i * w * 0.02);
+            let cy = h * 0.8 + (i * h * 0.01);
+            let fill = i%2===0 ? `url(#${id}_hero)` : p.light;
+            if(i > steps - 4) fill = p.light;
+            if(state.depth==="3d") out += `<ellipse cx="${cx+15}" cy="${cy+15}" rx="${rX}" ry="${rY}" fill="${shadowColor}" opacity="0.3"/>`;
+            out += `<ellipse cx="${cx}" cy="${cy}" rx="${rX}" ry="${rY}" fill="${fill}" />`;
+        }
+        return out;
+    }
+    
+    // Poster 2: Sweeping Sharp Blades
+    if(index % 5 === 1) {
+        out += `<rect width="${w}" height="${h}" fill="${p.dark}"/>`;
+        const blades = Math.max(8, Math.floor(Number(state.density)*1.5));
+        for(let i=0; i<blades; i++) {
+            let x1 = w * (rnd() * 1.2 - 0.2);
+            let y1 = -h * 0.2;
+            let x2 = w * (rnd() * 1.5 - 0.2);
+            let y2 = h * 1.2;
+            let ctrlX = w * (rnd() * 0.5);
+            let ctrlY = h * 0.5;
+            let thick = w * (0.15 + rnd()*0.15) * s;
+            let fill = i%2===0 ? `url(#${id}_hero)` : `url(#${id}_dark)`;
+            let pathD = `M ${x1} ${y1} Q ${ctrlX} ${ctrlY} ${x2} ${y2} L ${x2+thick} ${y2} Q ${ctrlX+thick} ${ctrlY} ${x1+thick} ${y1} Z`;
+            if(state.depth==="3d") out += `<path d="${pathD}" transform="translate(15, 15)" fill="${shadowColor}" opacity="0.5"/>`;
+            out += `<path d="${pathD}" fill="${fill}"/>`;
+        }
+        return out;
+    }
+
+    // Poster 3: Radiating Spokes from Left
+    if(index % 5 === 2) {
+        out += `<rect width="${w}" height="${h}" fill="${p.dark}"/>`;
+        const beams = Math.max(8, Number(state.density)*2);
+        const fx = -w*0.05; const fy = h*0.5; 
+        for(let i=0; i<beams; i++) {
+            let angle1 = -Math.PI/2 + (i/beams) * Math.PI; 
+            let angle2 = -Math.PI/2 + ((i+0.6)/beams) * Math.PI;
+            let r = Math.max(w,h) * 2;
+            let x1 = fx + Math.cos(angle1)*r; let y1 = fy + Math.sin(angle1)*r;
+            let x2 = fx + Math.cos(angle2)*r; let y2 = fy + Math.sin(angle2)*r;
+            let fill = i%2===0 ? `url(#${id}_hero)` : `url(#${id}_bg)`;
+            let pts = `${fx},${fy} ${x1},${y1} ${x2},${y2}`;
+            if(state.depth==="3d") out += `<polygon points="${pts}" transform="translate(10, 10)" fill="${shadowColor}" opacity="0.4"/>`;
+            out += `<polygon points="${pts}" fill="${fill}"/>`;
+        }
+        return out;
+    }
+
+    // Poster 4: Woven Intersecting Bars
+    if(index % 5 === 3) {
+        out += `<rect width="${w}" height="${h}" fill="${p.dark}"/>`;
+        const bars = Math.max(6, Number(state.density)*1.2);
+        for(let i=0; i<bars; i++) {
+            let cx = w * (rnd() > 0.5 ? 0.1 : 0.9);
+            let cy = h * (rnd() > 0.5 ? 0.1 : 0.9);
+            let rot = rnd() * 180;
+            let bw = w * 3;
+            let bh = h * (0.15 + rnd()*0.15) * s;
+            let fill = i%2===0 ? `url(#${id}_hero)` : `url(#${id}_dark)`;
+            if(state.depth==="3d") out += `<rect x="${cx-bw/2+15}" y="${cy-bh/2+15}" width="${bw}" height="${bh}" transform="rotate(${rot} ${cx+15} ${cy+15})" fill="${shadowColor}" opacity="0.5"/>`;
+            out += `<rect x="${cx-bw/2}" y="${cy-bh/2}" width="${bw}" height="${bh}" transform="rotate(${rot} ${cx} ${cy})" fill="${fill}"/>`;
+        }
+        return out;
+    }
+
+    // Poster 5: Jagged Center Void
+    out += `<rect width="${w}" height="${h}" fill="${p.light}"/>`;
+    const spikes = Math.max(10, Number(state.density)*2);
+    const cx = w*0.5, cy = h*0.5;
+    const inR = w * 0.35 * s;
+    const outR = Math.max(w,h) * 1.5;
+    for(let i=0; i<spikes; i++) {
+        let a1 = (i/spikes) * TAU;
+        let a2 = ((i+1)/spikes) * TAU;
+        let x1 = cx + Math.cos(a1)*inR; let y1 = cy + Math.sin(a1)*inR;
+        let ox1 = cx + Math.cos(a1 - 0.2)*outR; let oy1 = cy + Math.sin(a1 - 0.2)*outR;
+        let ox2 = cx + Math.cos(a2 - 0.2)*outR; let oy2 = cy + Math.sin(a2 - 0.2)*outR;
+        let fill = `url(#${id}_hero)`; 
+        let pts = `${x1},${y1} ${ox1},${oy1} ${ox2},${oy2}`;
+        if(state.depth==="3d") out += `<polygon points="${pts}" transform="translate(10, 10)" fill="${shadowColor}" opacity="0.3"/>`;
+        out += `<polygon points="${pts}" fill="${fill}"/>`;
+    }
     return out;
   }
 
@@ -111,7 +203,6 @@
     for(let row=0;row<rows;row++) for(let col=0;col<cols;col++){
       const x=cellW*(col+1)+Math.sin(row+col)*cellW*.05, y=cellH*(row+1)+Math.cos(col*.8)*cellH*.035;
       const r=base*(.62+rnd()*.48), fill=(row+col)%3===0?`url(#${id}_orb)`:(row%2?`url(#${id}_hero)`:p.b);
-      // Hard Vector Shadow for 3D effect
       if(state.depth==="3d") out += `<circle cx="${(x+14).toFixed(1)}" cy="${(y+14).toFixed(1)}" r="${r.toFixed(1)}" fill="${shadowColor}" opacity="0.5"/>`;
       out += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r.toFixed(1)}" fill="${fill}"/>`;
     }
@@ -218,7 +309,6 @@
     return out;
   }
 
-
   function referenceEditorial(id,w,h,p,rnd,index){
     const s = sizeFactor();
     const blue3 = state.lightColor || "#b9e3ff";
@@ -228,9 +318,7 @@
 
     if(index % 5 === 0){
       out += `<rect width="${w}" height="${h}" fill="${black}"/>`;
-      const r1 = Math.min(w,h)*(.35 + rnd()*.07)*s;
-      const r2 = Math.min(w,h)*(.28 + rnd()*.06)*s;
-      const r3 = Math.min(w,h)*(.23 + rnd()*.05)*s;
+      const r1=Math.min(w,h)*(.35+rnd()*.07)*s, r2=Math.min(w,h)*(.28+rnd()*.06)*s, r3=Math.min(w,h)*(.23+rnd()*.05)*s;
       const c1x=w*(.27+rnd()*.06), c1y=h*(.16+rnd()*.09);
       const c2x=w*(.71+rnd()*.06), c2y=h*(.43+rnd()*.08);
       const c3x=w*(.28+rnd()*.08), c3y=h*(.82-rnd()*.05);
@@ -299,7 +387,6 @@
     out += `<path d="M ${w*.02} ${h*.28} C ${w*.28} ${h*.06}, ${w*.50} ${h*.12}, ${w*.66} ${h*.30}" fill="none" stroke="${blue3}" stroke-width="${Math.max(5,w*.006)}"/>`;
     return out;
   }
-
 
   function pastelEditorial(id,w,h,p,rnd,index){
     const s = sizeFactor();
@@ -401,6 +488,7 @@
 
   function layoutByMode(index,w,h,p,rnd,id){
     const mode = state.designMode;
+    if(mode === "sharpBeams") return sharpBeams(id,w,h,p,rnd,index);
     if(mode === "liquid") return liquid(id,w,h,p,rnd);
     if(mode === "glass") return spheres(id,w,h,p,rnd);
     if(mode === "prism") return prisms(id,w,h,p,rnd);
@@ -409,20 +497,48 @@
     if(mode === "minimal") return minimal(id,w,h,p,rnd);
     if(mode === "blueEditorial") return referenceEditorial(id,w,h,p,rnd,index);
     if(mode === "pastelEditorial") return pastelEditorial(id,w,h,p,rnd,index);
-    const options=[circleGrid,ribbonBars,spheres,prisms,petals,waves,liquid,minimal];
+    const options=[sharpBeams,circleGrid,ribbonBars,spheres,prisms,petals,waves,liquid,minimal];
     const fn=options[index%options.length];
-    return fn(id,w,h,p,rnd);
+    return fn(id,w,h,p,rnd,index);
   }
 
   function textLayer(id,index,w,h,p){
     const amount=Number(state.textAmount)/100;
     if(amount<=0) return "";
+    
+    const fill = index%4===1 ? "#e0e0e0" : "#ffffff";
+    const fs = Math.max(18,Math.round(Math.min(w,h)*.026));
+
+    // Custom Typography for the Sharp Beams mode
+    if (state.designMode === "sharpBeams") {
+      const bigFs = Math.max(30, Math.round(Math.min(w,h)*0.09));
+      const textColor = index%2 === 0 ? p.light : p.text;
+      
+      if (index % 5 === 0) {
+        return `<g font-family="Arial, sans-serif" fill="${textColor}" opacity="${(.7+.3*amount).toFixed(2)}">
+          <text x="${w*0.06}" y="${h*0.1}" font-size="${bigFs}" font-weight="900" letter-spacing="4">DESIGN</text>
+          <text x="${w*0.06}" y="${h*0.13}" font-size="${bigFs*0.2}" font-weight="400" letter-spacing="2">LOREM IPSUM DOLOR SIT AMET</text>
+        </g>`;
+      } 
+      else if (index % 5 === 2) {
+        let textOut = `<g font-family="Arial, sans-serif" fill="${textColor}" opacity="${(.7+.3*amount).toFixed(2)}">`;
+        const chars = "DESIGN".split("");
+        chars.forEach((c, i) => {
+            textOut += `<text x="${w*0.06}" y="${h*0.12 + i*bigFs*1.05}" font-size="${bigFs}" font-weight="300">${c}</text>`;
+        });
+        textOut += `</g>`;
+        return textOut;
+      }
+      return `<g font-family="Arial, sans-serif" fill="${textColor}" opacity="${(.7+.3*amount).toFixed(2)}">
+        <text x="${w*0.06}" y="${h*0.1}" font-size="${bigFs*0.25}" font-weight="600" letter-spacing="4">ALI STUDIO // VIBRANT</text>
+      </g>`;
+    }
+
     const titles = state.designMode === "blueEditorial" ? ["DESIGN INSPIRATION","ABSTRACT POSTER","ABSTRACT / 01","INSPIRATION","CREATE","BLUE FORM","VISUAL STUDY","MODERN ART"] : state.designMode === "pastelEditorial" ? ["DESIGN INSPIRATION","INSPIRATION","MODERN COVER","COVER DESIGN","MODERN ART","COLOR STUDY","DESIGN POSTER","SOFT FORM"] : ["VIVID MOTION","COLOR / FORM","SOFT IMPACT","NEW DIMENSION","VISUAL ENERGY","LIQUID SYSTEM","LIGHT / VOLUME","MODERN OBJECT"];
     const title=titles[index%titles.length];
-    const fs=Math.max(18,Math.round(Math.min(w,h)*.026));
     const sub = state.designMode === "blueEditorial" ? ["DESIGN STUDY","POSTER SYSTEM","BLUE EDITORIAL","VISUAL REFERENCE","FORM / VOLUME"][index%5] : state.designMode === "pastelEditorial" ? ["DESIGN STUDY","POSTER SERIES","MODERN COVER","VISUAL SYSTEM","COLOR / FORM"][index%5] : ["ABSTRACT SERIES","GENERATIVE STUDY","EDITED IN SVG","DESIGN OBJECT","COLOR EXPLORATION"][index%5];
-    const fill=index%4===1?"#081019":"#ffffff";
-    return `<g font-family="Arial, Helvetica, sans-serif" fill="${fill}" opacity="${(.8+.2*amount).toFixed(2)}">
+    
+    return `<g font-family="Arial, Helvetica, sans-serif" fill="${fill}" opacity="${(.68+.28*amount).toFixed(2)}">
       <text x="${(w*.08).toFixed(1)}" y="${(h*.10).toFixed(1)}" font-size="${fs}" font-weight="900" letter-spacing="${Math.max(2,fs*.18).toFixed(1)}">${esc(title)}</text>
       <text x="${(w*.08).toFixed(1)}" y="${(h*.13).toFixed(1)}" font-size="${Math.round(fs*.38)}" font-weight="600" letter-spacing="${Math.max(1,fs*.07).toFixed(1)}">${esc(sub)}</text>
       <text x="${(w*.08).toFixed(1)}" y="${(h*.92).toFixed(1)}" font-size="${Math.round(fs*.34)}" font-weight="800" letter-spacing="${Math.max(1,fs*.08).toFixed(1)}">ALI STUDIO / ${String(index+1).padStart(2,"0")}</text>
@@ -487,7 +603,7 @@
     $("workspaceTitle").textContent=modeLabel.toUpperCase();
     $("statusMode").textContent=state.depth === "3d" ? "VECTOR SHADOW ENGINE" : "VIBRANT GENERATOR";
     $("statusText").textContent=state.depth === "3d" ? "Crisp offset geometric shadows enabled" : "Pure vector rendering";
-    $("workspaceSubtitle").textContent = state.depth === "3d" ? "Each design uses clean geometric shadows for a sharp 3D look." : "Every card uses rich, vivid colors with no muddy blur filters.";
+    $("workspaceSubtitle").textContent = state.depth === "3d" ? "Each design uses clean geometric shadows for a sharp 3D look." : "Every card uses rich, vivid colors with crisp, sharp geometry.";
   }
 
   function render(){
@@ -508,7 +624,17 @@
     applyZoom();
   }
 
-  function applyZoom(){ $("posterGrid").style.transform=`scale(${zoom})`; $("zoomLabel").textContent=`${Math.round(zoom*100)}%`; }
+  function applyZoom(){ 
+      const grid = $("posterGrid");
+      if (!grid) return;
+      grid.style.transform = `scale(${zoom})`; 
+      if($("zoomLabel")) $("zoomLabel").textContent = `${Math.round(zoom*100)}%`; 
+      
+      const originalHeight = grid.offsetHeight;
+      const scaledHeight = originalHeight * zoom;
+      const heightDifference = scaledHeight - originalHeight;
+      grid.style.marginBottom = `${heightDifference > 0 ? heightDifference + 80 : 80}px`;
+  }
 
   ["posterCount","designMode","theme","shapeSize","density","gradientSoftness","spacing","edgeFade","textAmount","seed","format","quality","darkColor","lightColor"].forEach(id=>{
     $(id).addEventListener("input",()=>{updateOutputs();render();});
@@ -529,7 +655,7 @@
     $("spacing").value=10+Math.floor(Math.random()*51);
     $("edgeFade").value=12+Math.floor(Math.random()*65);
     const themes=Object.keys(THEMES); $("theme").value=themes[Math.floor(Math.random()*themes.length)];
-    const modes=["vibrantMix","blueEditorial","pastelEditorial","liquid","glass","prism","organic","waves","minimal"]; $("designMode").value=modes[Math.floor(Math.random()*modes.length)];
+    const modes=["sharpBeams","vibrantMix","blueEditorial","pastelEditorial","liquid","glass","prism","organic","waves","minimal"]; $("designMode").value=modes[Math.floor(Math.random()*modes.length)];
     updateOutputs(); render();
   });
 
