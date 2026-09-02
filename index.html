@@ -1,283 +1,202 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ali Design Hub</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="ALI STUDIO dynamic abstract poster and 3D design generator">
+  <title>ALI STUDIO — Vibrant Poster & 3D Design Generator</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark">✦</span>
+    <span class="brand-copy">
+      <span class="brand-name">ALI STUDIO</span>
+      <span class="brand-sub">Dynamic Poster Lab</span>
+    </span>
+  </div>
+  <div class="status-pill">
+    <span class="status-dot"></span>
+    <strong id="statusMode">VIBRANT GENERATOR</strong>
+    <span id="statusText">Unique look for every poster</span>
+  </div>
+  <div class="account">
+    <div class="avatar">M</div>
+    <span class="account-name">Mohammad</span>
+    <button class="upgrade">✦ PRO LOOKS</button>
+  </div>
+</header>
 
-    <header class="top-bar">
-        <div class="logo">
-            <span class="icon">🔶</span> ALI DESIGN HUB <span class="subtitle">Master Poster Generator</span>
+<main class="app-shell">
+  <aside class="sidebar">
+    <section class="hero-card">
+      <div class="eyebrow">CREATE A NEW SET</div>
+      <h1>Vibrant abstract<br><span>design generator</span></h1>
+      <p>Each poster is deliberately varied in composition, gradient, lighting and color harmony.</p>
+      <div class="hero-swatches" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+    </section>
+
+    <section class="control-block">
+      <div class="label-row"><label for="posterCount">NUMBER OF DESIGNS</label><output id="posterCountVal">5</output></div>
+      <input id="posterCount" type="range" min="1" max="12" value="5">
+    </section>
+
+    <section class="settings-title"><span>SETTINGS</span><span class="settings-badge">LIVE</span></section>
+
+    <section class="control-block">
+      <label for="designMode">DESIGN FAMILY</label>
+      <select id="designMode">
+        <option value="vibrantMix" selected>Vibrant Abstract Mix</option>
+        <option value="blueEditorial">Blue Editorial Reference</option>
+        <option value="pastelEditorial">Pastel Editorial Reference</option>
+        <option value="liquid">Liquid Flow</option>
+        <option value="glass">Glass Orbs</option>
+        <option value="prism">Geometric Prism</option>
+        <option value="organic">Organic Forms</option>
+        <option value="waves">Editorial Waves</option>
+        <option value="minimal">Minimal Geometry</option>
+      </select>
+      <div class="reference-chip">NEW • BLUE + PASTEL EDITORIAL</div>
+      <div class="mode-note">Blue Editorial uses blue/black layouts; Pastel Editorial uses soft cream, coral, orange, pink and yellow reference-inspired compositions.</div>
+    </section>
+
+    <section class="control-block">
+      <label for="theme">COLOR THEME</label>
+      <select id="theme">
+        <option value="candy" selected>Candy Sunset</option>
+        <option value="electric">Electric Blue</option>
+        <option value="tropical">Tropical Pop</option>
+        <option value="berry">Berry Voltage</option>
+        <option value="aqua">Aqua Neon</option>
+        <option value="solar">Solar Punch</option>
+        <option value="violet">Violet Dream</option>
+        <option value="lime">Lime Fusion</option>
+      </select>
+    </section>
+
+    <section class="control-block feature-card">
+      <div class="feature-head">
+        <div>
+          <label for="depthMode">DEPTH STYLE</label>
+          <small>Optional dimensional rendering</small>
         </div>
-        <div class="alert-box">
-            <div class="alert-title">⚠️ ADOBE STOCK / MICROSTOCK ALERT</div>
-            <div class="alert-desc">To avoid 'Similar Issue', customize designs before uploading! / 'Similar Issue' এড়াতে ডিজাইন কাস্টমাইজ করে নিন!</div>
-        </div>
-        <div class="top-actions">
-            <div class="user-profile"><div class="avatar">M</div> Mohammad</div>
-            <button class="btn-pro">⚡ UPGRADE TO PRO</button>
-            <button class="btn-shuffle" id="toggle-safe-area" style="background: #111827; border-color: #00e5ff; color: #00e5ff;">📐 TOGGLE SAFE AREA</button>
-            <button class="btn-shuffle">🔃 SHUFFLE</button>
-        </div>
-    </header>
+        <span class="pro-chip">3D</span>
+      </div>
+      <div class="segmented" role="group" aria-label="Depth style">
+        <button type="button" class="segment active" data-depth="flat">Flat</button>
+        <button type="button" class="segment" data-depth="3d">3D Depth</button>
+      </div>
+      <div class="mode-note">3D Depth adds editable SVG lighting, extrusion, blur and drop-shadow effects.</div>
+    </section>
 
-    <div class="main-workspace">
-        <aside class="sidebar">
+    <section class="control-block range-control">
+      <div class="label-row"><label for="shapeSize">SHAPE SCALE</label><output id="shapeSizeVal">100%</output></div>
+      <input id="shapeSize" type="range" min="35" max="155" value="100">
+    </section>
 
-            <div class="panel-section-title">
-                <span class="pink-dot">🎨</span> আর্টবোর্ড (ARTBOARD)
-            </div>
-            <div class="engine-controls" style="margin-bottom: 25px; background: #1a1a1e; padding: 15px; border-radius: 6px; border: 1px solid #333;">
-                <div class="control-group text-input-group" style="margin-bottom: 0; background: #070709; border: 1px solid #ff2a5f;">
-                    <label style="color: #ff2a5f;">NUMBER OF DESIGNS / প্যানেল সংখ্যা</label>
-                    <select id="poster-count">
-                        <option value="1">1 Design</option>
-                        <option value="2">2 Designs</option>
-                        <option value="3">3 Designs</option>
-                        <option value="4" selected>4 Designs (Default Carousel)</option>
-                    </select>
-                </div>
-            </div>
-            
-            <div class="panel-section-title">
-                <span class="pink-dot"></span> কাস্টমাইজেশন (CUSTOMIZE PANELS)
-            </div>
-            
-            <div class="accordion-container">
-                <details id="panel-1" open class="poster-controls">
-                    <summary>POSTER 1</summary>
-                    <div class="controls-wrapper">
-                        <div class="control-group text-input-group">
-                            <label>BG GRADIENT (TOP → BOTTOM)</label>
-                            <div style="display: flex; width: 100%; gap: 5px;">
-                                <input type="color" id="p1-bg1" value="#0f2027" style="width: 50%; height: 35px; border: none; background: none; cursor: pointer;">
-                                <input type="color" id="p1-bg2" value="#203a43" style="width: 50%; height: 35px; border: none; background: none; cursor: pointer;">
-                            </div>
-                        </div>
-                        <div class="control-group text-input-group">
-                            <label>ART GRADIENT (LEFT → RIGHT)</label>
-                            <div style="display: flex; width: 100%; gap: 5px;">
-                                <input type="color" id="p1-line1" value="#00c6ff" style="width: 50%; height: 35px; border: none; background: none; cursor: pointer;">
-                                <input type="color" id="p1-line2" value="#0072ff" style="width: 50%; height: 35px; border: none; background: none; cursor: pointer;">
-                            </div>
-                        </div>
-                    </div>
-                </details>
+    <section class="control-block range-control">
+      <div class="label-row"><label for="density">DENSITY</label><output id="densityVal">8</output></div>
+      <input id="density" type="range" min="3" max="18" value="8">
+    </section>
 
-                <details id="panel-2" class="poster-controls">
-                    <summary>POSTER 2</summary>
-                    <div class="controls-wrapper">
-                        <div class="control-group text-input-group">
-                            <label>BG GRADIENT (TOP → BOTTOM)</label>
-                            <div style="display: flex; width: 100%; gap: 5px;">
-                                <input type="color" id="p2-bg1" value="#141e30" style="width: 50%; height: 35px; border: none; background: none; cursor: pointer;">
-                                <input type="color" id="p2-bg2" value="#243b55" style="width: 50%; height: 35px; border: none; background: none; cursor: pointer;">
-                            </div>
-                        </div>
-                        <div class="control-group text-input-group">
-                            <label>ART GRADIENT (LEFT → RIGHT)</label>
-                            <div style="display: flex; width: 100%; gap: 5px;">
-                                <input type="color" id="p2-line1" value="#f12711" style="width: 50%; height: 35px; border: none; background: none; cursor: pointer;">
-                                <input type="color" id="p2-line2" value="#f5af19" style="width: 50%; height: 35px; border: none; background: none; cursor: pointer;">
-                            </div>
-                        </div>
-                    </div>
-                </details>
+    <section class="control-block range-control">
+      <div class="label-row"><label for="gradientSoftness">LIGHT SOFTNESS</label><output id="gradientSoftnessVal">72%</output></div>
+      <input id="gradientSoftness" type="range" min="10" max="100" value="72">
+    </section>
 
-                <details id="panel-3" class="poster-controls">
-                    <summary>POSTER 3</summary>
-                    <div class="controls-wrapper">
-                        <div class="control-group text-input-group">
-                            <label>BG GRADIENT (TOP → BOTTOM)</label>
-                            <div style="display: flex; width: 100%; gap: 5px;">
-                                <input type="color" id="p3-bg1" value="#2c3e50" style="width: 50%; height: 35px; border: none; background: none; cursor: pointer;">
-                                <input type="color" id="p3-bg2" value="#000000" style="width: 50%; height: 35px; border: none; background: none; cursor: pointer;">
-                            </div>
-                        </div>
-                        <div class="control-group text-input-group">
-                            <label>ART GRADIENT (LEFT → RIGHT)</label>
-                            <div style="display: flex; width: 100%; gap: 5px;">
-                                <input type="color" id="p3-line1" value="#7F00FF" style="width: 50%; height: 35px; border: none; background: none; cursor: pointer;">
-                                <input type="color" id="p3-line2" value="#E100FF" style="width: 50%; height: 35px; border: none; background: none; cursor: pointer;">
-                            </div>
-                        </div>
-                    </div>
-                </details>
+    <section class="control-block range-control">
+      <div class="label-row"><label for="spacing">SPACING</label><output id="spacingVal">24%</output></div>
+      <input id="spacing" type="range" min="4" max="70" value="24">
+    </section>
 
-                <details id="panel-4" class="poster-controls">
-                    <summary>POSTER 4</summary>
-                    <div class="controls-wrapper">
-                        <div class="control-group text-input-group">
-                            <label>BG GRADIENT (TOP → BOTTOM)</label>
-                            <div style="display: flex; width: 100%; gap: 5px;">
-                                <input type="color" id="p4-bg1" value="#000000" style="width: 50%; height: 35px; border: none; background: none; cursor: pointer;">
-                                <input type="color" id="p4-bg2" value="#434343" style="width: 50%; height: 35px; border: none; background: none; cursor: pointer;">
-                            </div>
-                        </div>
-                        <div class="control-group text-input-group">
-                            <label>ART GRADIENT (LEFT → RIGHT)</label>
-                            <div style="display: flex; width: 100%; gap: 5px;">
-                                <input type="color" id="p4-line1" value="#11998e" style="width: 50%; height: 35px; border: none; background: none; cursor: pointer;">
-                                <input type="color" id="p4-line2" value="#38ef7d" style="width: 50%; height: 35px; border: none; background: none; cursor: pointer;">
-                            </div>
-                        </div>
-                    </div>
-                </details>
-            </div>
+    <section class="control-block range-control">
+      <div class="label-row"><label for="edgeFade">EDGE LIGHT</label><output id="edgeFadeVal">34%</output></div>
+      <input id="edgeFade" type="range" min="0" max="80" value="34">
+    </section>
 
-            <div class="panel-section-title" style="margin-top: 20px;">
-                <span class="pink-dot">⚙️</span> ইঞ্জিন সেটিংস (ENGINE SETTINGS)
-            </div>
-            
-            <div class="engine-controls">
-                
-                <div class="control-group text-input-group" style="margin-bottom: 20px; border: 1px solid #ff2a5f;">
-                    <label style="color: #ff2a5f;">DESIGN MODE / স্টাইল মোড</label>
-                    <select id="design-mode" style="height: 35px; font-size: 10px;">
-                        <option value="geometric">Geometric (Default)</option>
-                        <option value="retro">Retro Waves</option>
-                        <option value="topology">Complex Topology</option>
-                        <option value="mandala">Mandala Art</option>
-                        <option value="3d_wireframe">3D Wireframe Sphere</option>
-                        <option value="3d_ribbon">3D Helical Ribbon</option>
-                        <option value="watercolor_bubble">Watercolor Bubble Poster</option>
-                        <option value="retro_poster">Retro Poster (Concentric)</option>
-                        <option value="psychedelic">70s Psychedelic Waves</option>
-                        <option value="mid_century">Mid-Century Modern Graphic</option>
-                        <option value="japanese_matchbox">Vintage Japanese Matchbox Art</option>
-                        <option value="risograph">Risograph Print Aesthetic</option>
-                        <option value="synthwave">80s Synthwave Grid</option>
-                        <option value="gradient_grain">Gradient Grain Poster</option>
-                        <option value="aura">Aura Poster</option>
-                        <option value="liquid_marble">Iridescent Liquid Marble</option>
-                        <option value="y2k">Y2K Cyber Graphics</option>
-                        <option value="translucent_fluid">Translucent Watercolor Fluid</option>
-                        <option value="bauhaus">Bauhaus Geometric Art</option>
-                        <option value="boho_terrazzo">Boho Terrazzo & Arch</option>
-                        <option value="minimalist_line">Minimalist Continuous Line Art</option>
-                        <option value="neo_brutalist">Neo-Brutalist Graphic</option>
-                        <option value="botanical">Vintage Botanical & Herbarium</option>
-                        <option value="scandi_landscape">Scandi Minimalist Landscape</option>
-                        <option value="celestial">Celestial Constellation</option>
-                    </select>
-                </div>
+    <section class="control-block range-control">
+      <div class="label-row"><label for="textAmount">TEXT DETAIL</label><output id="textAmountVal">55%</output></div>
+      <input id="textAmount" type="range" min="0" max="100" value="55">
+    </section>
 
-                <div class="slider-group">
-                    <div class="slider-header"><label>BASE DENSITY / ঘনত্ব</label><span id="val-density">80</span></div>
-                    <input type="range" id="eng-density" min="10" max="150" value="80">
-                </div>
-                <div class="slider-group">
-                    <div class="slider-header"><label>WAVE FREQUENCY / ওয়েভ</label><span id="val-freq">40%</span></div>
-                    <input type="range" id="eng-freq" min="1" max="100" value="40">
-                </div>
-                <div class="slider-group">
-                    <div class="slider-header"><label>BASE THICKNESS / পুরুত্ব</label><span id="val-thick">25PX</span></div>
-                    <input type="range" id="eng-thick" min="1" max="100" value="25">
-                </div>
-                
-                <div class="slider-group">
-                    <div class="slider-header"><label>AMPLITUDE / স্কেল</label><span id="val-amp">100%</span></div>
-                    <input type="range" id="eng-amp" min="10" max="300" value="100">
-                </div>
-                <div class="slider-group">
-                    <div class="slider-header"><label>PHASE SHIFT / ফেজ</label><span id="val-phase">0°</span></div>
-                    <input type="range" id="eng-phase" min="0" max="360" value="0">
-                </div>
-                <div class="slider-group">
-                    <div class="slider-header"><label>CHAOS / বিশৃঙ্খলা</label><span id="val-chaos">0%</span></div>
-                    <input type="range" id="eng-chaos" min="0" max="150" value="0">
-                </div>
+    <section class="control-block two-col">
+      <div>
+        <label for="format">FORMAT</label>
+        <select id="format">
+          <option value="portrait" selected>Portrait</option>
+          <option value="square">Square</option>
+          <option value="landscape">Landscape</option>
+        </select>
+      </div>
+      <div>
+        <label for="quality">QUALITY</label>
+        <select id="quality">
+          <option value="standard">Standard</option>
+          <option value="large" selected>Large</option>
+          <option value="xl">XL</option>
+        </select>
+      </div>
+    </section>
 
-                <div class="slider-group">
-                    <div class="slider-header"><label>3D DEPTH / থ্রিডি এফেক্ট</label><span id="val-3d">0PX</span></div>
-                    <input type="range" id="eng-3d" min="0" max="150" value="0">
-                </div>
-            </div>
+    <section class="control-block color-row">
+      <div><label for="darkColor">BASE DARK</label><input id="darkColor" type="color" value="#12052d"></div>
+      <div><label for="lightColor">BASE LIGHT</label><input id="lightColor" type="color" value="#ffe28a"></div>
+    </section>
 
-            <button id="downloadBtn" class="download-btn">DOWNLOAD SVG</button>
-        </aside>
+    <section class="control-block">
+      <div class="label-row"><label for="seed">SEED</label><span class="tiny-note">Same seed = repeatable set</span></div>
+      <input id="seed" class="text-input" type="number" value="260831" min="1" step="1">
+    </section>
 
-        <main class="canvas-container">
-            <svg id="masterCanvas" viewBox="0 0 7920 2520" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <clipPath id="posterClip"><rect width="1830" height="2520" /></clipPath>
-                    
-                    <filter id="shadow-3d" x="-50%" y="-50%" width="200%" height="200%">
-                        <feDropShadow id="shadow-layer" dx="0" dy="0" stdDeviation="0" flood-color="#000000" flood-opacity="0.8"/>
-                    </filter>
-                    
-                    <linearGradient id="bg-grad-1" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop id="p1-bg1-stop" offset="0%" stop-color="#0f2027" />
-                        <stop id="p1-bg2-stop" offset="100%" stop-color="#203a43" />
-                    </linearGradient>
-                    <linearGradient id="bg-grad-2" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop id="p2-bg1-stop" offset="0%" stop-color="#141e30" />
-                        <stop id="p2-bg2-stop" offset="100%" stop-color="#243b55" />
-                    </linearGradient>
-                    <linearGradient id="bg-grad-3" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop id="p3-bg1-stop" offset="0%" stop-color="#2c3e50" />
-                        <stop id="p3-bg2-stop" offset="100%" stop-color="#000000" />
-                    </linearGradient>
-                    <linearGradient id="bg-grad-4" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop id="p4-bg1-stop" offset="0%" stop-color="#000000" />
-                        <stop id="p4-bg2-stop" offset="100%" stop-color="#434343" />
-                    </linearGradient>
-
-                    <linearGradient id="stroke-grad-1" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop id="p1-line1-stop" offset="0%" stop-color="#00c6ff" />
-                        <stop id="p1-line2-stop" offset="100%" stop-color="#0072ff" />
-                    </linearGradient>
-                    <linearGradient id="stroke-grad-2" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop id="p2-line1-stop" offset="0%" stop-color="#f12711" />
-                        <stop id="p2-line2-stop" offset="100%" stop-color="#f5af19" />
-                    </linearGradient>
-                    <linearGradient id="stroke-grad-3" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop id="p3-line1-stop" offset="0%" stop-color="#7F00FF" />
-                        <stop id="p3-line2-stop" offset="100%" stop-color="#E100FF" />
-                    </linearGradient>
-                    <linearGradient id="stroke-grad-4" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop id="p4-line1-stop" offset="0%" stop-color="#11998e" />
-                        <stop id="p4-line2-stop" offset="100%" stop-color="#38ef7d" />
-                    </linearGradient>
-                </defs>
-                
-                <rect width="100%" height="100%" fill="transparent" />
-
-                <g id="art-1" transform="translate(0, 0)" clip-path="url(#posterClip)">
-                    <rect id="svg-p1-bg" x="0" width="1830" height="2520" fill="url(#bg-grad-1)" />
-                    <path id="svg-p1-line" filter="url(#shadow-3d)" d="" stroke-linecap="round" stroke-linejoin="round"/>
-                    <rect id="safe-1" x="150" y="150" width="1530" height="2220" fill="none" stroke="#00e5ff" stroke-width="6" stroke-dasharray="30, 20" style="display:none; pointer-events:none;" />
-                </g>
-
-                <g id="art-2" transform="translate(2030, 0)" clip-path="url(#posterClip)">
-                    <rect id="svg-p2-bg" x="0" width="1830" height="2520" fill="url(#bg-grad-2)" />
-                    <path id="svg-p2-line" filter="url(#shadow-3d)" d="" stroke-linecap="round" stroke-linejoin="round"/>
-                    <rect id="safe-2" x="150" y="150" width="1530" height="2220" fill="none" stroke="#00e5ff" stroke-width="6" stroke-dasharray="30, 20" style="display:none; pointer-events:none;" />
-                </g>
-
-                <g id="art-3" transform="translate(4060, 0)" clip-path="url(#posterClip)">
-                    <rect id="svg-p3-bg" x="0" width="1830" height="2520" fill="url(#bg-grad-3)" />
-                    <path id="svg-p3-line" filter="url(#shadow-3d)" d="" stroke-linecap="round" stroke-linejoin="round"/>
-                    <rect id="safe-3" x="150" y="150" width="1530" height="2220" fill="none" stroke="#00e5ff" stroke-width="6" stroke-dasharray="30, 20" style="display:none; pointer-events:none;" />
-                </g>
-
-                <g id="art-4" transform="translate(6090, 0)" clip-path="url(#posterClip)">
-                    <rect id="svg-p4-bg" x="0" width="1830" height="2520" fill="url(#bg-grad-4)" />
-                    <path id="svg-p4-line" filter="url(#shadow-3d)" d="" stroke-linecap="round" stroke-linejoin="round"/>
-                    <rect id="safe-4" x="150" y="150" width="1530" height="2220" fill="none" stroke="#00e5ff" stroke-width="6" stroke-dasharray="30, 20" style="display:none; pointer-events:none;" />
-                </g>
-            </svg>
-        </main>
+    <div class="button-grid">
+      <button id="randomize" class="btn secondary">🎲 New Variations</button>
+      <button id="regenerate" class="btn primary">✦ Generate Set</button>
     </div>
 
-    <footer class="bottom-bar" style="background-color: #16161e; border-top: 1px solid #2a2a35; padding: 8px 20px; display: flex; justify-content: space-between; font-size: 12px; color: #666; width: 100%;">
-        <span>System Ready.</span>
-        <span id="footer-size">Master Artboard: 7920 x 2520 px</span>
-    </footer>
+    <div class="download-stack">
+      <button id="downloadAll" class="btn download">⇩ DOWNLOAD COLLECTION SVG</button>
+      <button id="downloadJson" class="btn secondary">⚙ SAVE SETTINGS JSON</button>
+    </div>
 
-    <script src="script.js"></script>
+    <p class="privacy">Everything is generated in your browser. SVG files remain editable in Illustrator or compatible vector apps.</p>
+  </aside>
+
+  <section class="workspace">
+    <div class="workspace-head">
+      <div>
+        <div class="workspace-kicker">ALI STUDIO / GENERATOR</div>
+        <h2 id="workspaceTitle">VIBRANT ABSTRACT MIX</h2>
+        <p id="workspaceSubtitle">Every card gets a different composition and coordinated color palette.</p>
+      </div>
+      <div class="workspace-actions">
+        <div class="collection-meta"><strong id="collectionCount">5</strong><span>DESIGNS</span></div>
+        <button id="zoomOut" class="icon-btn" title="Zoom out">−</button>
+        <span id="zoomLabel">100%</span>
+        <button id="zoomIn" class="icon-btn" title="Zoom in">+</button>
+      </div>
+    </div>
+    <div class="canvas-wrap">
+      <div class="canvas-glow"></div>
+      <div id="posterGrid" class="poster-grid"></div>
+    </div>
+  </section>
+</main>
+
+<template id="posterTemplate">
+  <article class="poster-card">
+    <div class="poster-toolbar">
+      <span class="poster-number">DESIGN 01</span>
+      <span class="poster-mode">VIBRANT / 01</span>
+      <div>
+        <button class="mini-btn download-one" title="Download SVG">⇩</button>
+        <button class="mini-btn copy-one" title="Copy SVG">⧉</button>
+      </div>
+    </div>
+    <div class="poster-frame"></div>
+  </article>
+</template>
+
+<script src="script.js"></script>
 </body>
 </html>
