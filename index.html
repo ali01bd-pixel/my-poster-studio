@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="description" content="ALI STUDIO pure vector abstract generator">
-  <title>ALI STUDIO 2.0 — Pure Vector Lab</title>
+  <title>ALI STUDIO 2.0 — Holographic Vector Lab</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -18,8 +18,8 @@
   </div>
   <div class="status-pill">
     <span class="status-dot"></span>
-    <strong id="statusMode">VECTOR GENERATOR</strong>
-    <span id="statusText">Crisp geometry & elegant gradients</span>
+    <strong id="statusMode">HOLOGRAPHIC ENGINE</strong>
+    <span id="statusText">Crisp iridescent geometry</span>
   </div>
   <div class="account">
     <div class="avatar">M</div>
@@ -33,7 +33,7 @@
     <section class="hero-card">
       <div class="eyebrow">CREATE A NEW SET</div>
       <h1>Live elegant<br><span>vector generator</span></h1>
-      <p>Each poster features crisp vectors, deep gradients, and zero blurry filters.</p>
+      <p>Each poster features crisp vectors, iridescent holographic gradients, and zero blurry filters.</p>
       <div class="hero-swatches" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
     </section>
 
@@ -47,16 +47,7 @@
     <section class="control-block">
       <label for="designMode">DESIGN FAMILY</label>
       <select id="designMode" style="height: 40px; font-size: 11px;">
-        <option value="blueElegant" selected>NEW: Oceanic 3D Shells</option>
-        <option value="sharpBeams">Sharp Geometric Beams</option>
-        <option value="vibrantGradientFlow">Vibrant Gradient Flow</option>
-        <option value="blueEditorial">Blue Editorial Reference</option>
-        <option value="pastelEditorial">Pastel Editorial Reference</option>
-        <option value="liquid">Liquid Flow</option>
-        <option value="glass">Geometric Spheres</option>
-        <option value="prism">Geometric Prism</option>
-        <option value="organic">Organic Forms</option>
-        <option value="minimal">Minimal Geometry</option>
+        <option value="holographicRibbons" selected>Holographic Ribbons & Grids</option>
       </select>
       <div class="reference-chip">PURE VECTOR ENGINE</div>
     </section>
@@ -64,20 +55,11 @@
     <section class="control-block">
       <label for="theme">COLOR THEME</label>
       <select id="theme">
-        <option value="oceanic" selected>Oceanic (Reference)</option>
-        <option value="neonFlow">Neon Flow</option>
-        <option value="crimson">Crimson Dark</option>
-        <option value="candy">Candy Sunset</option>
-        <option value="electric">Electric Blue</option>
-        <option value="tropical">Tropical Pop</option>
-        <option value="berry">Berry Voltage</option>
-        <option value="aqua">Aqua Neon</option>
-        <option value="solar">Solar Punch</option>
-        <option value="violet">Violet Dream</option>
+        <option value="hologram" selected>Holographic Spectrum (Reference)</option>
       </select>
     </section>
 
-    <!-- Hardcoded to flat for pure vector gradients (No SVG drop shadows) -->
+    <!-- Hidden depth block to ensure pure vectors -->
     <div style="display: none;" class="segmented" role="group" aria-label="Depth style">
       <button type="button" class="segment active" data-depth="flat">Flat</button>
     </div>
@@ -90,16 +72,6 @@
     <section class="control-block range-control">
       <div class="label-row"><label for="density">DENSITY</label><output id="densityVal">8</output></div>
       <input id="density" type="range" min="3" max="18" value="8">
-    </section>
-
-    <section class="control-block range-control">
-      <div class="label-row"><label for="gradientSoftness">GRADIENT BLEND</label><output id="gradientSoftnessVal">72%</output></div>
-      <input id="gradientSoftness" type="range" min="10" max="100" value="72">
-    </section>
-
-    <section class="control-block range-control">
-      <div class="label-row"><label for="textAmount">TEXT DETAIL</label><output id="textAmountVal">55%</output></div>
-      <input id="textAmount" type="range" min="0" max="100" value="55">
     </section>
 
     <section class="control-block two-col">
@@ -122,8 +94,8 @@
     </section>
 
     <section class="control-block color-row">
-      <div><label for="darkColor">BASE DARK</label><input id="darkColor" type="color" value="#03070b"></div>
-      <div><label for="lightColor">BASE LIGHT</label><input id="lightColor" type="color" value="#e4f1f7"></div>
+      <div><label for="darkColor">BASE DARK</label><input id="darkColor" type="color" value="#050505"></div>
+      <div><label for="lightColor">BASE LIGHT</label><input id="lightColor" type="color" value="#e6e4dc"></div>
     </section>
 
     <section class="control-block">
@@ -148,8 +120,8 @@
     <div class="workspace-head">
       <div>
         <div class="workspace-kicker">ALI STUDIO 2.0 / GENERATOR</div>
-        <h2 id="workspaceTitle">OCEANIC 3D SHELLS</h2>
-        <p id="workspaceSubtitle">Every card uses rich, vivid colors with crisp geometry and no filters.</p>
+        <h2 id="workspaceTitle">HOLOGRAPHIC RIBBONS & GRIDS</h2>
+        <p id="workspaceSubtitle">Every card uses rich, iridescent colors with crisp geometry.</p>
       </div>
       <div class="workspace-actions">
         <div class="collection-meta"><strong id="collectionCount">5</strong><span>DESIGNS</span></div>
