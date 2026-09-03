@@ -10,26 +10,11 @@
     t ^= t + Math.imul(t ^ t >>> 7, t | 61);
     return ((t ^ t >>> 14) >>> 0) / 4294967296;
   };
-  const TAU = Math.PI * 2;
-
-  // New Oceanic Theme exactly matches the reference image
-  const THEMES = {
-    oceanic:  { dark:"#03070b", mid:"#0e263d", a:"#1e537d", b:"#438ec9", light:"#e4f1f7", text:"#ffffff" },
-    neonFlow: { dark:"#0a0a0a", mid:"#4011ba", a:"#e82375", b:"#ff6e21", light:"#ffd2a6", text:"#ffffff" },
-    crimson:  { dark:"#120202", mid:"#6b0313", a:"#d10022", b:"#ff1a3c", light:"#ffeedb", text:"#ffffff" },
-    candy:    { dark:"#21062e", mid:"#b31965", a:"#ff4fd8", b:"#ff7d62", light:"#ffe18a", text:"#ffffff" },
-    electric: { dark:"#03142c", mid:"#0849a7", a:"#28b9ff", b:"#6560ff", light:"#d8f7ff", text:"#ffffff" },
-    tropical: { dark:"#042b2a", mid:"#078f76", a:"#2de7c7", b:"#8dff72", light:"#ffe56b", text:"#08231f" },
-    berry:    { dark:"#24051e", mid:"#7f185e", a:"#ed3a9f", b:"#9a4dff", light:"#ffb2df", text:"#ffffff" },
-    aqua:     { dark:"#02252d", mid:"#007f94", a:"#16e2ef", b:"#4c9dff", light:"#c9fff6", text:"#ffffff" },
-    solar:    { dark:"#351006", mid:"#d44b06", a:"#ff8d28", b:"#ffd447", light:"#fff1ad", text:"#331a05" },
-    violet:   { dark:"#15072c", mid:"#4f1d9a", a:"#9c63ff", b:"#fb5fff", light:"#e9d5ff", text:"#ffffff" }
-  };
 
   const state = {
-    posterCount:5, designMode:"blueElegant", theme:"oceanic", depth:"flat",
-    shapeSize:100, density:8, gradientSoftness:72, textAmount:55,
-    seed:260831, format:"portrait", quality:"large", darkColor:"#03070b", lightColor:"#e4f1f7"
+    posterCount:5, designMode:"holographicRibbons", theme:"hologram", depth:"flat",
+    shapeSize:100, density:8, seed:260831, format:"portrait", quality:"large", 
+    darkColor:"#050505", lightColor:"#e6e4dc"
   };
 
   let generated = [], zoom = 1;
@@ -40,237 +25,194 @@
     return {w:Math.round(base.w*q),h:Math.round(base.h*q)};
   }
 
-  function hexToRgb(hex){
-    const s = String(hex).replace("#","");
-    const clean = s.length === 3 ? s.split("").map(x=>x+x).join("") : s;
-    const v = parseInt(clean,16) || 0;
-    return {r:(v>>16)&255,g:(v>>8)&255,b:v&255};
-  }
-
-  function mixHex(a,b,t){
-    const A=hexToRgb(a), B=hexToRgb(b);
-    return "#"+[A.r,A.g,A.b].map((v,i)=>Math.round(v*(1-t)+[B.r,B.g,B.b][i]*t).toString(16).padStart(2,"0")).join("");
-  }
-
   function sizeFactor(){ return clamp(Number(state.shapeSize)/100,.35,1.55); }
 
-  function palette(index){
-    const base = THEMES[state.theme] || THEMES.oceanic;
-    const themeKeys = Object.keys(THEMES);
-    const shift = (Math.floor((Number(state.seed)||1)/17) + index * 3) % themeKeys.length;
-    const alt = THEMES[themeKeys[shift]];
-    const tint = ((index * 0.17) % 0.75);
-    return {
-      dark: mixHex(base.dark, alt.dark, tint * .1),
-      mid: mixHex(base.mid, alt.mid, tint),
-      a: mixHex(base.a, alt.a, (tint + .12) % 1),
-      b: mixHex(base.b, alt.b, (tint + .28) % 1),
-      light: mixHex(base.light, alt.light, tint * .2),
-      text: "#ffffff"
-    };
-  }
-
-  // PURE VECTOR GRADIENTS (Zero SVG Blur/Drop Shadows)
-  function commonDefs(id,p,rnd){
+  // PURE VECTOR MULTI-STOP GRADIENTS (Mimics Iridescent/Holographic Foil perfectly)
+  function commonDefs(id, rnd){
     return `<defs>
-      <!-- Vertical Fade for Backgrounds -->
-      <linearGradient id="${id}_bgVert" x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop offset="0%" stop-color="${p.light}"/>
-        <stop offset="35%" stop-color="${p.b}"/>
-        <stop offset="65%" stop-color="${p.mid}"/>
-        <stop offset="100%" stop-color="${p.dark}"/>
+      <!-- Rainbow Holographic 1 -->
+      <linearGradient id="${id}_holo1" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#00f2fe"/>
+        <stop offset="25%" stop-color="#4facfe"/>
+        <stop offset="50%" stop-color="#f093fb"/>
+        <stop offset="75%" stop-color="#f5576c"/>
+        <stop offset="100%" stop-color="#ffe259"/>
+      </linearGradient>
+      
+      <!-- Reverse Holographic 2 -->
+      <linearGradient id="${id}_holo2" x1="100%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#16d9e3"/>
+        <stop offset="25%" stop-color="#30c7ec"/>
+        <stop offset="50%" stop-color="#46aef7"/>
+        <stop offset="75%" stop-color="#b224ef"/>
+        <stop offset="100%" stop-color="#ff0844"/>
       </linearGradient>
 
-      <!-- Soft Radial Background (Fakes Blur with Pure Vector Gradient) -->
-      <radialGradient id="${id}_bgSoft" cx="50%" cy="30%" r="90%">
-        <stop offset="0%" stop-color="${p.light}"/>
-        <stop offset="25%" stop-color="${p.b}"/>
-        <stop offset="60%" stop-color="${p.mid}"/>
-        <stop offset="100%" stop-color="${p.dark}"/>
-      </radialGradient>
-
-      <!-- Petal 3D Shell Gradient (Provides the sharp highlight fading into deep shadow) -->
-      <linearGradient id="${id}_petal" x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop offset="0%" stop-color="${p.light}"/>
-        <stop offset="8%" stop-color="${p.light}"/>
-        <stop offset="20%" stop-color="${p.b}"/>
-        <stop offset="50%" stop-color="${p.mid}"/>
-        <stop offset="100%" stop-color="${p.dark}"/>
+      <!-- Golden/Magenta Holographic 3 -->
+      <linearGradient id="${id}_holo3" x1="0%" y1="100%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#ff0844"/>
+        <stop offset="30%" stop-color="#ffb199"/>
+        <stop offset="60%" stop-color="#fad0c4"/>
+        <stop offset="100%" stop-color="#ffd1ff"/>
       </linearGradient>
 
-      <!-- Deep Dark Orb Gradient -->
-      <radialGradient id="${id}_darkOrb" cx="30%" cy="30%" r="70%">
-        <stop offset="0%" stop-color="${p.a}"/>
-        <stop offset="40%" stop-color="${p.dark}"/>
-        <stop offset="100%" stop-color="#010204"/>
-      </radialGradient>
+      <!-- Cyan/Blue Deep Holographic 4 -->
+      <linearGradient id="${id}_holo4" x1="0%" y1="50%" x2="100%" y2="50%">
+        <stop offset="0%" stop-color="#0250c5"/>
+        <stop offset="50%" stop-color="#d43f8d"/>
+        <stop offset="100%" stop-color="#00f2fe"/>
+      </linearGradient>
+
+      <!-- Reusable Star Shape -->
+      <g id="${id}_star">
+        <path d="M 0,-40 Q 0,0 40,0 Q 0,0 0,40 Q 0,0 -40,0 Q 0,0 0,-40 Z" />
+      </g>
     </defs>`;
   }
 
   // ==========================================
-  // REFERENCE IMAGE LAYOUT REPLICATOR: Oceanic 3D Shells
+  // REFERENCE IMAGE LAYOUT REPLICATOR: Holographic Engine
   // ==========================================
-  function blueElegant(id,w,h,p,rnd,index) {
+  function holographicRibbons(id,w,h,rnd,index) {
     let out = "";
     const s = sizeFactor();
+    const dark = state.darkColor;
+    const light = state.lightColor;
 
+    // 1. Iridescent Vortex (Left Poster)
     if (index % 5 === 0) {
-        // Poster 1: Smooth Vertical Gradient (No Shapes)
-        out += `<rect width="${w}" height="${h}" fill="url(#${id}_bgVert)"/>`;
-        return out;
-    }
-    else if (index % 5 === 1) {
-        // Poster 2: 3D Shells Radiating from Top Left
-        out += `<rect width="${w}" height="${h}" fill="${p.dark}"/>`;
+        out += `<rect width="${w}" height="${h}" fill="${dark}"/>`;
+        let cx = w/2, cy = h/2 + h*0.05;
+        let rings = Math.max(15, Math.floor(Number(state.density)*2.5));
         
-        // Function to draw a stacked 3D shell fan
-        const drawFan = (cx, cy, radius, startAngle, endAngle, steps) => {
-            let fanOut = "";
-            let petalW = radius * 0.2; 
-            // Shape of one petal (Teardrop/Shell scale)
-            let pathD = `M 0,0 C ${radius*0.4},${petalW} ${radius*0.9},${petalW*0.6} ${radius},0 C ${radius*0.8},-${petalW*0.3} ${radius*0.3},-${petalW*0.1} 0,0`;
-            
-            for(let i=0; i<steps; i++) {
-                let rot = startAngle + (i/steps) * (endAngle - startAngle);
-                fanOut += `<path d="${pathD}" transform="translate(${cx}, ${cy}) rotate(${rot})" fill="url(#${id}_petal)" />`;
-            }
-            return fanOut;
-        };
+        for(let i=rings; i>0; i--) {
+            let r = i * (w*0.035 * s);
+            let dash1 = r * 0.5 * (0.8 + rnd()*0.4);
+            let dash2 = r * 0.2 * (0.8 + rnd()*0.4);
+            let grad = `url(#${id}_holo${Math.floor(rnd()*4)+1})`;
+            let thick = w * (0.015 + rnd()*0.02);
+            out += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${grad}" stroke-width="${thick}" stroke-dasharray="${dash1} ${dash2}" transform="rotate(${i*12 + rnd()*90} ${cx} ${cy})"/>`;
+        }
 
-        // Main Top Cluster
-        out += drawFan(w*0.2, h*0.2, w*0.85*s, -45, 120, Math.max(10, Math.floor(Number(state.density)*1.5)));
-        // Bottom Accent Cluster
-        out += drawFan(w*0.7, h*1.1, w*0.7*s, 160, 280, Math.max(8, Math.floor(Number(state.density)*1.2)));
+        // Star and Typography
+        out += `<use href="#${id}_star" x="${w*0.8}" y="${h*0.2}" fill="#fff" transform="scale(1.5) translate(${-w*0.8*0.33}, ${-h*0.2*0.33})"/>`;
+        out += `<use href="#${id}_star" x="${w*0.85}" y="${h*0.55}" fill="#fff" transform="scale(2) translate(${-w*0.85*0.5}, ${-h*0.55*0.5})"/>`;
+        
+        out += `<text x="${w*0.05}" y="${h*0.18}" font-family="Georgia, serif" font-size="${w*0.28}" font-weight="normal" letter-spacing="-5" fill="#fff">design</text>`;
+        out += `<text x="${w*0.06}" y="${h*0.21}" font-family="Arial, sans-serif" font-size="${w*0.02}" font-weight="bold" fill="#fff">Visual System  Creative Layout  Graphic Study</text>`;
         
         return out;
     }
-    else if (index % 5 === 2) {
-        // Poster 3: Soft Background + Crisp Minimal Wireframe
-        out += `<rect width="${w}" height="${h}" fill="url(#${id}_bgSoft)"/>`;
-        
-        // Wireframe Lines
-        out += `<line x1="0" y1="${h*0.12}" x2="${w}" y2="${h*0.1}" stroke="${p.light}" stroke-width="${Math.max(1, w*0.001)}" opacity="0.6"/>`;
-        out += `<line x1="${w*0.15}" y1="0" x2="${w*0.85}" y2="${h}" stroke="${p.light}" stroke-width="${Math.max(1, w*0.001)}" opacity="0.6"/>`;
-        out += `<line x1="${w}" y1="${h*0.7}" x2="0" y2="${h*0.9}" stroke="${p.light}" stroke-width="${Math.max(1, w*0.001)}" opacity="0.6"/>`;
-        
-        // Wireframe Diamonds
-        const drawDiamond = (cx, cy) => {
-            let r = w*0.008;
-            return `<polygon points="${cx},${cy-r} ${cx+r},${cy} ${cx},${cy+r} ${cx-r},${cy}" fill="${p.light}"/>`;
-        };
-        out += drawDiamond(w*0.145, h*0.117);
-        out += drawDiamond(w*0.585, h*0.62); 
-        
-        return out;
-    }
-    else if (index % 5 === 3) {
-        // Poster 4: 3D Shells Radiating from Right Side
-        out += `<rect width="${w}" height="${h}" fill="${p.dark}"/>`;
-        
-        const drawFan = (cx, cy, radius, startAngle, endAngle, steps) => {
-            let fanOut = "";
-            let petalW = radius * 0.22; 
-            let pathD = `M 0,0 C ${radius*0.4},${petalW} ${radius*0.9},${petalW*0.6} ${radius},0 C ${radius*0.8},-${petalW*0.3} ${radius*0.3},-${petalW*0.1} 0,0`;
-            for(let i=0; i<steps; i++) {
-                let rot = startAngle + (i/steps) * (endAngle - startAngle);
-                fanOut += `<path d="${pathD}" transform="translate(${cx}, ${cy}) rotate(${rot})" fill="url(#${id}_petal)" />`;
-            }
-            return fanOut;
-        };
-
-        // Right side cluster
-        out += drawFan(w*0.9, h*0.4, w*0.8*s, 80, 240, Math.max(12, Math.floor(Number(state.density)*1.8)));
-        return out;
-    }
-    else {
-        // Poster 5: Dark Gradient Orb on Soft Background
-        out += `<rect width="${w}" height="${h}" fill="url(#${id}_bgSoft)"/>`;
-        // Massive dark orb
-        out += `<circle cx="${w*0.5}" cy="${h*0.55}" r="${w*0.42*s}" fill="url(#${id}_darkOrb)"/>`;
-        return out;
-    }
-  }
-
-  // ==========================================
-  // TYPOGRAPHY / TEXT PLACEMENTS
-  // ==========================================
-  function textLayer(id,index,w,h,p){
-    const amount=Number(state.textAmount)/100;
-    if(amount<=0) return "";
     
-    const fill = "#ffffff";
-    const fs = Math.max(22, Math.round(Math.min(w,h)*0.035));
-    const smallFs = Math.max(10, Math.round(fs*0.4));
-    let textOut = `<g font-family="Arial, Helvetica, sans-serif" fill="${fill}" opacity="${(.8+.2*amount).toFixed(2)}">`;
+    // 2. Origami Folded Ribbon (Second Poster)
+    else if (index % 5 === 1) {
+        out += `<rect width="${w}" height="${h}" fill="${light}"/>`;
+        let startY = h * 0.15;
+        let pW = w * 0.65 * s;
+        let pH = h * 0.08 * s;
+        let cx = w/2;
 
-    // Dynamic placement matching the specific "Oceanic Shells" reference image
-    if (state.designMode === "blueElegant") {
-        if (index % 5 === 0) {
-            textOut += `<text x="${w*0.5}" y="${h*0.5}" font-size="${smallFs*1.8}" font-weight="600" letter-spacing="4" text-anchor="middle">INSPIRATION</text>`;
-            textOut += `<text x="${w*0.5}" y="${h*0.5 + smallFs*1.5}" font-size="${smallFs*0.7}" font-weight="400" letter-spacing="2" text-anchor="middle">GRAPHIC DESIGN POSTER</text>`;
-        }
-        else if (index % 5 === 1) {
-            textOut += `<text x="${w*0.08}" y="${h*0.1}" font-size="${fs}" font-weight="600" letter-spacing="2">DESIGN</text>`;
-            textOut += `<text x="${w*0.08}" y="${h*0.92}" font-size="${smallFs*1.2}" font-weight="600" letter-spacing="1">ABSTRACT</text>`;
-            textOut += `<text x="${w*0.08}" y="${h*0.94}" font-size="${smallFs*0.8}" font-weight="400" letter-spacing="1">MODERN ART</text>`;
-            textOut += `<text x="${w*0.92}" y="${h*0.94}" font-size="${smallFs}" font-weight="400" letter-spacing="1" text-anchor="end">Sept 2026</text>`;
-        }
-        else if (index % 5 === 2) {
-            textOut += `<text x="${w*0.1}" y="${h*0.42}" font-size="${smallFs*1.5}" font-weight="600" letter-spacing="1">Design</text>`;
-            textOut += `<text x="${w*0.1}" y="${h*0.44}" font-size="${smallFs*1.5}" font-weight="600" letter-spacing="1">Inspiration</text>`;
-            textOut += `<text x="${w*0.1}" y="${h*0.46}" font-size="${smallFs*1.5}" font-weight="600" letter-spacing="1">Background</text>`;
-            
-            textOut += `<text x="${w*0.1}" y="${h*0.5}" font-size="${smallFs*0.6}" font-weight="400" letter-spacing="0.5">Lorem ipsum dolor sit amet,</text>`;
-            textOut += `<text x="${w*0.1}" y="${h*0.51}" font-size="${smallFs*0.6}" font-weight="400" letter-spacing="0.5">consectetur adipiscing elit.</text>`;
-        }
-        else if (index % 5 === 3) {
-            textOut += `<text x="${w*0.1}" y="${h*0.2}" font-size="${smallFs*1.5}" font-weight="800" letter-spacing="1">01</text>`;
-            textOut += `<line x1="${w*0.13}" y1="${h*0.21}" x2="${w*0.16}" y2="${h*0.18}" stroke="#fff" stroke-width="2"/>`;
-            textOut += `<text x="${w*0.15}" y="${h*0.23}" font-size="${smallFs*1.5}" font-weight="800" letter-spacing="1">06</text>`;
+        let points = [
+            {x: cx - pW/2, y: startY}, {x: cx + pW/2, y: startY + pH*0.5},
+            {x: cx + pW/2.5, y: startY + pH*2}, {x: cx - pW/1.5, y: startY + pH*2.5},
+            {x: cx - pW/2, y: startY + pH*4}, {x: cx + pW/1.5, y: startY + pH*4.5},
+            {x: cx + pW/3, y: startY + pH*6}, {x: cx - pW/2.5, y: startY + pH*6.5},
+            {x: cx - pW/4, y: startY + pH*8}, {x: cx + pW/2, y: startY + pH*8.5}
+        ];
 
-            textOut += `<text x="${w*0.88}" y="${h*0.75}" font-size="${smallFs*1.8}" font-weight="600" letter-spacing="2" text-anchor="end">INOVATION</text>`;
-            textOut += `<text x="${w*0.88}" y="${h*0.78}" font-size="${smallFs*1.8}" font-weight="600" letter-spacing="2" text-anchor="end">FUTURE CITY</text>`;
-            textOut += `<line x1="${w*0.82}" y1="${h*0.8}" x2="${w*0.88}" y2="${h*0.8}" stroke="#fff" stroke-width="2"/>`;
+        for(let i=0; i<points.length-1; i++) {
+            let p1 = points[i]; let p2 = points[i+1];
+            let xOffset = (i%2===0) ? w*0.1 : -w*0.1;
+            let poly = `${p1.x},${p1.y} ${p2.x},${p2.y} ${p2.x+xOffset},${p2.y+pH} ${p1.x+xOffset},${p1.y+pH}`;
+            let grad = `url(#${id}_holo${(i%4)+1})`;
+            out += `<polygon points="${poly}" fill="${grad}"/>`;
         }
-        else if (index % 5 === 4) {
-            textOut += `<text x="${w*0.08}" y="${h*0.1}" font-size="${fs}" font-weight="800" letter-spacing="2">VISION</text>`;
-            textOut += `<text x="${w*0.92}" y="${h*0.92}" font-size="${smallFs*0.7}" font-weight="400" letter-spacing="1" text-anchor="end">SHAPE DESIGN</text>`;
-            textOut += `<text x="${w*0.92}" y="${h*0.935}" font-size="${smallFs*0.7}" font-weight="400" letter-spacing="1" text-anchor="end">COLLECTION 2026</text>`;
-            textOut += `<text x="${w*0.92}" y="${h*0.95}" font-size="${smallFs*0.7}" font-weight="400" letter-spacing="1" text-anchor="end">VECTOR STUDIO</text>`;
-        }
-    } 
-    // Fallback for other modes
-    else {
-        const title="VIBRANT VECTOR";
-        textOut += `<text x="${(w*.08).toFixed(1)}" y="${(h*.10).toFixed(1)}" font-size="${fs}" font-weight="900" letter-spacing="${Math.max(2,fs*.18).toFixed(1)}">${esc(title)}</text>`;
-        textOut += `<text x="${(w*.08).toFixed(1)}" y="${(h*.13).toFixed(1)}" font-size="${Math.round(fs*.38)}" font-weight="600" letter-spacing="${Math.max(1,fs*.07).toFixed(1)}">DESIGN / ${String(index+1).padStart(2,"0")}</text>`;
-        textOut += `<text x="${(w*.08).toFixed(1)}" y="${(h*.92).toFixed(1)}" font-size="${Math.round(fs*.34)}" font-weight="800" letter-spacing="${Math.max(1,fs*.08).toFixed(1)}">ALI STUDIO / ${String(index+1).padStart(2,"0")}</text>`;
+        return out;
     }
 
-    textOut += `</g>`;
-    return textOut;
-  }
+    // 3. Dynamic Curved Swarms & Grid (Third Poster)
+    else if (index % 5 === 2) {
+        out += `<rect width="${w}" height="${h}" fill="${dark}"/>`;
+        
+        // Fine White Grid
+        out += `<line x1="${w*0.5}" y1="0" x2="${w*0.5}" y2="${h}" stroke="#ffffff" stroke-width="1.5" opacity="0.6"/>`;
+        out += `<line x1="0" y1="${h*0.35}" x2="${w}" y2="${h*0.35}" stroke="#ffffff" stroke-width="1.5" opacity="0.6"/>`;
 
-  // ==========================================
-  // ROUTING ENGINE (In case you use other modes)
-  // ==========================================
-  function layoutByMode(index,w,h,p,rnd,id){
-    const mode = state.designMode;
-    if(mode === "blueElegant") return blueElegant(id,w,h,p,rnd,index);
-    // Fallback if other modes are selected
-    return blueElegant(id,w,h,p,rnd,index); 
+        // Swarming shapes
+        let swarms = Math.max(12, Math.floor(Number(state.density)*2));
+        for(let i=0; i<swarms; i++) {
+            let cx = w * rnd(); let cy = h * rnd();
+            let rx = w * (0.1 + rnd()*0.3) * s; let ry = h * (0.02 + rnd()*0.05) * s;
+            let rot = (rnd() * 60) - 30;
+            let grad = `url(#${id}_holo${Math.floor(rnd()*4)+1})`;
+            out += `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" transform="rotate(${rot} ${cx} ${cy})" fill="${grad}"/>`;
+        }
+
+        out += `<text x="${w*0.08}" y="${h*0.3}" font-family="Georgia, serif" font-size="${w*0.18}" font-weight="normal" fill="#fff">design</text>`;
+        out += `<text x="${w*0.08}" y="${h*0.4}" font-family="Arial, sans-serif" font-size="${w*0.04}" font-weight="bold" fill="#fff">Visual System</text>`;
+        out += `<text x="${w*0.08}" y="${h*0.43}" font-family="Arial, sans-serif" font-size="${w*0.04}" font-weight="bold" fill="#fff">Creative Layout</text>`;
+        out += `<text x="${w*0.08}" y="${h*0.46}" font-family="Arial, sans-serif" font-size="${w*0.04}" font-weight="bold" fill="#fff">Graphic Study</text>`;
+
+        return out;
+    }
+
+    // 4. Split Background Scattered Ribbons (Fourth Poster combination)
+    else if (index % 5 === 3) {
+        // Draw split colored grid background
+        out += `<rect x="0" y="0" width="${w/2}" height="${h/2}" fill="#ff9a00"/>`;
+        out += `<rect x="${w/2}" y="0" width="${w/2}" height="${h/2}" fill="#ffffff"/>`;
+        out += `<rect x="0" y="${h/2}" width="${w/2}" height="${h/2}" fill="#16d9e3"/>`;
+        out += `<rect x="${w/2}" y="${h/2}" width="${w/2}" height="${h/2}" fill="#ffcc00"/>`;
+        
+        let ribbons = Math.max(6, Math.floor(Number(state.density)));
+        for(let i=0; i<ribbons; i++) {
+            let x = w * rnd(); let y = h * rnd();
+            let width = w * 0.8 * s; let height = h * 0.08 * s;
+            let rot = (rnd() > 0.5 ? 45 : -45) + (rnd()*20 - 10);
+            let grad = `url(#${id}_holo${Math.floor(rnd()*4)+1})`;
+            out += `<rect x="${x - width/2}" y="${y - height/2}" width="${width}" height="${height}" rx="${height/2}" transform="rotate(${rot} ${x} ${y})" fill="${grad}"/>`;
+        }
+
+        // Scattered Letters
+        const chars = ["d", "e", "s", "i", "g", "n"];
+        chars.forEach((c, i) => {
+            out += `<text x="${w * (0.2 + (i%3)*0.3)}" y="${h * (0.15 + Math.floor(i/3)*0.2)}" font-family="Georgia, serif" font-size="${w*0.12}" fill="#fff" text-anchor="middle">${c}</text>`;
+        });
+
+        out += `<use href="#${id}_star" x="${w*0.25}" y="${h*0.75}" fill="${dark}" transform="scale(3) translate(${-w*0.25*0.66}, ${-h*0.75*0.66})"/>`;
+        return out;
+    }
+
+    // 5. Holographic Brick Grid (Fifth Poster)
+    else {
+        out += `<rect width="${w}" height="${h}" fill="${light}"/>`;
+        let cols = 6; let rows = 12;
+        let colW = w / cols; let rowH = h / rows;
+        
+        for(let x=0; x<=w; x+=colW) {
+            for(let y=-rowH; y<=h; y+=rowH) {
+                let offY = (Math.random() > 0.5) ? rowH/2 : 0;
+                let grad = `url(#${id}_holo${Math.floor(rnd()*4)+1})`;
+                out += `<rect x="${x}" y="${y+offY}" width="${colW+1}" height="${rowH+1}" fill="${grad}"/>`;
+            }
+        }
+        
+        // Massive Center Text
+        out += `<text x="${w*0.5}" y="${h*0.53}" font-family="Georgia, serif" font-size="${w*0.35}" font-weight="normal" letter-spacing="-5" fill="${dark}" text-anchor="middle">design</text>`;
+        out += `<use href="#${id}_star" x="${w*0.8}" y="${h*0.4}" fill="${dark}" transform="scale(1.2) translate(${-w*0.8*0.16}, ${-h*0.4*0.16})"/>`;
+
+        return out;
+    }
   }
 
   function makeSvg(index){
     const {w,h}=dims();
     const rnd=mulberry32((Number(state.seed)||1)+index*7919);
-    const p=palette(index);
     const id=`ali_${Number(state.seed)||1}_${index}`;
-    let out=commonDefs(id,p,rnd);
-    out += layoutByMode(index,w,h,p,rnd,id);
-    out += textLayer(id,index,w,h,p);
+    let out=commonDefs(id, rnd);
+    out += holographicRibbons(id,w,h,rnd,index);
     return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
-      <title>ALI STUDIO — ${esc(state.theme)} Graphic ${String(index+1).padStart(2,"0")}</title>
+      <title>ALI STUDIO — Holographic Layout ${String(index+1).padStart(2,"0")}</title>
       <metadata>Generated locally by ALI STUDIO. Clean Vibrant Vectors.</metadata>
       ${out}
     </svg>`;
@@ -281,7 +223,7 @@
     const count=Number(state.posterCount), cols=Math.min(4,Math.max(1,count)), rows=Math.ceil(count/cols), gap=36;
     const aw=pw*cols+gap*(cols+1), ah=ph*rows+gap*(rows+1);
     let out=`<svg xmlns="http://www.w3.org/2000/svg" width="${aw}" height="${ah}" viewBox="0 0 ${aw} ${ah}">
-      <title>ALI STUDIO — Design Collection</title><rect width="${aw}" height="${ah}" fill="#03070b"/>`;
+      <title>ALI STUDIO — Holographic Design Collection</title><rect width="${aw}" height="${ah}" fill="#111"/>`;
     for(let i=0;i<count;i++){
       const x=gap+(i%cols)*(pw+gap), y=gap+Math.floor(i/cols)*(ph+gap);
       const svg=makeSvg(i).replace(/^<svg[^>]*>/,"").replace(/<\/svg>\s*$/i,"");
@@ -302,17 +244,17 @@
   }
 
   function readControls(){
-    ["posterCount","shapeSize","density","gradientSoftness","textAmount"].forEach(k=>{
+    ["posterCount","shapeSize","density"].forEach(k=>{
         if($(k))state[k]=Number($(k).value)
     });
-    ["designMode","theme","format","quality","darkColor","lightColor","seed"].forEach(k=>{
+    ["format","quality","darkColor","lightColor","seed"].forEach(k=>{
         if($(k))state[k]=$(k).value
     });
     state.seed=Number(state.seed)||1;
   }
 
   function updateOutputs(){
-    const map={posterCount:["posterCountVal",v=>v],shapeSize:["shapeSizeVal",v=>`${v}%`],density:["densityVal",v=>v],gradientSoftness:["gradientSoftnessVal",v=>`${v}%`],textAmount:["textAmountVal",v=>`${v}%`]};
+    const map={posterCount:["posterCountVal",v=>v],shapeSize:["shapeSizeVal",v=>`${v}%`],density:["densityVal",v=>v]};
     Object.entries(map).forEach(([id,[oid,fn]])=>{if($(oid) && $(id)) $(oid).textContent=fn($(id).value)});
     if($("collectionCount") && $("posterCount")) $("collectionCount").textContent=$("posterCount").value;
   }
@@ -335,9 +277,9 @@
       const cBtn = node.querySelector(".copy-one");
       
       if(num) num.textContent=`DESIGN ${String(i+1).padStart(2,"0")}`;
-      if(mode) mode.textContent=`VECTOR / ${String(i+1).padStart(2,"0")}`;
+      if(mode) mode.textContent=`HOLOGRAPHIC / ${String(i+1).padStart(2,"0")}`;
       if(frame) frame.innerHTML=svg;
-      if(dBtn) dBtn.addEventListener("click",()=>download(`ali-studio-${state.theme}-${String(i+1).padStart(2,"0")}.svg`,svg));
+      if(dBtn) dBtn.addEventListener("click",()=>download(`ali-studio-holo-${String(i+1).padStart(2,"0")}.svg`,svg));
       if(cBtn) cBtn.addEventListener("click",()=>copyText(svg));
       grid.appendChild(node);
     }
@@ -356,7 +298,7 @@
       grid.style.marginBottom = `${heightDifference > 0 ? heightDifference + 80 : 80}px`;
   }
 
-  ["posterCount","designMode","theme","shapeSize","density","gradientSoftness","textAmount","seed","format","quality","darkColor","lightColor"].forEach(id=>{
+  ["posterCount","shapeSize","density","seed","format","quality","darkColor","lightColor"].forEach(id=>{
     let el = $(id);
     if(el){
         el.addEventListener("input",()=>{updateOutputs();render();});
@@ -370,15 +312,11 @@
         if($("seed")) $("seed").value=Math.floor(Math.random()*99999999)+1;
         if($("shapeSize")) $("shapeSize").value=60+Math.floor(Math.random()*86);
         if($("density")) $("density").value=4+Math.floor(Math.random()*13);
-        
-        const themes=Object.keys(THEMES); 
-        if($("theme")) $("theme").value=themes[Math.floor(Math.random()*themes.length)];
-        
         updateOutputs(); render();
       });
   }
 
-  if($("downloadAll")) $("downloadAll").addEventListener("click",()=>download(`ali-studio-${state.theme}-collection.svg`,makeCombinedSvg()));
+  if($("downloadAll")) $("downloadAll").addEventListener("click",()=>download(`ali-studio-holo-collection.svg`,makeCombinedSvg()));
   if($("downloadJson")) $("downloadJson").addEventListener("click",()=>download("ali-studio-settings.json",JSON.stringify(state,null,2),"application/json"));
   if($("zoomIn")) $("zoomIn").addEventListener("click",()=>{zoom=clamp(zoom+.1,.5,1.8);applyZoom();});
   if($("zoomOut")) $("zoomOut").addEventListener("click",()=>{zoom=clamp(zoom-.1,.5,1.8);applyZoom();});
