@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="description" content="ALI STUDIO pure vector abstract generator">
-  <title>ALI STUDIO 2.0 — Ocean Watercolor Vectors</title>
+  <title>ALI STUDIO 2.0 — Indigo Volume Lab</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -18,8 +18,8 @@
   </div>
   <div class="status-pill">
     <span class="status-dot"></span>
-    <strong id="statusMode">WATERCOLOR ENGINE</strong>
-    <span id="statusText">Pure gradient blends, no filters</span>
+    <strong id="statusMode">VOLUME GENERATOR</strong>
+    <span id="statusText">Crisp 3D geometry without filters</span>
   </div>
   <div class="account">
     <div class="avatar">M</div>
@@ -32,14 +32,14 @@
   <aside class="sidebar">
     <section class="hero-card">
       <div class="eyebrow">CREATE A NEW SET</div>
-      <h1>Abstract Ocean<br><span>vector generator</span></h1>
-      <p>Simulating fluid watercolor washes using 100% pure vector gradients. No SVG blur effects used.</p>
+      <h1>3D Volume<br><span>vector generator</span></h1>
+      <p>Simulating perfect metallic volume and 3D depth using 100% pure gradients. Zero SVG blur filters.</p>
       <div class="hero-swatches" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
     </section>
 
     <section class="control-block">
-      <div class="label-row"><label for="posterCount">NUMBER OF DESIGNS</label><output id="posterCountVal">3</output></div>
-      <input id="posterCount" type="range" min="1" max="12" value="3">
+      <div class="label-row"><label for="posterCount">NUMBER OF DESIGNS</label><output id="posterCountVal">5</output></div>
+      <input id="posterCount" type="range" min="1" max="12" value="5">
     </section>
 
     <section class="settings-title"><span>SETTINGS</span><span class="settings-badge">LIVE</span></section>
@@ -47,7 +47,7 @@
     <section class="control-block">
       <label for="designMode">DESIGN FAMILY</label>
       <select id="designMode" style="height: 40px; font-size: 11px;">
-        <option value="oceanWatercolor" selected>Ocean Watercolor (3 Layouts)</option>
+        <option value="indigoVolume" selected>Indigo 3D Volume (5 Styles)</option>
       </select>
       <div class="reference-chip">PURE VECTOR ENGINE</div>
     </section>
@@ -55,9 +55,9 @@
     <section class="control-block">
       <label for="theme">COLOR THEME</label>
       <select id="theme">
-        <option value="deepSea" selected>Deep Sea Waves (Reference)</option>
-        <option value="emeraldSea">Emerald Ocean</option>
-        <option value="sunsetSea">Sunset Waters</option>
+        <option value="deepIndigo" selected>Deep Indigo (Reference)</option>
+        <option value="emeraldGold">Emerald & Gold</option>
+        <option value="crimsonSteel">Crimson Steel</option>
       </select>
     </section>
 
@@ -67,12 +67,12 @@
     </div>
 
     <section class="control-block range-control">
-      <div class="label-row"><label for="shapeSize">WASH SCALE</label><output id="shapeSizeVal">100%</output></div>
+      <div class="label-row"><label for="shapeSize">VOLUME SCALE</label><output id="shapeSizeVal">100%</output></div>
       <input id="shapeSize" type="range" min="35" max="250" value="100">
     </section>
 
     <section class="control-block range-control">
-      <div class="label-row"><label for="density">WATERCOLOR LAYERS</label><output id="densityVal">8</output></div>
+      <div class="label-row"><label for="density">GEOMETRY DENSITY</label><output id="densityVal">8</output></div>
       <input id="density" type="range" min="3" max="25" value="8">
     </section>
 
@@ -96,8 +96,8 @@
     </section>
 
     <section class="control-block color-row">
-      <div><label for="darkColor">DEEP INK</label><input id="darkColor" type="color" value="#0f3b5e"></div>
-      <div><label for="lightColor">PAPER COLOR</label><input id="lightColor" type="color" value="#ffffff"></div>
+      <div><label for="darkColor">DEEP SHADOW</label><input id="darkColor" type="color" value="#05081f"></div>
+      <div><label for="lightColor">HIGHLIGHT</label><input id="lightColor" type="color" value="#c0dbf5"></div>
     </section>
 
     <section class="control-block">
@@ -122,11 +122,11 @@
     <div class="workspace-head">
       <div>
         <div class="workspace-kicker">ALI STUDIO 2.0 / GENERATOR</div>
-        <h2 id="workspaceTitle">OCEAN WATERCOLOR</h2>
-        <p id="workspaceSubtitle">Soft, overlapping gradient washes mimicking fluid dynamics.</p>
+        <h2 id="workspaceTitle">INDIGO 3D VOLUME</h2>
+        <p id="workspaceSubtitle">Simulating perfect 3D depth using solid geometric gradients.</p>
       </div>
       <div class="workspace-actions">
-        <div class="collection-meta"><strong id="collectionCount">3</strong><span>DESIGNS</span></div>
+        <div class="collection-meta"><strong id="collectionCount">5</strong><span>DESIGNS</span></div>
         <button id="zoomOut" class="icon-btn" title="Zoom out">−</button>
         <span id="zoomLabel">100%</span>
         <button id="zoomIn" class="icon-btn" title="Zoom in">+</button>
@@ -143,7 +143,7 @@
   <article class="poster-card">
     <div class="poster-toolbar">
       <span class="poster-number">DESIGN 01</span>
-      <span class="poster-mode">WATERCOLOR / 01</span>
+      <span class="poster-mode">VOLUME / 01</span>
       <div>
         <button class="mini-btn download-one" title="Download SVG">⇩</button>
         <button class="mini-btn copy-one" title="Copy SVG">⧉</button>
