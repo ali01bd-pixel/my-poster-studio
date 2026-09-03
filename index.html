@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="ALI STUDIO vibrant gradient design generator">
-  <title>ALI STUDIO 2.0 — Vibrant Gradient Lab</title>
+  <meta name="description" content="ALI STUDIO pure vector abstract generator">
+  <title>ALI STUDIO 2.0 — Pure Vector Lab</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -47,7 +47,16 @@
     <section class="control-block">
       <label for="designMode">DESIGN FAMILY</label>
       <select id="designMode" style="height: 40px; font-size: 11px;">
-        <option value="vibrantGradientFlow" selected>Vibrant Gradient Flow (5 Styles)</option>
+        <option value="blueElegant" selected>NEW: Oceanic 3D Shells</option>
+        <option value="sharpBeams">Sharp Geometric Beams</option>
+        <option value="vibrantGradientFlow">Vibrant Gradient Flow</option>
+        <option value="blueEditorial">Blue Editorial Reference</option>
+        <option value="pastelEditorial">Pastel Editorial Reference</option>
+        <option value="liquid">Liquid Flow</option>
+        <option value="glass">Geometric Spheres</option>
+        <option value="prism">Geometric Prism</option>
+        <option value="organic">Organic Forms</option>
+        <option value="minimal">Minimal Geometry</option>
       </select>
       <div class="reference-chip">PURE VECTOR ENGINE</div>
     </section>
@@ -55,7 +64,8 @@
     <section class="control-block">
       <label for="theme">COLOR THEME</label>
       <select id="theme">
-        <option value="neonFlow" selected>Neon Flow (Reference Image)</option>
+        <option value="oceanic" selected>Oceanic (Reference)</option>
+        <option value="neonFlow">Neon Flow</option>
         <option value="crimson">Crimson Dark</option>
         <option value="candy">Candy Sunset</option>
         <option value="electric">Electric Blue</option>
@@ -67,7 +77,7 @@
       </select>
     </section>
 
-    <!-- Depth is hardcoded flat to ensure pure vector colors as requested -->
+    <!-- Hardcoded to flat for pure vector gradients (No SVG drop shadows) -->
     <div style="display: none;" class="segmented" role="group" aria-label="Depth style">
       <button type="button" class="segment active" data-depth="flat">Flat</button>
     </div>
@@ -112,8 +122,8 @@
     </section>
 
     <section class="control-block color-row">
-      <div><label for="darkColor">BASE DARK</label><input id="darkColor" type="color" value="#0d0d0d"></div>
-      <div><label for="lightColor">BASE LIGHT</label><input id="lightColor" type="color" value="#ffecd6"></div>
+      <div><label for="darkColor">BASE DARK</label><input id="darkColor" type="color" value="#03070b"></div>
+      <div><label for="lightColor">BASE LIGHT</label><input id="lightColor" type="color" value="#e4f1f7"></div>
     </section>
 
     <section class="control-block">
@@ -138,7 +148,7 @@
     <div class="workspace-head">
       <div>
         <div class="workspace-kicker">ALI STUDIO 2.0 / GENERATOR</div>
-        <h2 id="workspaceTitle">VIBRANT GRADIENT FLOW</h2>
+        <h2 id="workspaceTitle">OCEANIC 3D SHELLS</h2>
         <p id="workspaceSubtitle">Every card uses rich, vivid colors with crisp geometry and no filters.</p>
       </div>
       <div class="workspace-actions">
