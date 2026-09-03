@@ -10,9 +10,11 @@
     t ^= t + Math.imul(t ^ t >>> 7, t | 61);
     return ((t ^ t >>> 14) >>> 0) / 4294967296;
   };
+  const TAU = Math.PI * 2;
 
-  // Includes the exact color palette from your reference image
+  // New Oceanic Theme exactly matches the reference image
   const THEMES = {
+    oceanic:  { dark:"#03070b", mid:"#0e263d", a:"#1e537d", b:"#438ec9", light:"#e4f1f7", text:"#ffffff" },
     neonFlow: { dark:"#0a0a0a", mid:"#4011ba", a:"#e82375", b:"#ff6e21", light:"#ffd2a6", text:"#ffffff" },
     crimson:  { dark:"#120202", mid:"#6b0313", a:"#d10022", b:"#ff1a3c", light:"#ffeedb", text:"#ffffff" },
     candy:    { dark:"#21062e", mid:"#b31965", a:"#ff4fd8", b:"#ff7d62", light:"#ffe18a", text:"#ffffff" },
@@ -25,9 +27,9 @@
   };
 
   const state = {
-    posterCount:5, designMode:"vibrantGradientFlow", theme:"neonFlow", depth:"flat",
+    posterCount:5, designMode:"blueElegant", theme:"oceanic", depth:"flat",
     shapeSize:100, density:8, gradientSoftness:72, textAmount:55,
-    seed:260831, format:"portrait", quality:"large", darkColor:"#0a0a0a", lightColor:"#ffd2a6"
+    seed:260831, format:"portrait", quality:"large", darkColor:"#03070b", lightColor:"#e4f1f7"
   };
 
   let generated = [], zoom = 1;
@@ -53,7 +55,7 @@
   function sizeFactor(){ return clamp(Number(state.shapeSize)/100,.35,1.55); }
 
   function palette(index){
-    const base = THEMES[state.theme] || THEMES.neonFlow;
+    const base = THEMES[state.theme] || THEMES.oceanic;
     const themeKeys = Object.keys(THEMES);
     const shift = (Math.floor((Number(state.seed)||1)/17) + index * 3) % themeKeys.length;
     const alt = THEMES[themeKeys[shift]];
@@ -68,100 +70,130 @@
     };
   }
 
-  // Pure Vector Gradients (Zero SVG Effects/Filters)
+  // PURE VECTOR GRADIENTS (Zero SVG Blur/Drop Shadows)
   function commonDefs(id,p,rnd){
     return `<defs>
-      <!-- Diagonal Purple to Orange -->
-      <linearGradient id="${id}_grad1" x1="0%" y1="100%" x2="100%" y2="0%">
-        <stop offset="0%" stop-color="${p.mid}"/>
-        <stop offset="40%" stop-color="${p.a}"/>
-        <stop offset="70%" stop-color="${p.b}"/>
-        <stop offset="100%" stop-color="${p.light}"/>
-      </linearGradient>
-      <!-- Vertical Dark to Pink -->
-      <linearGradient id="${id}_grad2" x1="50%" y1="0%" x2="50%" y2="100%">
-        <stop offset="0%" stop-color="${p.dark}"/>
-        <stop offset="30%" stop-color="${p.mid}"/>
-        <stop offset="100%" stop-color="${p.a}"/>
-      </linearGradient>
-      <!-- Diagonal Orange to Light -->
-      <linearGradient id="${id}_grad3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <!-- Vertical Fade for Backgrounds -->
+      <linearGradient id="${id}_bgVert" x1="0%" y1="0%" x2="0%" y2="100%">
         <stop offset="0%" stop-color="${p.light}"/>
-        <stop offset="40%" stop-color="${p.b}"/>
-        <stop offset="80%" stop-color="${p.a}"/>
-        <stop offset="100%" stop-color="${p.mid}"/>
+        <stop offset="35%" stop-color="${p.b}"/>
+        <stop offset="65%" stop-color="${p.mid}"/>
+        <stop offset="100%" stop-color="${p.dark}"/>
       </linearGradient>
+
+      <!-- Soft Radial Background (Fakes Blur with Pure Vector Gradient) -->
+      <radialGradient id="${id}_bgSoft" cx="50%" cy="30%" r="90%">
+        <stop offset="0%" stop-color="${p.light}"/>
+        <stop offset="25%" stop-color="${p.b}"/>
+        <stop offset="60%" stop-color="${p.mid}"/>
+        <stop offset="100%" stop-color="${p.dark}"/>
+      </radialGradient>
+
+      <!-- Petal 3D Shell Gradient (Provides the sharp highlight fading into deep shadow) -->
+      <linearGradient id="${id}_petal" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="${p.light}"/>
+        <stop offset="8%" stop-color="${p.light}"/>
+        <stop offset="20%" stop-color="${p.b}"/>
+        <stop offset="50%" stop-color="${p.mid}"/>
+        <stop offset="100%" stop-color="${p.dark}"/>
+      </linearGradient>
+
+      <!-- Deep Dark Orb Gradient -->
+      <radialGradient id="${id}_darkOrb" cx="30%" cy="30%" r="70%">
+        <stop offset="0%" stop-color="${p.a}"/>
+        <stop offset="40%" stop-color="${p.dark}"/>
+        <stop offset="100%" stop-color="#010204"/>
+      </radialGradient>
     </defs>`;
   }
 
   // ==========================================
-  // REFERENCE IMAGE LAYOUT REPLICATOR
+  // REFERENCE IMAGE LAYOUT REPLICATOR: Oceanic 3D Shells
   // ==========================================
-  function vibrantGradientFlow(id,w,h,p,rnd,index) {
-    let out = `<rect width="${w}" height="${h}" fill="${p.dark}"/>`;
+  function blueElegant(id,w,h,p,rnd,index) {
+    let out = "";
     const s = sizeFactor();
 
     if (index % 5 === 0) {
-        // Poster 1: Floating Orbs
-        out += `<ellipse cx="${w*0.3}" cy="${h*0.6}" rx="${w*0.5*s}" ry="${h*0.35*s}" transform="rotate(35 ${w*0.3} ${h*0.6})" fill="url(#${id}_grad1)" opacity="0.95"/>`;
-        out += `<ellipse cx="${w*0.8}" cy="${h*0.2}" rx="${w*0.4*s}" ry="${h*0.3*s}" transform="rotate(-30 ${w*0.8} ${h*0.2})" fill="url(#${id}_grad2)" opacity="0.9"/>`;
-        out += `<ellipse cx="${w*0.4}" cy="${h*0.95}" rx="${w*0.45*s}" ry="${h*0.25*s}" transform="rotate(-15 ${w*0.4} ${h*0.95})" fill="url(#${id}_grad3)" opacity="0.95"/>`;
+        // Poster 1: Smooth Vertical Gradient (No Shapes)
+        out += `<rect width="${w}" height="${h}" fill="url(#${id}_bgVert)"/>`;
         return out;
     }
     else if (index % 5 === 1) {
-        // Poster 2: Diagonal Blades
-        const blades = 12 + Math.floor(Number(state.density));
-        for(let i=0; i<blades; i++) {
-            let x = w * (rnd() * 1.4 - 0.2);
-            let bw = w * (0.02 + rnd()*0.05) * s;
-            let bh = h * 1.5;
-            let grad = rnd() > 0.5 ? `url(#${id}_grad1)` : `url(#${id}_grad3)`;
-            out += `<rect x="${x}" y="${-h*0.2}" width="${bw}" height="${bh}" transform="rotate(25 ${x} ${-h*0.2})" fill="${grad}" opacity="0.95"/>`;
-        }
+        // Poster 2: 3D Shells Radiating from Top Left
+        out += `<rect width="${w}" height="${h}" fill="${p.dark}"/>`;
+        
+        // Function to draw a stacked 3D shell fan
+        const drawFan = (cx, cy, radius, startAngle, endAngle, steps) => {
+            let fanOut = "";
+            let petalW = radius * 0.2; 
+            // Shape of one petal (Teardrop/Shell scale)
+            let pathD = `M 0,0 C ${radius*0.4},${petalW} ${radius*0.9},${petalW*0.6} ${radius},0 C ${radius*0.8},-${petalW*0.3} ${radius*0.3},-${petalW*0.1} 0,0`;
+            
+            for(let i=0; i<steps; i++) {
+                let rot = startAngle + (i/steps) * (endAngle - startAngle);
+                fanOut += `<path d="${pathD}" transform="translate(${cx}, ${cy}) rotate(${rot})" fill="url(#${id}_petal)" />`;
+            }
+            return fanOut;
+        };
+
+        // Main Top Cluster
+        out += drawFan(w*0.2, h*0.2, w*0.85*s, -45, 120, Math.max(10, Math.floor(Number(state.density)*1.5)));
+        // Bottom Accent Cluster
+        out += drawFan(w*0.7, h*1.1, w*0.7*s, 160, 280, Math.max(8, Math.floor(Number(state.density)*1.2)));
+        
         return out;
     }
     else if (index % 5 === 2) {
-        // Poster 3: Soft Diagonal Pills
-        const pills = 3 + Math.floor(Number(state.density)/4);
-        for(let i=0; i<pills; i++) {
-            let x = w * (rnd() * 1.5 - 0.5);
-            let y = h * (rnd() * 1.2 - 0.2);
-            let bw = w * 1.8 * s;
-            let bh = h * (0.2 + rnd()*0.15) * s;
-            let grad = rnd() > 0.5 ? `url(#${id}_grad1)` : `url(#${id}_grad2)`;
-            out += `<rect x="${x}" y="${y}" width="${bw}" height="${bh}" rx="${bh/2}" transform="rotate(-40 ${x} ${y})" fill="${grad}" opacity="0.9"/>`;
-        }
+        // Poster 3: Soft Background + Crisp Minimal Wireframe
+        out += `<rect width="${w}" height="${h}" fill="url(#${id}_bgSoft)"/>`;
+        
+        // Wireframe Lines
+        out += `<line x1="0" y1="${h*0.12}" x2="${w}" y2="${h*0.1}" stroke="${p.light}" stroke-width="${Math.max(1, w*0.001)}" opacity="0.6"/>`;
+        out += `<line x1="${w*0.15}" y1="0" x2="${w*0.85}" y2="${h}" stroke="${p.light}" stroke-width="${Math.max(1, w*0.001)}" opacity="0.6"/>`;
+        out += `<line x1="${w}" y1="${h*0.7}" x2="0" y2="${h*0.9}" stroke="${p.light}" stroke-width="${Math.max(1, w*0.001)}" opacity="0.6"/>`;
+        
+        // Wireframe Diamonds
+        const drawDiamond = (cx, cy) => {
+            let r = w*0.008;
+            return `<polygon points="${cx},${cy-r} ${cx+r},${cy} ${cx},${cy+r} ${cx-r},${cy}" fill="${p.light}"/>`;
+        };
+        out += drawDiamond(w*0.145, h*0.117);
+        out += drawDiamond(w*0.585, h*0.62); 
+        
         return out;
     }
     else if (index % 5 === 3) {
-        // Poster 4: Overlapping Rings/Crescents
-        out += `<circle cx="${w*0.15}" cy="${h*0.45}" r="${w*0.45*s}" fill="url(#${id}_grad3)" opacity="0.95"/>`;
-        out += `<circle cx="${w*0.8}" cy="${h*0.6}" r="${w*0.5*s}" fill="url(#${id}_grad1)" opacity="0.95"/>`;
-        // Hard Cutout to make it a crescent ring
-        out += `<circle cx="${w*0.95}" cy="${h*0.6}" r="${w*0.35*s}" fill="${p.dark}"/>`;
+        // Poster 4: 3D Shells Radiating from Right Side
+        out += `<rect width="${w}" height="${h}" fill="${p.dark}"/>`;
+        
+        const drawFan = (cx, cy, radius, startAngle, endAngle, steps) => {
+            let fanOut = "";
+            let petalW = radius * 0.22; 
+            let pathD = `M 0,0 C ${radius*0.4},${petalW} ${radius*0.9},${petalW*0.6} ${radius},0 C ${radius*0.8},-${petalW*0.3} ${radius*0.3},-${petalW*0.1} 0,0`;
+            for(let i=0; i<steps; i++) {
+                let rot = startAngle + (i/steps) * (endAngle - startAngle);
+                fanOut += `<path d="${pathD}" transform="translate(${cx}, ${cy}) rotate(${rot})" fill="url(#${id}_petal)" />`;
+            }
+            return fanOut;
+        };
+
+        // Right side cluster
+        out += drawFan(w*0.9, h*0.4, w*0.8*s, 80, 240, Math.max(12, Math.floor(Number(state.density)*1.8)));
         return out;
     }
     else {
-        // Poster 5: Woven Orthogonal Grid
-        const bars = 8 + Math.floor(Number(state.density));
-        for(let i=0; i<bars; i++) {
-            let x = w * rnd();
-            let bw = w * (0.04 + rnd()*0.06) * s;
-            let bh = h * (0.4 + rnd()*0.6);
-            let y = h * (rnd() * 0.5);
-            out += `<rect x="${x}" y="${y}" width="${bw}" height="${bh}" fill="url(#${id}_grad2)" opacity="0.95"/>`;
-        }
-        for(let i=0; i<bars; i++) {
-            let y = h * rnd();
-            let bh = h * (0.03 + rnd()*0.05) * s;
-            let bw = w * (0.5 + rnd()*0.5);
-            let x = w * (rnd() * 0.5);
-            out += `<rect x="${x}" y="${y}" width="${bw}" height="${bh}" fill="url(#${id}_grad1)" opacity="0.95"/>`;
-        }
+        // Poster 5: Dark Gradient Orb on Soft Background
+        out += `<rect width="${w}" height="${h}" fill="url(#${id}_bgSoft)"/>`;
+        // Massive dark orb
+        out += `<circle cx="${w*0.5}" cy="${h*0.55}" r="${w*0.42*s}" fill="url(#${id}_darkOrb)"/>`;
         return out;
     }
   }
 
+  // ==========================================
+  // TYPOGRAPHY / TEXT PLACEMENTS
+  // ==========================================
   function textLayer(id,index,w,h,p){
     const amount=Number(state.textAmount)/100;
     if(amount<=0) return "";
@@ -171,40 +203,62 @@
     const smallFs = Math.max(10, Math.round(fs*0.4));
     let textOut = `<g font-family="Arial, Helvetica, sans-serif" fill="${fill}" opacity="${(.8+.2*amount).toFixed(2)}">`;
 
-    // Dynamic placement matching the reference image layout
-    if (index % 5 === 0) {
-        textOut += `<text x="${w*0.08}" y="${h*0.25}" font-size="${smallFs}" font-weight="400" letter-spacing="1">vibrant gradient design</text>`;
-        textOut += `<text x="${w*0.08}" y="${h*0.25 + smallFs*1.5}" font-size="${smallFs}" font-weight="400" letter-spacing="1">for web, social media,</text>`;
-        textOut += `<text x="${w*0.08}" y="${h*0.25 + smallFs*3}" font-size="${smallFs}" font-weight="400" letter-spacing="1">presentation &amp; more.</text>`;
-        textOut += `<circle cx="${w*0.09}" cy="${h*0.35}" r="${w*0.01}" fill="#fff"/>`;
-        textOut += `<circle cx="${w*0.12}" cy="${h*0.35}" r="${w*0.01}" fill="#fff"/>`;
-        textOut += `<circle cx="${w*0.15}" cy="${h*0.35}" r="${w*0.01}" fill="#fff"/>`;
+    // Dynamic placement matching the specific "Oceanic Shells" reference image
+    if (state.designMode === "blueElegant") {
+        if (index % 5 === 0) {
+            textOut += `<text x="${w*0.5}" y="${h*0.5}" font-size="${smallFs*1.8}" font-weight="600" letter-spacing="4" text-anchor="middle">INSPIRATION</text>`;
+            textOut += `<text x="${w*0.5}" y="${h*0.5 + smallFs*1.5}" font-size="${smallFs*0.7}" font-weight="400" letter-spacing="2" text-anchor="middle">GRAPHIC DESIGN POSTER</text>`;
+        }
+        else if (index % 5 === 1) {
+            textOut += `<text x="${w*0.08}" y="${h*0.1}" font-size="${fs}" font-weight="600" letter-spacing="2">DESIGN</text>`;
+            textOut += `<text x="${w*0.08}" y="${h*0.92}" font-size="${smallFs*1.2}" font-weight="600" letter-spacing="1">ABSTRACT</text>`;
+            textOut += `<text x="${w*0.08}" y="${h*0.94}" font-size="${smallFs*0.8}" font-weight="400" letter-spacing="1">MODERN ART</text>`;
+            textOut += `<text x="${w*0.92}" y="${h*0.94}" font-size="${smallFs}" font-weight="400" letter-spacing="1" text-anchor="end">Sept 2026</text>`;
+        }
+        else if (index % 5 === 2) {
+            textOut += `<text x="${w*0.1}" y="${h*0.42}" font-size="${smallFs*1.5}" font-weight="600" letter-spacing="1">Design</text>`;
+            textOut += `<text x="${w*0.1}" y="${h*0.44}" font-size="${smallFs*1.5}" font-weight="600" letter-spacing="1">Inspiration</text>`;
+            textOut += `<text x="${w*0.1}" y="${h*0.46}" font-size="${smallFs*1.5}" font-weight="600" letter-spacing="1">Background</text>`;
+            
+            textOut += `<text x="${w*0.1}" y="${h*0.5}" font-size="${smallFs*0.6}" font-weight="400" letter-spacing="0.5">Lorem ipsum dolor sit amet,</text>`;
+            textOut += `<text x="${w*0.1}" y="${h*0.51}" font-size="${smallFs*0.6}" font-weight="400" letter-spacing="0.5">consectetur adipiscing elit.</text>`;
+        }
+        else if (index % 5 === 3) {
+            textOut += `<text x="${w*0.1}" y="${h*0.2}" font-size="${smallFs*1.5}" font-weight="800" letter-spacing="1">01</text>`;
+            textOut += `<line x1="${w*0.13}" y1="${h*0.21}" x2="${w*0.16}" y2="${h*0.18}" stroke="#fff" stroke-width="2"/>`;
+            textOut += `<text x="${w*0.15}" y="${h*0.23}" font-size="${smallFs*1.5}" font-weight="800" letter-spacing="1">06</text>`;
+
+            textOut += `<text x="${w*0.88}" y="${h*0.75}" font-size="${smallFs*1.8}" font-weight="600" letter-spacing="2" text-anchor="end">INOVATION</text>`;
+            textOut += `<text x="${w*0.88}" y="${h*0.78}" font-size="${smallFs*1.8}" font-weight="600" letter-spacing="2" text-anchor="end">FUTURE CITY</text>`;
+            textOut += `<line x1="${w*0.82}" y1="${h*0.8}" x2="${w*0.88}" y2="${h*0.8}" stroke="#fff" stroke-width="2"/>`;
+        }
+        else if (index % 5 === 4) {
+            textOut += `<text x="${w*0.08}" y="${h*0.1}" font-size="${fs}" font-weight="800" letter-spacing="2">VISION</text>`;
+            textOut += `<text x="${w*0.92}" y="${h*0.92}" font-size="${smallFs*0.7}" font-weight="400" letter-spacing="1" text-anchor="end">SHAPE DESIGN</text>`;
+            textOut += `<text x="${w*0.92}" y="${h*0.935}" font-size="${smallFs*0.7}" font-weight="400" letter-spacing="1" text-anchor="end">COLLECTION 2026</text>`;
+            textOut += `<text x="${w*0.92}" y="${h*0.95}" font-size="${smallFs*0.7}" font-weight="400" letter-spacing="1" text-anchor="end">VECTOR STUDIO</text>`;
+        }
+    } 
+    // Fallback for other modes
+    else {
+        const title="VIBRANT VECTOR";
+        textOut += `<text x="${(w*.08).toFixed(1)}" y="${(h*.10).toFixed(1)}" font-size="${fs}" font-weight="900" letter-spacing="${Math.max(2,fs*.18).toFixed(1)}">${esc(title)}</text>`;
+        textOut += `<text x="${(w*.08).toFixed(1)}" y="${(h*.13).toFixed(1)}" font-size="${Math.round(fs*.38)}" font-weight="600" letter-spacing="${Math.max(1,fs*.07).toFixed(1)}">DESIGN / ${String(index+1).padStart(2,"0")}</text>`;
+        textOut += `<text x="${(w*.08).toFixed(1)}" y="${(h*.92).toFixed(1)}" font-size="${Math.round(fs*.34)}" font-weight="800" letter-spacing="${Math.max(1,fs*.08).toFixed(1)}">ALI STUDIO / ${String(index+1).padStart(2,"0")}</text>`;
     }
-    else if (index % 5 === 1) {
-        textOut += `<text x="${w*0.92}" y="${h*0.12}" font-size="${fs}" font-weight="900" letter-spacing="2" text-anchor="end">GRADIENT</text>`;
-        textOut += `<text x="${w*0.92}" y="${h*0.12 + fs*1.2}" font-size="${fs}" font-weight="400" letter-spacing="1" text-anchor="end">DESIGN</text>`;
-        textOut += `<circle cx="${w*0.1}" cy="${h*0.9}" r="${w*0.01}" fill="#fff"/>`;
-        textOut += `<circle cx="${w*0.13}" cy="${h*0.9}" r="${w*0.01}" fill="#fff"/>`;
-        textOut += `<circle cx="${w*0.16}" cy="${h*0.9}" r="${w*0.01}" fill="#fff"/>`;
-    }
-    else if (index % 5 === 2) {
-        textOut += `<text x="${w*0.5}" y="${h*0.5}" font-size="${fs}" font-weight="800" letter-spacing="2" text-anchor="middle">ABSTRACT</text>`;
-        textOut += `<text x="${w*0.5}" y="${h*0.5 + fs*0.6}" font-size="${smallFs}" font-weight="400" letter-spacing="1" text-anchor="middle">BACKGROUND</text>`;
-    }
-    else if (index % 5 === 3) {
-        textOut += `<text x="${w*0.92}" y="${h*0.8}" font-size="${smallFs}" font-weight="400" letter-spacing="1" text-anchor="end">vibrant gradient design</text>`;
-        textOut += `<text x="${w*0.92}" y="${h*0.8 + smallFs*1.5}" font-size="${smallFs}" font-weight="400" letter-spacing="1" text-anchor="end">presentation &amp; more.</text>`;
-        textOut += `<circle cx="${w*0.86}" cy="${h*0.88}" r="${w*0.01}" fill="#fff"/>`;
-        textOut += `<circle cx="${w*0.89}" cy="${h*0.88}" r="${w*0.01}" fill="#fff"/>`;
-        textOut += `<circle cx="${w*0.92}" cy="${h*0.88}" r="${w*0.01}" fill="#fff"/>`;
-    }
-    else if (index % 5 === 4) {
-        textOut += `<text x="${w*0.3}" y="${h*0.2}" font-size="${fs}" font-weight="900" letter-spacing="2" font-style="italic">GRADIENT</text>`;
-        textOut += `<text x="${w*0.3 + fs*4.5}" y="${h*0.2}" font-size="${smallFs}" font-weight="400" letter-spacing="1">BACKGROUND</text>`;
-    }
-    
+
     textOut += `</g>`;
     return textOut;
+  }
+
+  // ==========================================
+  // ROUTING ENGINE (In case you use other modes)
+  // ==========================================
+  function layoutByMode(index,w,h,p,rnd,id){
+    const mode = state.designMode;
+    if(mode === "blueElegant") return blueElegant(id,w,h,p,rnd,index);
+    // Fallback if other modes are selected
+    return blueElegant(id,w,h,p,rnd,index); 
   }
 
   function makeSvg(index){
@@ -213,10 +267,10 @@
     const p=palette(index);
     const id=`ali_${Number(state.seed)||1}_${index}`;
     let out=commonDefs(id,p,rnd);
-    out += vibrantGradientFlow(id,w,h,p,rnd,index);
+    out += layoutByMode(index,w,h,p,rnd,id);
     out += textLayer(id,index,w,h,p);
     return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
-      <title>ALI STUDIO — ${esc(state.theme)} Gradient Flow ${String(index+1).padStart(2,"0")}</title>
+      <title>ALI STUDIO — ${esc(state.theme)} Graphic ${String(index+1).padStart(2,"0")}</title>
       <metadata>Generated locally by ALI STUDIO. Clean Vibrant Vectors.</metadata>
       ${out}
     </svg>`;
@@ -227,7 +281,7 @@
     const count=Number(state.posterCount), cols=Math.min(4,Math.max(1,count)), rows=Math.ceil(count/cols), gap=36;
     const aw=pw*cols+gap*(cols+1), ah=ph*rows+gap*(rows+1);
     let out=`<svg xmlns="http://www.w3.org/2000/svg" width="${aw}" height="${ah}" viewBox="0 0 ${aw} ${ah}">
-      <title>ALI STUDIO — Vibrant Design Collection</title><rect width="${aw}" height="${ah}" fill="#e7e9f0"/>`;
+      <title>ALI STUDIO — Design Collection</title><rect width="${aw}" height="${ah}" fill="#03070b"/>`;
     for(let i=0;i<count;i++){
       const x=gap+(i%cols)*(pw+gap), y=gap+Math.floor(i/cols)*(ph+gap);
       const svg=makeSvg(i).replace(/^<svg[^>]*>/,"").replace(/<\/svg>\s*$/i,"");
@@ -281,9 +335,9 @@
       const cBtn = node.querySelector(".copy-one");
       
       if(num) num.textContent=`DESIGN ${String(i+1).padStart(2,"0")}`;
-      if(mode) mode.textContent=`GRADIENTS / ${String(i+1).padStart(2,"0")}`;
+      if(mode) mode.textContent=`VECTOR / ${String(i+1).padStart(2,"0")}`;
       if(frame) frame.innerHTML=svg;
-      if(dBtn) dBtn.addEventListener("click",()=>download(`ali-studio-${state.theme}-gradient-${String(i+1).padStart(2,"0")}.svg`,svg));
+      if(dBtn) dBtn.addEventListener("click",()=>download(`ali-studio-${state.theme}-${String(i+1).padStart(2,"0")}.svg`,svg));
       if(cBtn) cBtn.addEventListener("click",()=>copyText(svg));
       grid.appendChild(node);
     }
@@ -324,7 +378,7 @@
       });
   }
 
-  if($("downloadAll")) $("downloadAll").addEventListener("click",()=>download(`ali-studio-${state.theme}-gradient-collection.svg`,makeCombinedSvg()));
+  if($("downloadAll")) $("downloadAll").addEventListener("click",()=>download(`ali-studio-${state.theme}-collection.svg`,makeCombinedSvg()));
   if($("downloadJson")) $("downloadJson").addEventListener("click",()=>download("ali-studio-settings.json",JSON.stringify(state,null,2),"application/json"));
   if($("zoomIn")) $("zoomIn").addEventListener("click",()=>{zoom=clamp(zoom+.1,.5,1.8);applyZoom();});
   if($("zoomOut")) $("zoomOut").addEventListener("click",()=>{zoom=clamp(zoom-.1,.5,1.8);applyZoom();});
