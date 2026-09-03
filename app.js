@@ -11,219 +11,282 @@
     return ((t ^ t >>> 14) >>> 0) / 4294967296;
   };
 
+  // Water Color Themes
+  const THEMES = {
+    deepSea: { dark:"#0f3b5e", mid:"#1884a8", a:"#5db2db", b:"#d4eefc", light:"#ffffff", text:"#002447" },
+    emeraldSea: { dark:"#06423c", mid:"#19877b", a:"#47c2b4", b:"#bbf0ea", light:"#ffffff", text:"#02211e" },
+    sunsetSea: { dark:"#4a154b", mid:"#8f3a88", a:"#d674b8", b:"#fcd4e9", light:"#ffffff", text:"#290829" }
+  };
+
   const state = {
-    posterCount:5, designMode:"holographicRibbons", theme:"hologram", depth:"flat",
+    posterCount:3, designMode:"oceanWatercolor", theme:"deepSea", depth:"flat",
     shapeSize:100, density:8, seed:260831, format:"portrait", quality:"large", 
-    darkColor:"#050505", lightColor:"#e6e4dc"
+    darkColor:"#0f3b5e", lightColor:"#ffffff"
   };
 
   let generated = [], zoom = 1;
 
   function dims(){
-    const base = {portrait:{w:1200,h:1800},square:{w:1600,h:1600},landscape:{w:1800,h:1200}}[state.format] || {w:1200,h:1800};
+    const base = {portrait:{w:1200,h:1600},square:{w:1600,h:1600},landscape:{w:1800,h:1200}}[state.format] || {w:1200,h:1600};
     const q = {standard:1,large:1.35,xl:1.8}[state.quality] || 1.35;
     return {w:Math.round(base.w*q),h:Math.round(base.h*q)};
   }
 
-  function sizeFactor(){ return clamp(Number(state.shapeSize)/100,.35,1.55); }
+  function hexToRgb(hex){
+    const s = String(hex).replace("#","");
+    const clean = s.length === 3 ? s.split("").map(x=>x+x).join("") : s;
+    const v = parseInt(clean,16) || 0;
+    return {r:(v>>16)&255,g:(v>>8)&255,b:v&255};
+  }
 
-  // PURE VECTOR MULTI-STOP GRADIENTS (Mimics Iridescent/Holographic Foil perfectly)
-  function commonDefs(id, rnd){
+  function mixHex(a,b,t){
+    const A=hexToRgb(a), B=hexToRgb(b);
+    return "#"+[A.r,A.g,A.b].map((v,i)=>Math.round(v*(1-t)+[B.r,B.g,B.b][i]*t).toString(16).padStart(2,"0")).join("");
+  }
+
+  function sizeFactor(){ return clamp(Number(state.shapeSize)/100,.35,2.5); }
+
+  function palette(index){
+    const base = THEMES[state.theme] || THEMES.deepSea;
+    const themeKeys = Object.keys(THEMES);
+    const shift = (Math.floor((Number(state.seed)||1)/17) + index * 3) % themeKeys.length;
+    const alt = THEMES[themeKeys[shift]];
+    const tint = ((index * 0.17) % 0.75);
+    return {
+      dark: state.darkColor || mixHex(base.dark, alt.dark, tint * .2),
+      mid: mixHex(base.mid, alt.mid, tint),
+      a: mixHex(base.a, alt.a, (tint + .12) % 1),
+      b: mixHex(base.b, alt.b, (tint + .28) % 1),
+      light: state.lightColor || mixHex(base.light, alt.light, tint * .35),
+      text: base.text
+    };
+  }
+
+  // ==========================================
+  // PURE VECTOR WATERCOLOR SIMULATION
+  // By fading radial gradients to opacity="0", we mimic soft wet ink without SVG blurs.
+  // ==========================================
+  function commonDefs(id,p,rnd){
     return `<defs>
-      <!-- Rainbow Holographic 1 -->
-      <linearGradient id="${id}_holo1" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stop-color="#00f2fe"/>
-        <stop offset="25%" stop-color="#4facfe"/>
-        <stop offset="50%" stop-color="#f093fb"/>
-        <stop offset="75%" stop-color="#f5576c"/>
-        <stop offset="100%" stop-color="#ffe259"/>
+      <!-- Base Background Gradients -->
+      <linearGradient id="${id}_bg1" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="${p.light}"/>
+        <stop offset="60%" stop-color="${p.b}"/>
+        <stop offset="100%" stop-color="${p.a}"/>
       </linearGradient>
       
-      <!-- Reverse Holographic 2 -->
-      <linearGradient id="${id}_holo2" x1="100%" y1="0%" x2="0%" y2="100%">
-        <stop offset="0%" stop-color="#16d9e3"/>
-        <stop offset="25%" stop-color="#30c7ec"/>
-        <stop offset="50%" stop-color="#46aef7"/>
-        <stop offset="75%" stop-color="#b224ef"/>
-        <stop offset="100%" stop-color="#ff0844"/>
+      <linearGradient id="${id}_bg2" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="${p.light}"/>
+        <stop offset="40%" stop-color="${p.b}"/>
+        <stop offset="80%" stop-color="${p.a}"/>
+        <stop offset="100%" stop-color="${p.mid}"/>
       </linearGradient>
 
-      <!-- Golden/Magenta Holographic 3 -->
-      <linearGradient id="${id}_holo3" x1="0%" y1="100%" x2="100%" y2="0%">
-        <stop offset="0%" stop-color="#ff0844"/>
-        <stop offset="30%" stop-color="#ffb199"/>
-        <stop offset="60%" stop-color="#fad0c4"/>
-        <stop offset="100%" stop-color="#ffd1ff"/>
-      </linearGradient>
+      <!-- Soft Watercolor Radial Washes -->
+      <!-- Opaque center, perfectly transparent outer edge -->
+      <radialGradient id="${id}_washDark" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="${p.dark}" stop-opacity="0.85"/>
+        <stop offset="40%" stop-color="${p.dark}" stop-opacity="0.5"/>
+        <stop offset="100%" stop-color="${p.dark}" stop-opacity="0"/>
+      </radialGradient>
 
-      <!-- Cyan/Blue Deep Holographic 4 -->
-      <linearGradient id="${id}_holo4" x1="0%" y1="50%" x2="100%" y2="50%">
-        <stop offset="0%" stop-color="#0250c5"/>
-        <stop offset="50%" stop-color="#d43f8d"/>
-        <stop offset="100%" stop-color="#00f2fe"/>
-      </linearGradient>
+      <radialGradient id="${id}_washMid" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="${p.mid}" stop-opacity="0.8"/>
+        <stop offset="50%" stop-color="${p.mid}" stop-opacity="0.4"/>
+        <stop offset="100%" stop-color="${p.mid}" stop-opacity="0"/>
+      </radialGradient>
 
-      <!-- Reusable Star Shape -->
-      <g id="${id}_star">
-        <path d="M 0,-40 Q 0,0 40,0 Q 0,0 0,40 Q 0,0 -40,0 Q 0,0 0,-40 Z" />
-      </g>
+      <radialGradient id="${id}_washCyan" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="${p.a}" stop-opacity="0.75"/>
+        <stop offset="60%" stop-color="${p.a}" stop-opacity="0.3"/>
+        <stop offset="100%" stop-color="${p.a}" stop-opacity="0"/>
+      </radialGradient>
+
+      <radialGradient id="${id}_washLight" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="${p.light}" stop-opacity="0.9"/>
+        <stop offset="40%" stop-color="${p.light}" stop-opacity="0.6"/>
+        <stop offset="100%" stop-color="${p.light}" stop-opacity="0"/>
+      </radialGradient>
+
+      <!-- Soft directional gradient for wave bodies -->
+      <linearGradient id="${id}_waveFade" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="${p.a}" stop-opacity="0"/>
+        <stop offset="50%" stop-color="${p.a}" stop-opacity="0.7"/>
+        <stop offset="100%" stop-color="${p.mid}" stop-opacity="0.9"/>
+      </linearGradient>
+      
+      <linearGradient id="${id}_waveFadeDark" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="${p.mid}" stop-opacity="0"/>
+        <stop offset="50%" stop-color="${p.dark}" stop-opacity="0.8"/>
+        <stop offset="100%" stop-color="${p.dark}" stop-opacity="0.95"/>
+      </linearGradient>
     </defs>`;
   }
 
   // ==========================================
-  // REFERENCE IMAGE LAYOUT REPLICATOR: Holographic Engine
+  // REFERENCE IMAGE LAYOUT REPLICATOR
   // ==========================================
-  function holographicRibbons(id,w,h,rnd,index) {
+  function oceanWatercolor(id,w,h,p,rnd,index) {
     let out = "";
     const s = sizeFactor();
-    const dark = state.darkColor;
-    const light = state.lightColor;
+    const density = Math.max(1, Number(state.density));
 
-    // 1. Iridescent Vortex (Left Poster)
-    if (index % 5 === 0) {
-        out += `<rect width="${w}" height="${h}" fill="${dark}"/>`;
-        let cx = w/2, cy = h/2 + h*0.05;
-        let rings = Math.max(15, Math.floor(Number(state.density)*2.5));
-        
-        for(let i=rings; i>0; i--) {
-            let r = i * (w*0.035 * s);
-            let dash1 = r * 0.5 * (0.8 + rnd()*0.4);
-            let dash2 = r * 0.2 * (0.8 + rnd()*0.4);
-            let grad = `url(#${id}_holo${Math.floor(rnd()*4)+1})`;
-            let thick = w * (0.015 + rnd()*0.02);
-            out += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${grad}" stroke-width="${thick}" stroke-dasharray="${dash1} ${dash2}" transform="rotate(${i*12 + rnd()*90} ${cx} ${cy})"/>`;
+    // Function to draw randomized overlapping "ink blobs" to fake watercolor
+    const drawBlobs = (count, cxBase, cyBase, spreadX, spreadY, gradientId, scaleMulti = 1) => {
+        let blobStr = "";
+        for(let i=0; i<count; i++) {
+            let cx = cxBase + (rnd() * spreadX - spreadX/2);
+            let cy = cyBase + (rnd() * spreadY - spreadY/2);
+            let rx = w * (0.15 + rnd()*0.2) * s * scaleMulti;
+            let ry = h * (0.1 + rnd()*0.15) * s * scaleMulti;
+            let rot = rnd() * 360;
+            blobStr += `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" transform="rotate(${rot} ${cx} ${cy})" fill="url(#${id}_${gradientId})" />`;
         }
+        return blobStr;
+    };
 
-        // Star and Typography
-        out += `<use href="#${id}_star" x="${w*0.8}" y="${h*0.2}" fill="#fff" transform="scale(1.5) translate(${-w*0.8*0.33}, ${-h*0.2*0.33})"/>`;
-        out += `<use href="#${id}_star" x="${w*0.85}" y="${h*0.55}" fill="#fff" transform="scale(2) translate(${-w*0.85*0.5}, ${-h*0.55*0.5})"/>`;
+    if (index % 3 === 0) {
+        // ---------------------------------------------------
+        // POSTER 1: SEA WAVE (Bottom-left to Top-Left Splash)
+        // ---------------------------------------------------
+        out += `<rect width="${w}" height="${h}" fill="${p.light}"/>`;
+        out += `<rect width="${w}" height="${h}" fill="url(#${id}_bg1)" opacity="0.4"/>`;
+
+        // Underlying solid waves for structure
+        out += `<path d="M 0,${h*0.8} Q ${w*0.3},${h*0.6} ${w*0.8},${h} L 0,${h} Z" fill="url(#${id}_waveFadeDark)"/>`;
+        out += `<path d="M 0,${h*0.9} Q ${w*0.4},${h*0.75} ${w},${h} L 0,${h} Z" fill="url(#${id}_waveFade)"/>`;
         
-        out += `<text x="${w*0.05}" y="${h*0.18}" font-family="Georgia, serif" font-size="${w*0.28}" font-weight="normal" letter-spacing="-5" fill="#fff">design</text>`;
-        out += `<text x="${w*0.06}" y="${h*0.21}" font-family="Arial, sans-serif" font-size="${w*0.02}" font-weight="bold" fill="#fff">Visual System  Creative Layout  Graphic Study</text>`;
-        
-        return out;
-    }
-    
-    // 2. Origami Folded Ribbon (Second Poster)
-    else if (index % 5 === 1) {
-        out += `<rect width="${w}" height="${h}" fill="${light}"/>`;
-        let startY = h * 0.15;
-        let pW = w * 0.65 * s;
-        let pH = h * 0.08 * s;
-        let cx = w/2;
+        // Soft ink washes building up the wave crests (Bottom Left)
+        out += drawBlobs(density * 3, w*0.2, h*0.85, w*0.6, h*0.4, 'washDark', 1.2);
+        out += drawBlobs(density * 4, w*0.3, h*0.9, w*0.8, h*0.3, 'washMid', 1);
+        out += drawBlobs(density * 5, w*0.4, h*0.8, w*0.6, h*0.3, 'washCyan', 0.8);
+        out += drawBlobs(density * 2, w*0.2, h*0.8, w*0.4, h*0.2, 'washLight', 0.6);
 
-        let points = [
-            {x: cx - pW/2, y: startY}, {x: cx + pW/2, y: startY + pH*0.5},
-            {x: cx + pW/2.5, y: startY + pH*2}, {x: cx - pW/1.5, y: startY + pH*2.5},
-            {x: cx - pW/2, y: startY + pH*4}, {x: cx + pW/1.5, y: startY + pH*4.5},
-            {x: cx + pW/3, y: startY + pH*6}, {x: cx - pW/2.5, y: startY + pH*6.5},
-            {x: cx - pW/4, y: startY + pH*8}, {x: cx + pW/2, y: startY + pH*8.5}
-        ];
-
-        for(let i=0; i<points.length-1; i++) {
-            let p1 = points[i]; let p2 = points[i+1];
-            let xOffset = (i%2===0) ? w*0.1 : -w*0.1;
-            let poly = `${p1.x},${p1.y} ${p2.x},${p2.y} ${p2.x+xOffset},${p2.y+pH} ${p1.x+xOffset},${p1.y+pH}`;
-            let grad = `url(#${id}_holo${(i%4)+1})`;
-            out += `<polygon points="${poly}" fill="${grad}"/>`;
-        }
-        return out;
-    }
-
-    // 3. Dynamic Curved Swarms & Grid (Third Poster)
-    else if (index % 5 === 2) {
-        out += `<rect width="${w}" height="${h}" fill="${dark}"/>`;
-        
-        // Fine White Grid
-        out += `<line x1="${w*0.5}" y1="0" x2="${w*0.5}" y2="${h}" stroke="#ffffff" stroke-width="1.5" opacity="0.6"/>`;
-        out += `<line x1="0" y1="${h*0.35}" x2="${w}" y2="${h*0.35}" stroke="#ffffff" stroke-width="1.5" opacity="0.6"/>`;
-
-        // Swarming shapes
-        let swarms = Math.max(12, Math.floor(Number(state.density)*2));
-        for(let i=0; i<swarms; i++) {
-            let cx = w * rnd(); let cy = h * rnd();
-            let rx = w * (0.1 + rnd()*0.3) * s; let ry = h * (0.02 + rnd()*0.05) * s;
-            let rot = (rnd() * 60) - 30;
-            let grad = `url(#${id}_holo${Math.floor(rnd()*4)+1})`;
-            out += `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" transform="rotate(${rot} ${cx} ${cy})" fill="${grad}"/>`;
-        }
-
-        out += `<text x="${w*0.08}" y="${h*0.3}" font-family="Georgia, serif" font-size="${w*0.18}" font-weight="normal" fill="#fff">design</text>`;
-        out += `<text x="${w*0.08}" y="${h*0.4}" font-family="Arial, sans-serif" font-size="${w*0.04}" font-weight="bold" fill="#fff">Visual System</text>`;
-        out += `<text x="${w*0.08}" y="${h*0.43}" font-family="Arial, sans-serif" font-size="${w*0.04}" font-weight="bold" fill="#fff">Creative Layout</text>`;
-        out += `<text x="${w*0.08}" y="${h*0.46}" font-family="Arial, sans-serif" font-size="${w*0.04}" font-weight="bold" fill="#fff">Graphic Study</text>`;
+        // Top Left Splashes
+        out += drawBlobs(density * 2, w*0.2, h*0.2, w*0.4, h*0.3, 'washMid', 0.9);
+        out += drawBlobs(density * 3, w*0.25, h*0.25, w*0.3, h*0.3, 'washCyan', 0.8);
+        out += drawBlobs(density * 2, w*0.15, h*0.2, w*0.2, h*0.2, 'washLight', 0.7);
 
         return out;
     }
+    else if (index % 3 === 1) {
+        // ---------------------------------------------------
+        // POSTER 2: OCEAN WAVES (Layered horizontal rolling hills)
+        // ---------------------------------------------------
+        out += `<rect width="${w}" height="${h}" fill="url(#${id}_bg2)"/>`;
 
-    // 4. Split Background Scattered Ribbons (Fourth Poster combination)
-    else if (index % 5 === 3) {
-        // Draw split colored grid background
-        out += `<rect x="0" y="0" width="${w/2}" height="${h/2}" fill="#ff9a00"/>`;
-        out += `<rect x="${w/2}" y="0" width="${w/2}" height="${h/2}" fill="#ffffff"/>`;
-        out += `<rect x="0" y="${h/2}" width="${w/2}" height="${h/2}" fill="#16d9e3"/>`;
-        out += `<rect x="${w/2}" y="${h/2}" width="${w/2}" height="${h/2}" fill="#ffcc00"/>`;
-        
-        let ribbons = Math.max(6, Math.floor(Number(state.density)));
-        for(let i=0; i<ribbons; i++) {
-            let x = w * rnd(); let y = h * rnd();
-            let width = w * 0.8 * s; let height = h * 0.08 * s;
-            let rot = (rnd() > 0.5 ? 45 : -45) + (rnd()*20 - 10);
-            let grad = `url(#${id}_holo${Math.floor(rnd()*4)+1})`;
-            out += `<rect x="${x - width/2}" y="${y - height/2}" width="${width}" height="${height}" rx="${height/2}" transform="rotate(${rot} ${x} ${y})" fill="${grad}"/>`;
+        let layers = Math.max(4, Math.floor(density));
+        for (let i = 0; i < layers; i++) {
+            let yBase = h * (0.4 + (i/layers)*0.5);
+            let cp1x = w * (0.2 + rnd()*0.2);
+            let cp1y = yBase - h*(0.1 + rnd()*0.1)*s;
+            let cp2x = w * (0.6 + rnd()*0.2);
+            let cp2y = yBase + h*(0.05 + rnd()*0.1)*s;
+            let endY = yBase + h*(rnd()*0.1 - 0.05);
+
+            let fill = (i > layers/2) ? `url(#${id}_waveFadeDark)` : `url(#${id}_waveFade)`;
+            out += `<path d="M 0,${yBase} C ${cp1x},${cp1y} ${cp2x},${cp2y} ${w},${endY} L ${w},${h} L 0,${h} Z" fill="${fill}"/>`;
+            
+            // Add soft watercolor bleeding on the edges of the waves
+            out += drawBlobs(3, w*0.5, yBase, w*1.2, h*0.1, (i > layers/2) ? 'washDark' : 'washMid', 0.8);
         }
 
-        // Scattered Letters
-        const chars = ["d", "e", "s", "i", "g", "n"];
-        chars.forEach((c, i) => {
-            out += `<text x="${w * (0.2 + (i%3)*0.3)}" y="${h * (0.15 + Math.floor(i/3)*0.2)}" font-family="Georgia, serif" font-size="${w*0.12}" fill="#fff" text-anchor="middle">${c}</text>`;
-        });
+        // Soften the entire bottom
+        out += drawBlobs(density * 2, w*0.5, h*0.9, w, h*0.3, 'washDark', 1.5);
+        out += drawBlobs(density * 2, w*0.5, h*0.8, w, h*0.4, 'washCyan', 1.2);
 
-        out += `<use href="#${id}_star" x="${w*0.25}" y="${h*0.75}" fill="${dark}" transform="scale(3) translate(${-w*0.25*0.66}, ${-h*0.75*0.66})"/>`;
         return out;
     }
-
-    // 5. Holographic Brick Grid (Fifth Poster)
     else {
-        out += `<rect width="${w}" height="${h}" fill="${light}"/>`;
-        let cols = 6; let rows = 12;
-        let colW = w / cols; let rowH = h / rows;
+        // ---------------------------------------------------
+        // POSTER 3: DEEP SEA (Heavy immersive blue, light streaks)
+        // ---------------------------------------------------
+        out += `<rect width="${w}" height="${h}" fill="${p.a}"/>`;
         
-        for(let x=0; x<=w; x+=colW) {
-            for(let y=-rowH; y<=h; y+=rowH) {
-                let offY = (Math.random() > 0.5) ? rowH/2 : 0;
-                let grad = `url(#${id}_holo${Math.floor(rnd()*4)+1})`;
-                out += `<rect x="${x}" y="${y+offY}" width="${colW+1}" height="${rowH+1}" fill="${grad}"/>`;
-            }
+        // Huge soft background washes to create watercolor depth
+        out += drawBlobs(density * 2, w*0.8, h*0.2, w*0.8, h*0.6, 'washMid', 2);
+        out += drawBlobs(density * 2, w*0.2, h*0.8, w*0.8, h*0.6, 'washDark', 2);
+        
+        // Mid-level texture
+        out += drawBlobs(density * 3, w*0.5, h*0.5, w, h, 'washCyan', 1.2);
+        out += drawBlobs(density * 3, w*0.7, h*0.7, w*0.8, h*0.8, 'washDark', 1.5);
+
+        // Vertical light streak faked with a stretched radial gradient
+        out += `<ellipse cx="${w*0.6}" cy="${h*0.5}" rx="${w*0.15*s}" ry="${h*0.8}" fill="url(#${id}_washLight)" opacity="0.8"/>`;
+        out += `<ellipse cx="${w*0.6}" cy="${h*0.5}" rx="${w*0.05*s}" ry="${h*0.6}" fill="url(#${id}_washLight)" opacity="0.9"/>`;
+
+        // Small ink drops/splatters
+        let drops = Math.floor(density * 3);
+        for(let i=0; i<drops; i++) {
+            let cx = w * rnd(); let cy = h * rnd();
+            let r = w * (0.005 + rnd()*0.02) * s;
+            let opacity = 0.2 + rnd()*0.6;
+            let color = rnd() > 0.5 ? p.dark : p.a;
+            out += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${color}" opacity="${opacity}"/>`;
         }
-        
-        // Massive Center Text
-        out += `<text x="${w*0.5}" y="${h*0.53}" font-family="Georgia, serif" font-size="${w*0.35}" font-weight="normal" letter-spacing="-5" fill="${dark}" text-anchor="middle">design</text>`;
-        out += `<use href="#${id}_star" x="${w*0.8}" y="${h*0.4}" fill="${dark}" transform="scale(1.2) translate(${-w*0.8*0.16}, ${-h*0.4*0.16})"/>`;
 
         return out;
     }
+  }
+
+  // ==========================================
+  // TYPOGRAPHY (Matches Reference Image)
+  // ==========================================
+  function textLayer(id,index,w,h,p){
+    const amount=Number(state.textAmount)/100;
+    if(amount<=0) return "";
+    
+    const fill = p.text; // Use dark ink text as seen in reference
+    const fs = Math.max(30, Math.round(Math.min(w,h)*0.06));
+    const smallFs = Math.max(12, Math.round(fs*0.25));
+    const tinyFs = Math.max(8, Math.round(fs*0.15));
+    
+    let textOut = `<g font-family="Georgia, 'Times New Roman', serif" fill="${fill}" opacity="${(.8+.2*amount).toFixed(2)}">`;
+
+    if (index % 3 === 0) {
+        // SEA WAVE (Right aligned area)
+        textOut += `<text x="${w*0.7}" y="${h*0.48}" font-size="${tinyFs}" font-weight="bold" letter-spacing="2" text-anchor="middle" opacity="0.6">COVER</text>`;
+        textOut += `<text x="${w*0.7}" y="${h*0.51}" font-size="${fs}" font-weight="normal" letter-spacing="1" text-anchor="middle">SEA WAVE</text>`;
+        textOut += `<text x="${w*0.7}" y="${h*0.53}" font-family="Arial, sans-serif" font-size="${smallFs}" font-weight="600" letter-spacing="2" text-anchor="middle" opacity="0.7">ABSTRACT WATERCOLOR</text>`;
+    }
+    else if (index % 3 === 1) {
+        // OCEAN WAVES (Top Center)
+        textOut += `<text x="${w*0.5}" y="${h*0.33}" font-size="${fs}" font-weight="normal" letter-spacing="1" text-anchor="middle">OCEAN WAVES</text>`;
+        textOut += `<text x="${w*0.5}" y="${h*0.355}" font-family="Arial, sans-serif" font-size="${smallFs}" font-weight="600" letter-spacing="2" text-anchor="middle" opacity="0.7">ABSTRACT WATERCOLOR</text>`;
+    }
+    else {
+        // DEEP SEA (Bottom Right)
+        textOut += `<text x="${w*0.85}" y="${h*0.8}" font-size="${fs}" font-weight="normal" letter-spacing="2" text-anchor="end">DEEP SEA</text>`;
+        textOut += `<text x="${w*0.85}" y="${h*0.825}" font-family="Arial, sans-serif" font-size="${smallFs}" font-weight="600" letter-spacing="2" text-anchor="end" opacity="0.7">ABSTRACT WATERCOLOR</text>`;
+    }
+
+    textOut += `</g>`;
+    return textOut;
   }
 
   function makeSvg(index){
     const {w,h}=dims();
     const rnd=mulberry32((Number(state.seed)||1)+index*7919);
+    const p=palette(index);
     const id=`ali_${Number(state.seed)||1}_${index}`;
-    let out=commonDefs(id, rnd);
-    out += holographicRibbons(id,w,h,rnd,index);
+    
+    let out=commonDefs(id,p,rnd);
+    out += oceanWatercolor(id,w,h,p,rnd,index);
+    out += textLayer(id,index,w,h,p);
+    
     return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
-      <title>ALI STUDIO — Holographic Layout ${String(index+1).padStart(2,"0")}</title>
-      <metadata>Generated locally by ALI STUDIO. Clean Vibrant Vectors.</metadata>
+      <title>ALI STUDIO — Watercolor Wave ${String(index+1).padStart(2,"0")}</title>
+      <metadata>Generated locally by ALI STUDIO. Pure Vector Watercolor.</metadata>
       ${out}
     </svg>`;
   }
 
   function makeCombinedSvg(){
     const {w:pw,h:ph}=dims();
-    const count=Number(state.posterCount), cols=Math.min(4,Math.max(1,count)), rows=Math.ceil(count/cols), gap=36;
+    const count=Number(state.posterCount), cols=Math.min(3,Math.max(1,count)), rows=Math.ceil(count/cols), gap=36;
     const aw=pw*cols+gap*(cols+1), ah=ph*rows+gap*(rows+1);
     let out=`<svg xmlns="http://www.w3.org/2000/svg" width="${aw}" height="${ah}" viewBox="0 0 ${aw} ${ah}">
-      <title>ALI STUDIO — Holographic Design Collection</title><rect width="${aw}" height="${ah}" fill="#111"/>`;
+      <title>ALI STUDIO — Watercolor Collection</title><rect width="${aw}" height="${ah}" fill="#082a45"/>`;
     for(let i=0;i<count;i++){
       const x=gap+(i%cols)*(pw+gap), y=gap+Math.floor(i/cols)*(ph+gap);
       const svg=makeSvg(i).replace(/^<svg[^>]*>/,"").replace(/<\/svg>\s*$/i,"");
@@ -244,17 +307,13 @@
   }
 
   function readControls(){
-    ["posterCount","shapeSize","density"].forEach(k=>{
-        if($(k))state[k]=Number($(k).value)
-    });
-    ["format","quality","darkColor","lightColor","seed"].forEach(k=>{
-        if($(k))state[k]=$(k).value
-    });
+    ["posterCount","shapeSize","density","textAmount"].forEach(k=>{if($(k))state[k]=Number($(k).value)});
+    ["theme","format","quality","darkColor","lightColor","seed"].forEach(k=>{if($(k))state[k]=$(k).value});
     state.seed=Number(state.seed)||1;
   }
 
   function updateOutputs(){
-    const map={posterCount:["posterCountVal",v=>v],shapeSize:["shapeSizeVal",v=>`${v}%`],density:["densityVal",v=>v]};
+    const map={posterCount:["posterCountVal",v=>v],shapeSize:["shapeSizeVal",v=>`${v}%`],density:["densityVal",v=>v],textAmount:["textAmountVal",v=>`${v}%`]};
     Object.entries(map).forEach(([id,[oid,fn]])=>{if($(oid) && $(id)) $(oid).textContent=fn($(id).value)});
     if($("collectionCount") && $("posterCount")) $("collectionCount").textContent=$("posterCount").value;
   }
@@ -267,6 +326,9 @@
     const tpl=$("posterTemplate");
     if(!tpl) return;
     
+    // Auto scale grid layout for 3 designs
+    let maxCols = Math.min(3, state.posterCount);
+
     for(let i=0;i<state.posterCount;i++){
       const node=tpl.content.firstElementChild.cloneNode(true), svg=makeSvg(i);
       generated.push(svg);
@@ -277,13 +339,13 @@
       const cBtn = node.querySelector(".copy-one");
       
       if(num) num.textContent=`DESIGN ${String(i+1).padStart(2,"0")}`;
-      if(mode) mode.textContent=`HOLOGRAPHIC / ${String(i+1).padStart(2,"0")}`;
+      if(mode) mode.textContent=`WATERCOLOR / ${String((i%3)+1).padStart(2,"0")}`;
       if(frame) frame.innerHTML=svg;
-      if(dBtn) dBtn.addEventListener("click",()=>download(`ali-studio-holo-${String(i+1).padStart(2,"0")}.svg`,svg));
+      if(dBtn) dBtn.addEventListener("click",()=>download(`ali-studio-watercolor-${String(i+1).padStart(2,"0")}.svg`,svg));
       if(cBtn) cBtn.addEventListener("click",()=>copyText(svg));
       grid.appendChild(node);
     }
-    grid.style.gridTemplateColumns=`repeat(${Math.min(4,state.posterCount)},minmax(0,1fr))`;
+    grid.style.gridTemplateColumns=`repeat(${maxCols},minmax(0,1fr))`;
     applyZoom();
   }
 
@@ -298,7 +360,7 @@
       grid.style.marginBottom = `${heightDifference > 0 ? heightDifference + 80 : 80}px`;
   }
 
-  ["posterCount","shapeSize","density","seed","format","quality","darkColor","lightColor"].forEach(id=>{
+  ["posterCount","shapeSize","density","textAmount","seed","format","quality","darkColor","lightColor"].forEach(id=>{
     let el = $(id);
     if(el){
         el.addEventListener("input",()=>{updateOutputs();render();});
@@ -310,13 +372,13 @@
   if($("randomize")) {
       $("randomize").addEventListener("click",()=>{
         if($("seed")) $("seed").value=Math.floor(Math.random()*99999999)+1;
-        if($("shapeSize")) $("shapeSize").value=60+Math.floor(Math.random()*86);
-        if($("density")) $("density").value=4+Math.floor(Math.random()*13);
+        if($("shapeSize")) $("shapeSize").value=80+Math.floor(Math.random()*50);
+        if($("density")) $("density").value=5+Math.floor(Math.random()*15);
         updateOutputs(); render();
       });
   }
 
-  if($("downloadAll")) $("downloadAll").addEventListener("click",()=>download(`ali-studio-holo-collection.svg`,makeCombinedSvg()));
+  if($("downloadAll")) $("downloadAll").addEventListener("click",()=>download(`ali-studio-watercolor-collection.svg`,makeCombinedSvg()));
   if($("downloadJson")) $("downloadJson").addEventListener("click",()=>download("ali-studio-settings.json",JSON.stringify(state,null,2),"application/json"));
   if($("zoomIn")) $("zoomIn").addEventListener("click",()=>{zoom=clamp(zoom+.1,.5,1.8);applyZoom();});
   if($("zoomOut")) $("zoomOut").addEventListener("click",()=>{zoom=clamp(zoom-.1,.5,1.8);applyZoom();});
