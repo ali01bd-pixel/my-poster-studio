@@ -9,25 +9,28 @@
   const TAU = Math.PI * 2;
 
   // ----------------------------------------------------
-  // EXPERT COLOR PALETTES (Designed for High Contrast & Depth)
+  // EXPERT COLOR PALETTES (Includes new Christmas themes)
   // ----------------------------------------------------
   const THEMES = {
-    // Engine Defaults
-    amberVolume:   { bg:"#F4E7DA", dark:"#CD241E", mid:"#F05023", a:"#FF9A26", light:"#FFF171", text:"#ffffff" },
-    midnightIce:   { bg:"#010205", dark:"#050811", mid:"#0a1845", a:"#1d3c94", light:"#83c5f7", text:"#ffffff" },
-    swissGrid:     { bg:"#EBEBEB", dark:"#111111", mid:"#D33F49", a:"#264653", light:"#FFFFFF", text:"#111111" },
-    holoFold:      { bg:"#f0f0f0", dark:"#1c033b", mid:"#f093fb", a:"#00f2fe", light:"#ffe259", text:"#ffffff" },
-    retroHalftone: { bg:"#12376e", dark:"#e3242b", mid:"#f24148", a:"#31a868", light:"#e3f1e8", text:"#ffffff" },
-    fluidAura:     { bg:"#020b1c", dark:"#0a245c", mid:"#1f4fb8", a:"#4785ff", light:"#ffffff", text:"#ffffff" },
+    // Christmas / Winter
+    xmasClassic: { bg:"#0B2B1E", dark:"#1A070A", mid:"#C21B27", a:"#E8A023", light:"#F5E6CD", text:"#ffffff" },
+    xmasFrost:   { bg:"#051524", dark:"#020A12", mid:"#2C74B3", a:"#90C6E3", light:"#E6F4F1", text:"#ffffff" },
+    xmasCandy:   { bg:"#F7EBEB", dark:"#C21531", mid:"#E85A6A", a:"#2BA880", light:"#C3F0DF", text:"#111111" },
+    
+    // Original Studio
+    amberVolume: { bg:"#F4E7DA", dark:"#CD241E", mid:"#F05023", a:"#FF9A26", light:"#FFF171", text:"#ffffff" },
+    midnightIce: { bg:"#010205", dark:"#050811", mid:"#0a1845", a:"#1d3c94", light:"#83c5f7", text:"#ffffff" },
+    swissGrid:   { bg:"#EBEBEB", dark:"#111111", mid:"#D33F49", a:"#264653", light:"#FFFFFF", text:"#111111" },
+    holoFold:    { bg:"#f0f0f0", dark:"#1c033b", mid:"#f093fb", a:"#00f2fe", light:"#ffe259", text:"#ffffff" },
+    retroHalftone:{ bg:"#12376e", dark:"#e3242b", mid:"#f24148", a:"#31a868", light:"#e3f1e8", text:"#ffffff" },
+    fluidAura:   { bg:"#020b1c", dark:"#0a245c", mid:"#1f4fb8", a:"#4785ff", light:"#ffffff", text:"#ffffff" },
     
     // User Overrides
-    monochrome: { bg:"#ffffff", dark:"#0a0a0a", mid:"#333333", a:"#888888", light:"#dddddd", text:"#ffffff" },
-    crimson:    { bg:"#1a0505", dark:"#3b0909", mid:"#8c1313", a:"#d42626", light:"#f5b5b5", text:"#ffffff" },
-    cyber:      { bg:"#050117", dark:"#1e044d", mid:"#6e0c9c", a:"#f00ce5", light:"#0cf0e5", text:"#ffffff" },
-    pastel:     { bg:"#fcf8f2", dark:"#9da8b5", mid:"#c2d1e0", a:"#f5d3d3", light:"#ffffff", text:"#40464f" }
+    monochrome:  { bg:"#ffffff", dark:"#0a0a0a", mid:"#333333", a:"#888888", light:"#dddddd", text:"#ffffff" },
+    crimson:     { bg:"#1a0505", dark:"#3b0909", mid:"#8c1313", a:"#d42626", light:"#f5b5b5", text:"#ffffff" }
   };
 
-  const state = { posterCount:4, designMode:"amberVolume", theme:"curated", density:8, seed:260831, format:"portrait", quality:"large" };
+  const state = { posterCount:4, designMode:"xmasScandiTree", theme:"curated", density:8, seed:260831, format:"portrait", quality:"large" };
   let generated = [], zoom = 1;
 
   function dims(){
@@ -41,47 +44,170 @@
   // ----------------------------------------------------
   function getDefs(id, p) {
       return `<defs>
-        <!-- Standard Fades -->
         <linearGradient id="${id}_L1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="${p.light}"/><stop offset="100%" stop-color="${p.dark}"/></linearGradient>
         <linearGradient id="${id}_L2" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="${p.a}"/><stop offset="100%" stop-color="${p.mid}"/></linearGradient>
+        <linearGradient id="${id}_L3" x1="50%" y1="0%" x2="50%" y2="100%"><stop offset="0%" stop-color="${p.bg}"/><stop offset="100%" stop-color="${p.light}"/></linearGradient>
         
-        <!-- 3D Volumes (Highlight Offsets create depth) -->
-        <radialGradient id="${id}_V1" cx="30%" cy="30%" r="70%">
-            <stop offset="0%" stop-color="${p.light}"/><stop offset="40%" stop-color="${p.mid}"/><stop offset="100%" stop-color="${p.dark}"/>
-        </radialGradient>
-        <radialGradient id="${id}_V2" cx="70%" cy="30%" r="70%">
-            <stop offset="0%" stop-color="${p.light}"/><stop offset="50%" stop-color="${p.a}"/><stop offset="100%" stop-color="${p.dark}"/>
-        </radialGradient>
-        <linearGradient id="${id}_V3" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stop-color="${p.light}"/><stop offset="30%" stop-color="${p.a}"/><stop offset="70%" stop-color="${p.mid}"/><stop offset="100%" stop-color="${p.dark}"/>
-        </linearGradient>
-
-        <!-- Soft Radial Aura (Fakes blur by fading to opacity 0) -->
-        <radialGradient id="${id}_Aura" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stop-color="${p.a}" stop-opacity="0.9"/>
-            <stop offset="40%" stop-color="${p.mid}" stop-opacity="0.6"/>
+        <radialGradient id="${id}_R1" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="${p.light}" stop-opacity="1"/>
+            <stop offset="40%" stop-color="${p.a}" stop-opacity="0.8"/>
             <stop offset="100%" stop-color="${p.dark}" stop-opacity="0"/>
         </radialGradient>
-
-        <!-- Holographic Ribbon Folds -->
-        <linearGradient id="${id}_Holo" x1="0%" y1="100%" x2="100%" y2="0%">
-            <stop offset="0%" stop-color="${p.dark}"/><stop offset="30%" stop-color="${p.b || p.mid}"/><stop offset="70%" stop-color="${p.light}"/><stop offset="100%" stop-color="${p.a}"/>
+        <radialGradient id="${id}_R2" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="${p.mid}" stop-opacity="0.9"/>
+            <stop offset="60%" stop-color="${p.dark}" stop-opacity="0.4"/>
+            <stop offset="100%" stop-color="${p.dark}" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="${id}_R3" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="${p.light}" stop-opacity="0.9"/>
+            <stop offset="50%" stop-color="${p.light}" stop-opacity="0.2"/>
+            <stop offset="100%" stop-color="${p.light}" stop-opacity="0"/>
+        </radialGradient>
+        
+        <linearGradient id="${id}_V1" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="${p.light}"/><stop offset="40%" stop-color="${p.a}"/><stop offset="100%" stop-color="${p.dark}"/>
         </linearGradient>
-
-        <!-- Clip Paths for Swiss Grid -->
-        <clipPath id="${id}_CircleClip"><circle cx="50%" cy="50%" r="40%"/></clipPath>
+        <radialGradient id="${id}_V2" cx="35%" cy="35%" r="65%">
+            <stop offset="0%" stop-color="${p.light}"/><stop offset="40%" stop-color="${p.mid}"/><stop offset="100%" stop-color="${p.dark}"/>
+        </radialGradient>
       </defs>`;
   }
 
-  // ----------------------------------------------------
-  // PREMIUM DESIGN ENGINES
-  // ----------------------------------------------------
+  function drawStar(cx, cy, rOut, rIn, pts, color, rot=0) {
+      let d = "";
+      for(let i=0; i<pts*2; i++){
+          let r = (i%2===0)?rOut:rIn;
+          let a = rot + (i/(pts*2))*TAU;
+          d += (i===0?"M":"L") + `${cx+Math.cos(a)*r},${cy+Math.sin(a)*r} `;
+      }
+      return `<path d="${d}Z" fill="${color}"/>`;
+  }
 
-  // 01. AMBER VOLUME (Perfect 3D geometry from reference)
+  // ----------------------------------------------------
+  // CHRISTMAS / HOLIDAY ENGINES
+  // ----------------------------------------------------
+  
+  function renderXmasScandiTree(w, h, p, id, rnd, i) {
+      let out = `<rect width="${w}" height="${h}" fill="${p.bg}"/>`;
+      out += `<rect width="${w}" height="${h}" fill="url(#${id}_L3)" opacity="0.6"/>`;
+      
+      const drawTree = (cx, cy, scale) => {
+          let t = "";
+          let tiers = 3;
+          for(let j=0; j<tiers; j++) {
+              let tw = w * (0.25 + j*0.1) * scale;
+              let ty = cy + j*(h*0.15*scale);
+              let th = h*0.25*scale;
+              // 3D split effect for geometric tree
+              t += `<polygon points="${cx},${ty} ${cx-tw},${ty+th} ${cx},${ty+th}" fill="url(#${id}_V1)"/>`;
+              t += `<polygon points="${cx},${ty} ${cx+tw},${ty+th} ${cx},${ty+th}" fill="url(#${id}_L2)"/>`;
+          }
+          t += `<rect x="${cx - w*0.04*scale}" y="${cy + tiers*(h*0.15*scale) + h*0.08*scale}" width="${w*0.08*scale}" height="${h*0.08*scale}" fill="${p.dark}"/>`;
+          t += drawStar(cx, cy, w*0.06*scale, w*0.02*scale, 4, p.light);
+          return t;
+      };
+
+      if(i%3===0) {
+          out += drawTree(w*0.5, h*0.25, 1);
+      } else if (i%3===1) {
+          out += drawTree(w*0.3, h*0.4, 0.7);
+          out += drawTree(w*0.7, h*0.5, 0.6);
+          out += drawTree(w*0.5, h*0.2, 0.9);
+      } else {
+          out += `<polygon points="${0},${h} ${w},${h*0.4} ${w},${h}" fill="${p.dark}"/>`;
+          out += drawTree(w*0.7, h*0.3, 0.8);
+          out += drawStar(w*0.2, h*0.2, w*0.1, w*0.03, 4, p.a);
+      }
+      return out;
+  }
+
+  function renderXmasOrnaments(w, h, p, id, rnd, i) {
+      let out = `<rect width="${w}" height="${h}" fill="${p.dark}"/>`;
+      
+      const drawBauble = (cx, cy, r) => {
+          let b = `<line x1="${cx}" y1="0" x2="${cx}" y2="${cy-r}" stroke="${p.light}" stroke-width="${w*0.005}"/>`;
+          b += `<rect x="${cx - r*0.15}" y="${cy-r - r*0.1}" width="${r*0.3}" height="${r*0.1}" fill="${p.a}"/>`;
+          b += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="url(#${id}_V2)"/>`;
+          b += `<path d="M ${cx-r*0.6} ${cy-r*0.5} Q ${cx} ${cy-r*0.8} ${cx+r*0.6} ${cy-r*0.5}" fill="none" stroke="${p.light}" stroke-width="${r*0.05}" stroke-linecap="round" opacity="0.5"/>`;
+          return b;
+      };
+
+      if(i%3===0) {
+          out += drawBauble(w*0.2, h*0.4, w*0.15);
+          out += drawBauble(w*0.5, h*0.7, w*0.25);
+          out += drawBauble(w*0.8, h*0.5, w*0.18);
+      } else if (i%3===1) {
+          out += `<circle cx="${w*0.5}" cy="${h*0.5}" r="${w*0.4}" fill="url(#${id}_R1)"/>`;
+          out += drawBauble(w*0.5, h*0.5, w*0.35);
+          out += drawStar(w*0.8, h*0.2, w*0.08, w*0.02, 4, p.light);
+      } else {
+          for(let j=0; j<8; j++) {
+              let r = w*(0.05 + rnd()*0.1);
+              out += `<circle cx="${w*rnd()}" cy="${h*rnd()}" r="${r}" fill="url(#${id}_V1)"/>`;
+          }
+          out += drawBauble(w*0.3, h*0.4, w*0.2);
+          out += drawBauble(w*0.7, h*0.6, w*0.2);
+      }
+      return out;
+  }
+
+  function renderXmasSnowflake(w, h, p, id, rnd, i) {
+      let out = `<rect width="${w}" height="${h}" fill="${p.bg}"/>`;
+      
+      const drawFlake = (cx, cy, r) => {
+          let f = "";
+          for(let j=0; j<6; j++) {
+              let rot = j * 60;
+              f += `<g transform="translate(${cx}, ${cy}) rotate(${rot})">`;
+              f += `<line x1="0" y1="0" x2="0" y2="${-r}" stroke="${p.a}" stroke-width="${r*0.05}"/>`;
+              f += `<polygon points="${-r*0.1},${-r*0.3} ${0},${-r*0.5} ${r*0.1},${-r*0.3} ${0},${-r*0.2}" fill="${p.mid}"/>`;
+              f += `<polygon points="${-r*0.15},${-r*0.6} ${0},${-r*0.9} ${r*0.15},${-r*0.6} ${0},${-r*0.4}" fill="url(#${id}_V1)"/>`;
+              f += `</g>`;
+          }
+          f += `<circle cx="${cx}" cy="${cy}" r="${r*0.1}" fill="${p.light}"/>`;
+          return f;
+      };
+
+      if(i%3===0) {
+          out += `<circle cx="${w*0.5}" cy="${h*0.5}" r="${w*0.6}" fill="url(#${id}_R1)"/>`;
+          out += drawFlake(w*0.5, h*0.5, w*0.4);
+      } else if (i%3===1) {
+          out += drawFlake(w*0.2, h*0.2, w*0.15);
+          out += drawFlake(w*0.8, h*0.3, w*0.2);
+          out += drawFlake(w*0.3, h*0.7, w*0.25);
+          out += drawFlake(w*0.7, h*0.8, w*0.15);
+      } else {
+          out += drawFlake(0, h*0.5, w*0.6);
+          out += drawFlake(w, 0, w*0.4);
+      }
+      return out;
+  }
+
+  function renderXmasRibbons(w, h, p, id, rnd, i) {
+      let out = `<rect width="${w}" height="${h}" fill="${p.dark}"/>`;
+      let ribbonsCount = Math.max(4, Math.floor(state.density/2));
+      
+      for(let j=0; j<ribbonsCount; j++) {
+          let startY = h - (j * (h*0.8/ribbonsCount));
+          let endX = w; let endY = h - (j * (h*0.9/ribbonsCount));
+          let cx1 = w*0.2; let cy1 = startY;
+          let cx2 = w*0.6; let cy2 = endY - h*0.3;
+          let thick = w*0.08;
+          
+          let path = `M 0,${startY} C ${cx1},${cy1} ${cx2},${cy2} ${endX},${endY} L ${endX},${endY+thick} C ${cx2},${cy2+thick} ${cx1},${cy1+thick} 0,${startY+thick} Z`;
+          out += `<path d="${path}" fill="url(#${id}_L2)" />`;
+          out += `<path d="${path}" fill="url(#${id}_V1)" opacity="0.6" />`;
+      }
+      out += drawStar(w*0.8, h*0.2, w*0.06, w*0.02, 4, p.light);
+      return out;
+  }
+
+  // ----------------------------------------------------
+  // ORIGINAL PREMIUM STUDIO ENGINES
+  // ----------------------------------------------------
   function renderAmberVolume(w, h, p, id, rnd, i) {
       let out = `<rect width="${w}" height="${h}" fill="${p.bg}"/>`;
       let s = Math.max(0.5, state.density / 8);
-
       if(i%3===0) {
           for(let j=0; j<4; j++) out += `<rect x="${w*0.1}" y="${h*(0.2+j*0.15)}" width="${w*0.8}" height="${h*0.1}" rx="${h*0.05}" fill="url(#${id}_V3)"/>`;
           out += `<circle cx="${w*0.5}" cy="${h*0.8}" r="${w*0.25}" fill="url(#${id}_V1)"/>`;
@@ -94,18 +220,15 @@
       return out;
   }
 
-  // 02. MIDNIGHT ICE (Sharp intersecting glass elements)
   function renderMidnightIce(w, h, p, id, rnd, i) {
       let out = `<rect width="${w}" height="${h}" fill="${p.dark}"/>`;
-      
       if(i%3===0) {
           out += `<ellipse cx="${w*0.5}" cy="${h*0.8}" rx="${w*1.5}" ry="${h*0.4}" fill="url(#${id}_V3)" />`;
           out += `<ellipse cx="${w*0.3}" cy="${h*1.2}" rx="${w*1.5}" ry="${h*0.4}" fill="url(#${id}_V3)" />`;
       } else if(i%3===1) {
           for(let j=0; j<8; j++) out += `<rect x="${w*0.1 + j*(w*0.11)}" y="${h*(0.05+(j%2)*0.05)}" width="${w*0.06}" height="${h*0.9}" fill="url(#${id}_V3)" />`;
       } else {
-          let cx=w*0.9, cy=h*0.5;
-          let blades = Math.max(12, state.density * 2);
+          let cx=w*0.9, cy=h*0.5; let blades = Math.max(12, state.density * 2);
           for(let j=0; j<blades; j++) {
               let a1=(j/blades)*TAU, aMid=((j+0.5)/blades)*TAU, a2=((j+1)/blades)*TAU;
               out += `<polygon points="${cx},${cy} ${cx+Math.cos(a1)*w*1.5},${cy+Math.sin(a1)*w*1.5} ${cx+Math.cos(aMid)*w*1.5},${cy+Math.sin(aMid)*w*1.5}" fill="${p.dark}"/>`;
@@ -115,11 +238,9 @@
       return out;
   }
 
-  // 03. SWISS MINIMALIST (Strict 12-column grid, solid overlapping shapes)
   function renderSwissGrid(w, h, p, id, rnd, i) {
       let out = `<rect width="${w}" height="${h}" fill="${p.bg}"/>`;
       let col = w/12; let row = h/12;
-      
       if(i%3===0) {
           out += `<rect x="${col*2}" y="${row*2}" width="${col*4}" height="${row*8}" fill="${p.mid}"/>`;
           out += `<circle cx="${col*8}" cy="${row*6}" r="${col*3}" fill="${p.a}"/>`;
@@ -129,32 +250,15 @@
           out += `<circle cx="${col*4}" cy="${row*6}" r="${col*3}" fill="${p.light}"/>`;
           out += `<rect x="${col*6}" y="${row*4}" width="${col*5}" height="${row*5}" fill="${p.a}"/>`;
       } else {
-          for(let j=0; j<6; j++){
-              out += `<rect x="${col*(1 + j*2)}" y="${row*(1 + rnd()*4)}" width="${col}" height="${row*(4 + rnd()*4)}" fill="${j%2===0?p.dark:p.mid}"/>`;
-          }
+          for(let j=0; j<6; j++) out += `<rect x="${col*(1 + j*2)}" y="${row*(1 + rnd()*4)}" width="${col}" height="${row*(4 + rnd()*4)}" fill="${j%2===0?p.dark:p.mid}"/>`;
       }
       return out;
   }
 
-  // 04. HOLOGRAPHIC FOLDS (Iridescent curved ribbons)
   function renderHoloFold(w, h, p, id, rnd, i) {
-      let out = `<rect width="${w}" height="${h}" fill="${p.dark}"/>`;
-      let ribbonsCount = Math.max(6, Math.floor(state.density));
-      
-      for(let j=0; j<ribbonsCount; j++) {
-          let startY = h - (j * (h*0.8/ribbonsCount));
-          let endX = w; let endY = h - (j * (h*0.9/ribbonsCount));
-          let cx1 = w*0.2; let cy1 = startY;
-          let cx2 = w*0.6; let cy2 = endY - h*0.3;
-          let thick = w*0.1;
-          
-          let path = `M 0,${startY} C ${cx1},${cy1} ${cx2},${cy2} ${endX},${endY} L ${endX},${endY+thick} C ${cx2},${cy2+thick} ${cx1},${cy1+thick} 0,${startY+thick} Z`;
-          out += `<path d="${path}" fill="url(#${id}_Holo)" />`;
-      }
-      return out;
+      return renderXmasRibbons(w, h, p, id, rnd, i); // Shared logic, different palette mapped via theme
   }
 
-  // 05. RETRO HALFTONE (Vector dot matrices and pop-art geometry)
   function renderRetroHalftone(w, h, p, id, rnd, i) {
       let out = `<rect width="${w}" height="${h}" fill="${p.bg}"/>`;
       
@@ -184,13 +288,10 @@
       return out;
   }
 
-  // 06. FLUID AURA (Massive, soft glowing background washes using gradient transparency)
   function renderFluidAura(w, h, p, id, rnd, i) {
       let out = `<rect width="${w}" height="${h}" fill="${p.dark}"/>`;
       let orbs = Math.max(3, Math.floor(state.density/2));
-      for(let j=0; j<orbs; j++) {
-          out += `<ellipse cx="${w*rnd()}" cy="${h*rnd()}" rx="${w*(0.6+rnd()*0.4)}" ry="${h*(0.4+rnd()*0.4)}" fill="url(#${id}_Aura)"/>`;
-      }
+      for(let j=0; j<orbs; j++) out += `<ellipse cx="${w*rnd()}" cy="${h*rnd()}" rx="${w*(0.6+rnd()*0.4)}" ry="${h*(0.4+rnd()*0.4)}" fill="url(#${id}_R1)"/>`;
       return out;
   }
 
@@ -198,28 +299,30 @@
   // EDITORIAL TYPOGRAPHY & GRIDS
   // ==========================================
   function textLayer(mode, w, h, p, i){
-    const col = w / 12; // 12 column grid base
+    const col = w / 12; 
     const fs = Math.max(24, Math.round(Math.min(w,h)*0.04));
     
-    // Determine text color based on background logic
     let fill = p.text;
-    if (mode === "swissGrid") fill = p.dark; // Dark text on light BG
+    if (mode === "swissGrid") fill = p.dark; 
     if (mode === "retroHalftone" && i%3!==0) fill = p.dark;
 
     let t = `<g font-family="system-ui, -apple-system, sans-serif" fill="${fill}">`;
 
-    // Title Block (Top Left, locked to grid)
-    let title = mode.replace(/([A-Z])/g, ' $1').toUpperCase();
-    t += `<text x="${col}" y="${h*0.1}" font-size="${fs}" font-weight="900" letter-spacing="2">${title}</text>`;
-    t += `<text x="${col}" y="${h*0.1 + fs*1.2}" font-size="${fs*0.4}" font-weight="600" opacity="0.7">VOL. ${String(i+1).padStart(2,"0")} / GEOMETRIC SYSTEM</text>`;
-    
-    // Folio (Bottom, locked to grid)
-    t += `<text x="${col}" y="${h - h*0.05}" font-size="${fs*0.3}" font-weight="600" opacity="0.5">ALI STUDIO DESIGN</text>`;
-    t += `<text x="${w - col}" y="${h - h*0.05}" font-size="${fs*0.3}" font-weight="600" opacity="0.5" text-anchor="end">GRID ALIGNED</text>`;
+    if(mode.includes("xmas") || mode.includes("Xmas")) {
+        let title = "MERRY CHRISTMAS";
+        t += `<text x="${w/2}" y="${h*0.15}" font-size="${fs*1.2}" font-weight="900" text-anchor="middle" letter-spacing="2">${title}</text>`;
+        t += `<text x="${w/2}" y="${h*0.18}" font-size="${fs*0.4}" font-weight="600" text-anchor="middle" opacity="0.7">WINTER HOLIDAY CELEBRATION</text>`;
+        t += `<text x="${col}" y="${h*0.9}" font-size="${fs*0.3}" font-weight="500" opacity="0.6">HOLIDAY EDITION</text>`;
+    } else {
+        let title = mode.replace(/([A-Z])/g, ' $1').toUpperCase().trim();
+        t += `<text x="${col}" y="${h*0.1}" font-size="${fs}" font-weight="900" letter-spacing="2">${title}</text>`;
+        t += `<text x="${col}" y="${h*0.1 + fs*1.2}" font-size="${fs*0.4}" font-weight="600" opacity="0.7">VOL. ${String(i+1).padStart(2,"0")} / GEOMETRIC SYSTEM</text>`;
+        t += `<text x="${w - col}" y="${h - h*0.05}" font-size="${fs*0.3}" font-weight="600" opacity="0.5" text-anchor="end">ALI STUDIO / ${String(i+1).padStart(2,"0")}</text>`;
+        t += `<text x="${col}" y="${h - h*0.05}" font-size="${fs*0.3}" font-weight="500" opacity="0.6">Grid System: 12 Columns</text>`;
 
-    // Special Large Center Typography for Swiss
-    if (mode === "swissGrid" && i%3===0) {
-        t += `<text x="${col*6}" y="${h*0.5}" font-size="${fs*2.5}" font-weight="900" letter-spacing="-2" text-anchor="middle" fill="${p.light}">FORM</text>`;
+        if (mode === "swissGrid" && i%3===0) {
+            t += `<text x="${col*6}" y="${h*0.5}" font-size="${fs*2.5}" font-weight="900" letter-spacing="-2" text-anchor="middle" fill="${p.light}">FORM</text>`;
+        }
     }
     
     return t + `</g>`;
@@ -234,14 +337,28 @@
     
     const mode = state.designMode;
     let themeKey = state.theme;
-    if(themeKey === "curated") themeKey = mode; // Auto mapping
+    
+    // Auto-curated mapping
+    if(themeKey === "curated") {
+        if(mode.includes("xmas")) {
+            if(mode==="xmasScandiTree") themeKey = "xmasClassic";
+            else if(mode==="xmasSnowflake") themeKey = "xmasFrost";
+            else themeKey = "xmasCandy";
+        } else {
+            themeKey = mode;
+        }
+    }
     
     const p = THEMES[themeKey] || THEMES.amberVolume;
     const id = `ali_${state.seed}_${index}`;
     
     let out = getDefs(id, p);
     
-    if (mode === "amberVolume")   out += renderAmberVolume(w, h, p, id, rnd, index);
+    if (mode === "xmasScandiTree") out += renderXmasScandiTree(w, h, p, id, rnd, index);
+    else if (mode === "xmasOrnaments") out += renderXmasOrnaments(w, h, p, id, rnd, index);
+    else if (mode === "xmasSnowflake") out += renderXmasSnowflake(w, h, p, id, rnd, index);
+    else if (mode === "xmasRibbons")   out += renderXmasRibbons(w, h, p, id, rnd, index);
+    else if (mode === "amberVolume")   out += renderAmberVolume(w, h, p, id, rnd, index);
     else if (mode === "midnightIce")   out += renderMidnightIce(w, h, p, id, rnd, index);
     else if (mode === "swissGrid")     out += renderSwissGrid(w, h, p, id, rnd, index);
     else if (mode === "holoFold")      out += renderHoloFold(w, h, p, id, rnd, index);
@@ -271,8 +388,7 @@
     const dMode = $("designMode");
     if(dMode && $("workspaceTitle")) {
         let text = dMode.options[dMode.selectedIndex].text;
-        // Strip out the number prefixes (e.g. "01. ") for the header
-        $("workspaceTitle").textContent = text.replace(/^[0-9]+\.\s*/, '').toUpperCase();
+        $("workspaceTitle").textContent = text.replace(/^[0-9]+\.\s*/, '').replace('✦ ', '').toUpperCase();
     }
   }
 
@@ -313,7 +429,7 @@
         grid.style.gridTemplateColumns=`repeat(${maxCols},minmax(0,1fr))`;
         applyZoom();
     } catch (e) {
-        console.error("Render error:", e); // Fail-safe crash protection
+        console.error("Render error:", e);
     }
   }
 
