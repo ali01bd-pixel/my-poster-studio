@@ -3,7 +3,6 @@
 
   const $ = id => document.getElementById(id);
   const clamp = (n,a,b) => Math.max(a, Math.min(b,n));
-  const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&apos;"}[c]));
   const mulberry32 = a => () => {
     let t = a += 0x6D2B79F5;
     t = Math.imul(t ^ t >>> 15, t | 1);
@@ -12,17 +11,24 @@
   };
   const TAU = Math.PI * 2;
 
-  // New Amber Theme perfectly matching the reference image
+  // Exact Palettes matching the 11 Reference Images
   const THEMES = {
-    amberGlow: { bg:"#F4E7DA", dark:"#CD241E", mid:"#F05023", a:"#FF9A26", light:"#FFF171", text:"#ffffff" },
-    roseGold:  { bg:"#F5E8EB", dark:"#962A4E", mid:"#D44C6A", a:"#F28C8C", light:"#FFE3DF", text:"#ffffff" },
-    cyberPink: { bg:"#EBDDF2", dark:"#73105C", mid:"#B51B78", a:"#E843A1", light:"#FF9EF1", text:"#ffffff" }
+    amberVolume: { bg:"#F4E7DA", dark:"#CD241E", mid:"#F05023", a:"#FF9A26", light:"#FFF171" },
+    midnightIce: { bg:"#010205", dark:"#050811", mid:"#0a1845", a:"#1d3c94", light:"#83c5f7" },
+    neonOrbs:    { bg:"#e6e6e6", dark:"#1c033b", mid:"#47137d", a:"#ff4000", light:"#ffb366" },
+    blueLiquid:  { bg:"#020b1c", dark:"#0a245c", mid:"#1f4fb8", a:"#4785ff", light:"#ffffff" },
+    cyanWash:    { bg:"#ffffff", dark:"#05367a", mid:"#126cdb", a:"#4debe2", light:"#d1fffc" },
+    musicFest:   { bg:"#09061c", dark:"#19084a", mid:"#cf0a4c", a:"#e34d0b", light:"#b9e615" },
+    sunsetGeom:  { bg:"#2b0d2a", dark:"#590f48", mid:"#b81254", a:"#f56200", light:"#ffdd00" },
+    midAutumn:   { bg:"#fcf2e6", dark:"#e697a8", mid:"#f5c1d1", a:"#ffeb99", light:"#ffffff" },
+    retroXmas:   { bg:"#12376e", dark:"#e3242b", mid:"#f24148", a:"#31a868", light:"#e3f1e8" },
+    softXmas:    { bg:"#e6f2ea", dark:"#187a38", mid:"#3eba6d", a:"#d6e352", light:"#ffffff" },
+    pastelXmas:  { bg:"#fce8f0", dark:"#d9668d", mid:"#f59ab6", a:"#1b876a", light:"#b0eddb" }
   };
 
   const state = {
-    posterCount:5, designMode:"amberVolume", theme:"amberGlow", depth:"flat",
-    density:8, seed:260831, format:"portrait", quality:"large", 
-    darkColor:"#CD241E", lightColor:"#FFF171"
+    posterCount:3, designMode:"pastelXmas", density:8, seed:260831, 
+    format:"portrait", quality:"large"
   };
 
   let generated = [], zoom = 1;
@@ -33,244 +39,347 @@
     return {w:Math.round(base.w*q),h:Math.round(base.h*q)};
   }
 
-  function hexToRgb(hex){
-    const s = String(hex).replace("#","");
-    const clean = s.length === 3 ? s.split("").map(x=>x+x).join("") : s;
-    const v = parseInt(clean,16) || 0;
-    return {r:(v>>16)&255,g:(v>>8)&255,b:v&255};
+  // --- HELPER GEOMETRY GENERATORS (NO FILTERS) ---
+  
+  // Simulated Halftone Pattern via vector circles
+  function drawHalftone(cx, cy, rMax, color, dotSpacing, rnd) {
+      let out = "";
+      for(let y=-rMax; y<=rMax; y+=dotSpacing) {
+        for(let x=-rMax; x<=rMax; x+=dotSpacing) {
+           let dist = Math.sqrt(x*x + y*y);
+           if (dist < rMax) {
+              let r = (dotSpacing*0.45) * (1 - Math.pow(dist/rMax, 2)); 
+              if(r>1) out += `<circle cx="${cx+x}" cy="${cy+y}" r="${r}" fill="${color}"/>`;
+           }
+        }
+      }
+      return out;
   }
 
-  function mixHex(a,b,t){
-    const A=hexToRgb(a), B=hexToRgb(b);
-    return "#"+[A.r,A.g,A.b].map((v,i)=>Math.round(v*(1-t)+[B.r,B.g,B.b][i]*t).toString(16).padStart(2,"0")).join("");
+  function drawStar(cx, cy, rOut, rIn, pts, color, rot=0) {
+      let d = "";
+      for(let i=0; i<pts*2; i++){
+          let r = (i%2===0)?rOut:rIn;
+          let a = rot + (i/(pts*2))*TAU;
+          d += (i===0?"M":"L") + `${cx+Math.cos(a)*r},${cy+Math.sin(a)*r} `;
+      }
+      return `<path d="${d}Z" fill="${color}"/>`;
   }
 
-  function palette(index){
-    const base = THEMES[state.theme] || THEMES.amberGlow;
-    const themeKeys = Object.keys(THEMES);
-    const shift = (Math.floor((Number(state.seed)||1)/17) + index * 3) % themeKeys.length;
-    const alt = THEMES[themeKeys[shift]];
-    const tint = ((index * 0.17) % 0.75);
-    return {
-      bg: base.bg,
-      dark: state.darkColor || mixHex(base.dark, alt.dark, tint * .2),
-      mid: mixHex(base.mid, alt.mid, tint),
-      a: mixHex(base.a, alt.a, (tint + .12) % 1),
-      light: state.lightColor || mixHex(base.light, alt.light, tint * .35),
-      text: base.text
-    };
+  // Master Gradient Defs
+  function getDefs(id, p) {
+      return `<defs>
+        <!-- Standard Linear -->
+        <linearGradient id="${id}_L1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="${p.light}"/><stop offset="100%" stop-color="${p.dark}"/></linearGradient>
+        <linearGradient id="${id}_L2" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="${p.a}"/><stop offset="100%" stop-color="${p.mid}"/></linearGradient>
+        <linearGradient id="${id}_L3" x1="50%" y1="0%" x2="50%" y2="100%"><stop offset="0%" stop-color="${p.bg}"/><stop offset="100%" stop-color="${p.light}"/></linearGradient>
+        
+        <!-- Fades (Simulates Blur/Glow) -->
+        <radialGradient id="${id}_R1" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="${p.light}" stop-opacity="1"/>
+            <stop offset="40%" stop-color="${p.a}" stop-opacity="0.6"/>
+            <stop offset="100%" stop-color="${p.dark}" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="${id}_R2" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="${p.mid}" stop-opacity="0.9"/>
+            <stop offset="60%" stop-color="${p.dark}" stop-opacity="0.4"/>
+            <stop offset="100%" stop-color="${p.dark}" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="${id}_R3" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="${p.light}" stop-opacity="0.9"/>
+            <stop offset="50%" stop-color="${p.light}" stop-opacity="0.2"/>
+            <stop offset="100%" stop-color="${p.light}" stop-opacity="0"/>
+        </radialGradient>
+        
+        <!-- 3D Volumes -->
+        <linearGradient id="${id}_V1" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="${p.light}"/><stop offset="40%" stop-color="${p.a}"/><stop offset="100%" stop-color="${p.dark}"/>
+        </linearGradient>
+        <radialGradient id="${id}_V2" cx="35%" cy="35%" r="65%">
+            <stop offset="0%" stop-color="${p.light}"/><stop offset="40%" stop-color="${p.mid}"/><stop offset="100%" stop-color="${p.dark}"/>
+        </radialGradient>
+      </defs>`;
   }
 
   // ==========================================
-  // PURE VECTOR 3D GRADIENTS
-  // Generates perfect luminous volume with zero SVG filters
+  // SPECIFIC IMAGE GENERATORS
   // ==========================================
-  function commonDefs(id,p,rnd){
-    return `<defs>
-      <!-- Base Canvas Fade -->
-      <linearGradient id="${id}_bgFade" x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop offset="0%" stop-color="${p.bg}"/>
-        <stop offset="100%" stop-color="${mixHex(p.bg, p.mid, 0.15)}"/>
-      </linearGradient>
 
-      <!-- 3D Orb Radial Gradient (Offset highlight simulates sphere lighting) -->
-      <radialGradient id="${id}_orbGrad" cx="35%" cy="30%" r="70%">
-        <stop offset="0%" stop-color="${p.light}"/>
-        <stop offset="35%" stop-color="${p.a}"/>
-        <stop offset="70%" stop-color="${p.mid}"/>
-        <stop offset="100%" stop-color="${p.dark}"/>
-      </radialGradient>
+  function renderAmberVolume(w, h, p, id, rnd, i) {
+      let out = `<rect width="${w}" height="${h}" fill="${p.bg}"/>`;
+      if(i%3===0) {
+          // Folded 3D Ribbons
+          for(let j=0; j<4; j++){
+              out += `<rect x="${w*0.1}" y="${h*(0.2+j*0.15)}" width="${w*0.8}" height="${h*0.1}" rx="${h*0.05}" fill="url(#${id}_V1)"/>`;
+          }
+      } else if (i%3===1) {
+          // Floating 3D Spheres
+          for(let j=0; j<12; j++){
+              let r = w*(0.1+rnd()*0.2);
+              out += `<circle cx="${w*rnd()}" cy="${h*rnd()}" r="${r}" fill="url(#${id}_V2)"/>`;
+          }
+      } else {
+          // Fluid Fade Background
+          out += `<rect width="${w}" height="${h}" fill="url(#${id}_R1)"/>`;
+          out += `<ellipse cx="${w*0.8}" cy="${h*0.8}" rx="${w*0.5}" ry="${h*0.5}" fill="url(#${id}_R2)"/>`;
+      }
+      return out;
+  }
 
-      <!-- 3D Pill/Tube Gradient (Vertical fade for cylindrical lighting) -->
-      <linearGradient id="${id}_pillGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop offset="0%" stop-color="${p.light}"/>
-        <stop offset="30%" stop-color="${p.a}"/>
-        <stop offset="70%" stop-color="${p.mid}"/>
-        <stop offset="100%" stop-color="${p.dark}"/>
-      </linearGradient>
+  function renderMidnightIce(w, h, p, id, rnd, i) {
+      let out = `<rect width="${w}" height="${h}" fill="${p.dark}"/>`;
+      if(i%3===0) {
+          // Glowing Horizons
+          out += `<ellipse cx="${w*0.5}" cy="${h*0.8}" rx="${w*1.5}" ry="${h*0.4}" fill="url(#${id}_V1)" />`;
+          out += `<ellipse cx="${w*0.3}" cy="${h*1.2}" rx="${w*1.5}" ry="${h*0.4}" fill="url(#${id}_V1)" />`;
+      } else if(i%3===1) {
+          // Metallic Bars
+          for(let j=0; j<8; j++){
+             out += `<rect x="${w*0.1 + j*(w*0.11)}" y="${h*(0.05+(j%2)*0.05)}" width="${w*0.06}" height="${h*0.9}" fill="url(#${id}_V1)" />`;
+          }
+      } else {
+          // 3D Folded Fan
+          let cx=w*0.9, cy=h*0.5;
+          for(let j=0; j<24; j++) {
+              let a1=(j/24)*TAU, aMid=((j+0.5)/24)*TAU, a2=((j+1)/24)*TAU;
+              out += `<polygon points="${cx},${cy} ${cx+Math.cos(a1)*w*1.5},${cy+Math.sin(a1)*w*1.5} ${cx+Math.cos(aMid)*w*1.5},${cy+Math.sin(aMid)*w*1.5}" fill="${p.dark}"/>`;
+              out += `<polygon points="${cx},${cy} ${cx+Math.cos(aMid)*w*1.5},${cy+Math.sin(aMid)*w*1.5} ${cx+Math.cos(a2)*w*1.5},${cy+Math.sin(a2)*w*1.5}" fill="url(#${id}_L1)"/>`;
+          }
+      }
+      return out;
+  }
+
+  function renderNeonOrbs(w, h, p, id, rnd, i) {
+      let out = `<rect width="${w}" height="${h}" fill="${i%2===0?p.bg:p.dark}"/>`;
+      if(i%3===0) {
+          out += `<circle cx="${w*0.2}" cy="${h*0.2}" r="${w*0.3}" fill="url(#${id}_V2)"/>`;
+          out += `<circle cx="${w*0.8}" cy="${h*0.8}" r="${w*0.4}" fill="url(#${id}_R1)"/>`;
+          out += `<circle cx="${w*0.5}" cy="${h*0.5}" r="${w*0.25}" fill="none" stroke="${p.light}" stroke-width="2"/>`;
+          out += drawStar(w*0.8, h*0.2, w*0.1, w*0.02, 4, p.light);
+      } else if (i%3===1) {
+          out += `<rect x="${w*0.2}" y="0" width="${w*0.3}" height="${h}" fill="url(#${id}_L1)"/>`;
+          out += `<circle cx="${w*0.6}" cy="${h*0.6}" r="${w*0.2}" fill="url(#${id}_V2)"/>`;
+          out += drawStar(w*0.5, h*0.8, w*0.15, w*0.03, 4, p.light, Math.PI/4);
+      } else {
+          out += `<rect width="${w}" height="${h*0.5}" fill="url(#${id}_R1)"/>`;
+          out += `<circle cx="${w*0.5}" cy="${h*0.5}" r="${w*0.3}" fill="${p.dark}"/>`;
+          out += `<rect y="${h*0.5}" width="${w}" height="${h*0.5}" fill="url(#${id}_R2)"/>`;
+      }
+      return out;
+  }
+
+  function renderBlueLiquid(w, h, p, id, rnd, i) {
+      let out = `<rect width="${w}" height="${h}" fill="${p.dark}"/>`;
+      if(i%3===0) {
+          out += `<circle cx="${w*0.2}" cy="${h*0.3}" r="${w*0.6}" fill="url(#${id}_R3)"/>`;
+          out += `<circle cx="${w*0.8}" cy="${h*0.7}" r="${w*0.5}" fill="url(#${id}_R1)"/>`;
+      } else if (i%3===1) {
+          out += `<rect width="${w}" height="${h}" fill="${p.bg}"/>`;
+          for(let j=0; j<6; j++){
+              out += `<circle cx="${w*0.2 + (j%2)*w*0.6}" cy="${h*0.2 + j*h*0.15}" r="${w*0.35}" fill="url(#${id}_R1)"/>`;
+          }
+      } else {
+          for(let j=0; j<8; j++){
+              out += `<path d="M 0,${h*(rnd()*0.8)} Q ${w*0.5},${h*rnd()} ${w},${h*(rnd()*0.8)} L ${w},${h} L 0,${h} Z" fill="url(#${id}_L1)" opacity="0.6"/>`;
+          }
+      }
+      return out;
+  }
+
+  function renderCyanWash(w, h, p, id, rnd, i) {
+      let out = `<rect width="${w}" height="${h}" fill="${p.bg}"/>`;
+      if(i%3===0) {
+          out += `<ellipse cx="${w*0.5}" cy="${h}" rx="${w*0.8}" ry="${h*0.6}" fill="url(#${id}_R1)"/>`;
+          out += `<path d="M 0,${h*0.6} Q ${w*0.5},${h*0.4} ${w},${h*0.6} L ${w},${h} L 0,${h} Z" fill="url(#${id}_V1)"/>`;
+      } else if(i%3===1) {
+          out += `<circle cx="${w*0.3}" cy="${h*0.3}" r="${w*0.4}" fill="url(#${id}_R1)"/>`;
+          out += `<circle cx="${w*0.7}" cy="${h*0.6}" r="${w*0.35}" fill="url(#${id}_R2)"/>`;
+      } else {
+          out += `<rect width="${w}" height="${h*0.3}" y="${h*0.1}" fill="url(#${id}_R1)"/>`;
+          out += `<rect width="${w}" height="${h*0.4}" y="${h*0.6}" fill="url(#${id}_R2)"/>`;
+      }
+      return out;
+  }
+
+  function renderMusicFest(w, h, p, id, rnd, i) {
+      let out = `<rect width="${w}" height="${h}" fill="${p.bg}"/>`;
+      if(i%3===0) {
+          out += `<circle cx="${w*0.5}" cy="${h*0.4}" r="${w*0.4}" fill="url(#${id}_V1)"/>`;
+          for(let j=0; j<20; j++) out += `<rect y="${h*0.1 + j*h*0.04}" width="${w}" height="${h*0.01}" fill="${p.light}"/>`;
+      } else if (i%3===1) {
+          for(let j=0; j<6; j++){
+              out += `<path d="M 0,${h*rnd()} Q ${w*0.5},${h*rnd()} ${w},${h*rnd()} L ${w},${h*rnd()} Q ${w*0.5},${h*rnd()} 0,${h*rnd()} Z" fill="url(#${id}_L1)" opacity="0.8"/>`;
+          }
+      } else {
+          out += `<path d="M ${w*0.2},0 Q ${w*0.8},${h*0.5} ${w*0.2},${h} L 0,${h} L 0,0 Z" fill="url(#${id}_V2)"/>`;
+          out += `<rect x="${w*0.6}" width="${w*0.4}" height="${h}" fill="url(#${id}_L1)"/>`;
+      }
+      return out;
+  }
+
+  function renderSunsetGeom(w, h, p, id, rnd, i) {
+      let out = `<rect width="${w}" height="${h}" fill="${p.bg}"/>`;
+      if(i%3===0) {
+          for(let j=0; j<20; j++){
+              out += `<path d="M 0,${h*0.8} Q ${w*0.2},${h*0.4} ${w},${h*(j/20)} L 0,${h*(j/20)} Z" fill="url(#${id}_L2)" opacity="0.6"/>`;
+          }
+      } else if (i%3===1) {
+          out += `<polygon points="${w*0.2},${h*0.2} ${w*0.8},${h*0.4} ${w*0.4},${h*0.8}" fill="url(#${id}_V1)"/>`;
+          out += `<polygon points="${w*0.5},${h*0.1} ${w*0.9},${h*0.5} ${w*0.2},${h*0.9}" fill="url(#${id}_V2)" opacity="0.9"/>`;
+      } else {
+          out += `<circle cx="${w*0.5}" cy="${h*0.5}" r="${w*0.4}" fill="url(#${id}_R1)"/>`;
+          out += `<rect y="${h*0.4}" width="${w}" height="${h*0.05}" fill="${p.dark}"/>`;
+          out += `<rect y="${h*0.6}" width="${w}" height="${h*0.05}" fill="${p.dark}"/>`;
+      }
+      return out;
+  }
+
+  function renderMidAutumn(w, h, p, id, rnd, i) {
+      let out = `<rect width="${w}" height="${h}" fill="${p.bg}"/>`;
+      out += `<circle cx="${w*0.5}" cy="${h*0.4}" r="${w*0.3}" fill="url(#${id}_R3)"/>`; // Glow Moon
+      out += `<circle cx="${w*0.5}" cy="${h*0.4}" r="${w*0.2}" fill="${p.light}"/>`;    // Solid Moon
       
-      <!-- Folded Ribbon Gradient (Sweeping 3D fold lighting) -->
-      <linearGradient id="${id}_ribbonGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stop-color="${p.light}"/>
-        <stop offset="40%" stop-color="${p.a}"/>
-        <stop offset="100%" stop-color="${p.mid}"/>
-      </linearGradient>
-      <linearGradient id="${id}_ribbonGrad2" x1="0%" y1="100%" x2="100%" y2="0%">
-        <stop offset="0%" stop-color="${p.mid}"/>
-        <stop offset="60%" stop-color="${p.dark}"/>
-        <stop offset="100%" stop-color="${p.dark}"/>
-      </linearGradient>
-    </defs>`;
+      const drawBunny = (bx, by, s) => {
+          return `<ellipse cx="${bx}" cy="${by}" rx="${30*s}" ry="${40*s}" fill="#fff"/>
+                  <circle cx="${bx}" cy="${by-30*s}" r="${25*s}" fill="#fff"/>
+                  <ellipse cx="${bx-10*s}" cy="${by-60*s}" rx="${8*s}" ry="${25*s}" fill="#fff" transform="rotate(-15 ${bx-10*s} ${by-60*s})"/>
+                  <ellipse cx="${bx+10*s}" cy="${by-60*s}" rx="${8*s}" ry="${25*s}" fill="#fff" transform="rotate(15 ${bx+10*s} ${by-60*s})"/>`;
+      };
+      
+      if(i%3===0) {
+          out += `<ellipse cx="${w*0.3}" cy="${h*0.8}" rx="${w*0.3}" ry="${h*0.1}" fill="${p.a}"/>`; // Lotus leaf
+          out += `<ellipse cx="${w*0.7}" cy="${h*0.85}" rx="${w*0.25}" ry="${h*0.08}" fill="${p.a}"/>`;
+          out += drawBunny(w*0.4, h*0.65, w*0.002);
+      } else if (i%3===1) {
+          out += drawBunny(w*0.6, h*0.75, w*0.003);
+          out += `<path d="M 0,${h*0.8} Q ${w*0.5},${h*0.6} ${w},${h*0.9} L ${w},${h} L 0,${h} Z" fill="url(#${id}_L3)"/>`;
+      } else {
+          out += drawBunny(w*0.3, h*0.3, w*0.0015);
+          out += drawBunny(w*0.7, h*0.3, w*0.0015);
+          out += `<circle cx="${w*0.5}" cy="${h*0.8}" r="${w*0.4}" fill="url(#${id}_R1)"/>`;
+      }
+      return out;
+  }
+
+  function renderRetroXmas(w, h, p, id, rnd, i) {
+      let out = `<rect width="${w}" height="${h}" fill="${p.bg}"/>`;
+      if(i%3===0) {
+          out += `<polygon points="${w*0.3},${h*0.2} ${w*0.6},${h*0.8} 0,${h*0.8}" fill="url(#${id}_L1)"/>`;
+          out += `<polygon points="${w*0.8},${h*0.4} ${w},${h*0.9} ${w*0.4},${h*0.9}" fill="url(#${id}_V1)"/>`;
+          out += drawHalftone(w*0.2, h*0.8, w*0.2, p.dark, w*0.02, rnd);
+          out += drawHalftone(w*0.8, h*0.3, w*0.15, p.a, w*0.02, rnd);
+      } else if (i%3===1) {
+          out += drawHalftone(w*0.2, h*0.7, w*0.4, p.light, w*0.03, rnd);
+          out += `<circle cx="${w*0.5}" cy="${h*0.5}" r="${w*0.35}" fill="${p.dark}"/>`; // Red ornament
+          out += `<circle cx="${w*0.2}" cy="${h*0.2}" r="${w*0.2}" fill="${p.mid}"/>`;
+          out += `<circle cx="${w*0.8}" cy="${h*0.8}" r="${w*0.25}" fill="${p.a}"/>`;
+      } else {
+          out += `<path d="M ${w*0.2},${h*0.8} Q ${w*0.5},${h*0.2} ${w*0.8},${h*0.4} L ${w},${h} L 0,${h} Z" fill="${p.dark}"/>`;
+          out += `<circle cx="${w*0.8}" cy="${h*0.6}" r="${w*0.2}" fill="${p.light}"/>`;
+          out += drawHalftone(w*0.8, h*0.6, w*0.15, p.dark, w*0.02, rnd);
+      }
+      return out;
+  }
+
+  function renderSoftXmas(w, h, p, id, rnd, i) {
+      let out = `<rect width="${w}" height="${h}" fill="${p.bg}"/>`;
+      if(i%3===0) {
+          out += drawStar(w*0.3, h*0.2, w*0.2, w*0.08, 5, `url(#${id}_R3)`);
+          out += drawStar(w*0.7, h*0.5, w*0.25, w*0.1, 4, `url(#${id}_R1)`);
+          out += drawStar(w*0.4, h*0.8, w*0.15, w*0.05, 8, `url(#${id}_R2)`);
+      } else if (i%3===1) {
+          out += `<circle cx="${w*0.4}" cy="${h*0.6}" r="${w*0.2}" fill="url(#${id}_R2)"/>`; // Soft ornament
+          out += `<polygon points="${w*0.5},${h*0.1} ${w*0.7},${h*0.4} ${w*0.3},${h*0.4}" fill="url(#${id}_R1)"/>`; // Soft tree
+          for(let j=0; j<6; j++) out += `<line x1="${w*0.7}" y1="${h*0.4}" x2="${w*0.7+Math.cos((j/6)*TAU)*w*0.1}" y2="${h*0.4+Math.sin((j/6)*TAU)*w*0.1}" stroke="${p.light}" stroke-width="4"/>`;
+      } else {
+          out += `<rect width="${w}" height="${h*0.2}" y="${h*0.8}" fill="${p.dark}"/>`; // Ground
+          out += `<circle cx="${w*0.5}" cy="${h*0.5}" r="${w*0.35}" fill="url(#${id}_R3)"/>`; // Globe
+          out += `<polygon points="${w*0.5},${h*0.3} ${w*0.7},${h*0.7} ${w*0.3},${h*0.7}" fill="url(#${id}_R1)"/>`; // Tree in globe
+      }
+      return out;
+  }
+
+  function renderPastelXmas(w, h, p, id, rnd, i) {
+      let out = `<rect width="${w}" height="${h}" fill="${p.bg}"/>`;
+      const curtain = `<path d="M 0,0 Q ${w*0.2},${h*0.2} 0,${h*0.4} Z" fill="${p.dark}"/><path d="M ${w},0 Q ${w*0.8},${h*0.2} ${w},${h*0.4} Z" fill="${p.dark}"/>`;
+      
+      if(i%3===0) {
+          out += `<polygon points="${w*0.5},${h*0.2} ${w*0.7},${h*0.7} ${w*0.5},${h*0.7}" fill="url(#${id}_V1)"/>`;
+          out += `<polygon points="${w*0.5},${h*0.2} ${w*0.3},${h*0.7} ${w*0.5},${h*0.7}" fill="url(#${id}_V2)"/>`;
+          out += `<rect x="${w*0.2}" y="${h*0.65}" width="${w*0.2}" height="${h*0.1}" fill="${p.mid}"/>`;
+          out += `<rect x="${w*0.6}" y="${h*0.65}" width="${w*0.2}" height="${h*0.1}" fill="${p.mid}"/>`;
+      } else if (i%3===1) {
+          out += `<polygon points="${w*0.5},${h*0.2} ${w*0.8},${h*0.5} ${w*0.5},${h*0.8} ${w*0.2},${h*0.5}" fill="url(#${id}_V1)"/>`;
+          out += `<polygon points="${w*0.5},${h*0.2} ${w*0.8},${h*0.5} ${w*0.5},${h*0.5}" fill="url(#${id}_V2)"/>`;
+          out += curtain;
+      } else {
+          out += `<polygon points="${w*0.5},${h*0.1} ${w*0.8},${h*0.7} ${w*0.5},${h*0.6}" fill="url(#${id}_V1)"/>`;
+          out += `<polygon points="${w*0.5},${h*0.1} ${w*0.2},${h*0.7} ${w*0.5},${h*0.6}" fill="url(#${id}_L1)"/>`;
+          out += curtain;
+      }
+      return out;
   }
 
   // ==========================================
-  // REFERENCE IMAGE LAYOUT REPLICATOR: Amber Volume
+  // MASTER ROUTER
   // ==========================================
-  function amberVolume(id,w,h,p,rnd,index) {
-    let out = `<rect width="${w}" height="${h}" fill="url(#${id}_bgFade)"/>`;
-
-    if (index % 5 === 0) {
-        // POSTER 1: Stacked Pills/Discs
-        // Standing petals (Top Left)
-        let standing = 3;
-        for(let i=0; i<standing; i++){
-            let cx = w*(0.2 + i*0.2); 
-            let cy = h*0.25;
-            let rx = w*0.1; let ry = h*0.25;
-            let rot = -15 + i*15;
-            out += `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" transform="rotate(${rot} ${cx} ${cy})" fill="url(#${id}_orbGrad)" />`;
-        }
-
-        // Stacked flat discs (Bottom)
-        let discs = 3;
-        for(let i=0; i<discs; i++){
-            let cx = w*0.5;
-            let cy = h*(0.55 + i*0.15);
-            let rx = w*0.42; let ry = h*0.12;
-            out += `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="url(#${id}_pillGrad)" />`;
-        }
-        return out;
-    }
-    else if (index % 5 === 1) {
-        // POSTER 2: 6 Columns Grid
-        let cols = 3; let rows = 2;
-        let pW = w * 0.22; let pH = h * 0.38;
-        let gapX = (w - (cols * pW)) / 4;
-        let gapY = h * 0.08;
-        
-        for(let r=0; r<rows; r++){
-            for(let c=0; c<cols; c++){
-                let x = gapX + c*(pW + gapX);
-                let y = h*0.08 + r*(pH + gapY);
-                out += `<rect x="${x}" y="${y}" width="${pW}" height="${pH}" rx="${w*0.05}" fill="url(#${id}_pillGrad)" />`;
-            }
-        }
-        return out;
-    }
-    else if (index % 5 === 2) {
-        // POSTER 3: Giant Edge Orbs
-        out += `<circle cx="${w*0.2}" cy="${h*0.3}" r="${w*0.4}" fill="url(#${id}_orbGrad)" />`;
-        out += `<circle cx="${w*0.8}" cy="${h*0.1}" r="${w*0.3}" fill="url(#${id}_orbGrad)" />`;
-        out += `<circle cx="${w*0.65}" cy="${h*0.8}" r="${w*0.6}" fill="url(#${id}_orbGrad)" />`;
-        return out;
-    }
-    else if (index % 5 === 3) {
-        // POSTER 4: Fluid Twisting Wave/Ribbon
-        // Recreated using solid overlapping vector paths and gradients to simulate the twist
-        
-        // Background sweeping shadow tail
-        let path1 = `M ${w*0.2},${h} C ${w*0.4},${h*0.8} ${w*0.3},${h*0.6} ${w*0.5},${h*0.4} C ${w*0.7},${h*0.2} ${w*0.8},${-h*0.1} ${w*1.2},${-h*0.1} L ${w},${h} Z`;
-        out += `<path d="${path1}" fill="url(#${id}_ribbonGrad2)" opacity="0.6"/>`;
-        
-        // Foreground sweeping glowing wave
-        let path2 = `M ${-w*0.2},${h*1.2} C ${w*0.8},${h*0.9} ${w*0.5},${h*0.5} ${w*0.6},${h*0.3} C ${w*0.7},${h*0.1} ${w*0.9},${0} ${w*1.2},${-h*0.2} L ${w*0.6},${-h*0.2} C ${w*0.4},${h*0.2} ${w*0.3},${h*0.5} ${-w*0.4},${h*1.2} Z`;
-        out += `<path d="${path2}" fill="url(#${id}_ribbonGrad1)" />`;
-
-        return out;
-    }
-    else {
-        // POSTER 5: Central Orb Cluster
-        let cluster = Math.max(7, Math.floor(Number(state.density)));
-        
-        // Background Orbs
-        for(let i=0; i<cluster; i++){
-            let cx = w * (0.25 + rnd()*0.5);
-            let cy = h * (0.2 + rnd()*0.6);
-            let r = w * (0.2 + rnd()*0.15);
-            out += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="url(#${id}_orbGrad)" />`;
-        }
-        
-        // Foreground hero orbs
-        out += `<circle cx="${w*0.3}" cy="${h*0.4}" r="${w*0.28}" fill="url(#${id}_orbGrad)" />`;
-        out += `<circle cx="${w*0.7}" cy="${h*0.6}" r="${w*0.25}" fill="url(#${id}_orbGrad)" />`;
-        out += `<circle cx="${w*0.5}" cy="${h*0.5}" r="${w*0.32}" fill="url(#${id}_orbGrad)" />`;
-
-        return out;
-    }
+  function layoutByMode(mode, w, h, p, rnd, id, i) {
+      if (mode === "amberVolume") return renderAmberVolume(w, h, p, id, rnd, i);
+      if (mode === "midnightIce") return renderMidnightIce(w, h, p, id, rnd, i);
+      if (mode === "neonOrbs")    return renderNeonOrbs(w, h, p, id, rnd, i);
+      if (mode === "blueLiquid")  return renderBlueLiquid(w, h, p, id, rnd, i);
+      if (mode === "cyanWash")    return renderCyanWash(w, h, p, id, rnd, i);
+      if (mode === "musicFest")   return renderMusicFest(w, h, p, id, rnd, i);
+      if (mode === "sunsetGeom")  return renderSunsetGeom(w, h, p, id, rnd, i);
+      if (mode === "midAutumn")   return renderMidAutumn(w, h, p, id, rnd, i);
+      if (mode === "retroXmas")   return renderRetroXmas(w, h, p, id, rnd, i);
+      if (mode === "softXmas")    return renderSoftXmas(w, h, p, id, rnd, i);
+      if (mode === "pastelXmas")  return renderPastelXmas(w, h, p, id, rnd, i);
+      return renderPastelXmas(w, h, p, id, rnd, i); // fallback
   }
 
-  // ==========================================
-  // TYPOGRAPHY (Matches Reference Image)
-  // ==========================================
-  function textLayer(id,index,w,h,p){
-    const fill = p.text;
-    const fs = Math.max(22, Math.round(Math.min(w,h)*0.035));
-    const smallFs = Math.max(12, Math.round(fs*0.4));
-    const tinyFs = Math.max(9, Math.round(fs*0.25));
-    
-    let textOut = `<g font-family="Arial, Helvetica, sans-serif" fill="${fill}" opacity="0.9">`;
+  function textLayer(mode, w, h, p, i){
+    const fs = Math.max(24, Math.round(Math.min(w,h)*0.04));
+    let t = `<g font-family="system-ui, sans-serif" fill="${p.text}">`;
 
-    if (index % 5 === 0) {
-        textOut += `<text x="${w*0.5}" y="${h*0.88}" font-size="${fs*0.8}" font-weight="600" letter-spacing="4" text-anchor="middle">INSPIRATION</text>`;
-        textOut += `<text x="${w*0.5}" y="${h*0.9}" font-size="${tinyFs}" font-weight="400" letter-spacing="1" text-anchor="middle" opacity="0.6">CREATIVE DESIGN SYSTEM</text>`;
+    if(mode.includes("Xmas") || mode === "midAutumn") {
+        let title = mode==="midAutumn" ? "MID AUTUMN" : "MERRY CHRISTMAS";
+        t += `<text x="${w/2}" y="${h*0.15}" font-size="${fs*1.2}" font-weight="900" text-anchor="middle">${title}</text>`;
+        t += `<text x="${w/2}" y="${h*0.18}" font-size="${fs*0.4}" font-weight="600" text-anchor="middle" opacity="0.7">FESTIVAL CELEBRATION</text>`;
+    } else if (mode === "musicFest") {
+        t += `<text x="${w*0.1}" y="${h*0.8}" font-size="${fs*1.5}" font-weight="900" font-style="italic">MUSIC</text>`;
+        t += `<text x="${w*0.1}" y="${h*0.85}" font-size="${fs}" font-weight="900" font-style="italic">FESTIVAL</text>`;
+    } else {
+        t += `<text x="${w*0.1}" y="${h*0.1}" font-size="${fs*0.8}" font-weight="800" letter-spacing="2">ABSTRACT</text>`;
+        t += `<text x="${w*0.1}" y="${h*0.13}" font-size="${fs*0.8}" font-weight="800" letter-spacing="2">DESIGN</text>`;
+        t += `<text x="${w*0.9}" y="${h*0.9}" font-size="${fs*0.5}" font-weight="600" text-anchor="end">ALI STUDIO</text>`;
     }
-    else if (index % 5 === 1) {
-        textOut += `<text x="${w*0.08}" y="${h*0.1}" font-size="${smallFs*1.2}" font-weight="800" letter-spacing="1">ABSTRACT</text>`;
-        textOut += `<text x="${w*0.08}" y="${h*0.12}" font-size="${smallFs*1.2}" font-weight="800" letter-spacing="1">POSTER</text>`;
-        
-        textOut += `<text x="${w*0.92}" y="${h*0.9}" font-size="${smallFs*1.2}" font-weight="800" text-anchor="end">01 <tspan font-weight="400" font-size="${smallFs}">TEMPLATE</tspan></text>`;
-    }
-    else if (index % 5 === 2) {
-        textOut += `<text x="${w*0.9}" y="${h*0.1}" font-size="${smallFs}" font-weight="600" letter-spacing="2" transform="rotate(90 ${w*0.9} ${h*0.1})">GRADIENT DESIGN</text>`;
-        
-        textOut += `<text x="${w*0.1}" y="${h*0.25}" font-size="${tinyFs}" opacity="0.7">Lorem ipsum dolor</text>`;
-        textOut += `<text x="${w*0.1}" y="${h*0.265}" font-size="${tinyFs}" opacity="0.7">sit amet consetur.</text>`;
-
-        textOut += `<text x="${w*0.1}" y="${h*0.45}" font-size="${tinyFs}" opacity="0.7">Lorem ipsum dolor</text>`;
-        textOut += `<text x="${w*0.1}" y="${h*0.465}" font-size="${tinyFs}" opacity="0.7">sit amet consetur.</text>`;
-
-        textOut += `<text x="${w*0.1}" y="${h*0.85}" font-size="${fs*0.8}" font-weight="800" letter-spacing="1">ABSTRACT</text>`;
-        textOut += `<text x="${w*0.1}" y="${h*0.88}" font-size="${fs*0.8}" font-weight="800" letter-spacing="1">POSTER</text>`;
-    }
-    else if (index % 5 === 3) {
-        textOut += `<text x="${w*0.1}" y="${h*0.15}" font-size="${smallFs*1.2}" font-weight="800" letter-spacing="2">INSPIRATION</text>`;
-        textOut += `<text x="${w*0.1}" y="${h*0.18}" font-size="${tinyFs}" font-weight="400" letter-spacing="1" opacity="0.7">LOREM IPSUM</text>`;
-        textOut += `<text x="${w*0.1}" y="${h*0.195}" font-size="${tinyFs}" font-weight="400" letter-spacing="1" opacity="0.7">DOLOR SIT AMET</text>`;
-    }
-    else if (index % 5 === 4) {
-        textOut += `<text x="${w*0.5}" y="${h*0.5}" font-size="${smallFs*1.4}" font-weight="400" letter-spacing="1" text-anchor="middle">Design Inspiration</text>`;
-    }
-
-    textOut += `</g>`;
-    return textOut;
-  }
-
-  // ==========================================
-  // COMPILATION ENGINE
-  // ==========================================
-  function layoutByMode(index,w,h,p,rnd,id){
-    return amberVolume(id,w,h,p,rnd,index);
+    return t + `</g>`;
   }
 
   function makeSvg(index){
     const {w,h}=dims();
     const rnd=mulberry32((Number(state.seed)||1)+index*7919);
-    const p=palette(index);
-    const id=`ali_${Number(state.seed)||1}_${index}`;
     
-    let out=commonDefs(id,p,rnd);
-    out += layoutByMode(index,w,h,p,rnd,id);
-    out += textLayer(id,index,w,h,p);
+    // Get correct theme palette based on mode
+    const mode = state.designMode;
+    const baseThemeKey = {
+        amberVolume:"amber", midnightIce:"midnight", neonOrbs:"neonOrbs", blueLiquid:"blueLiquid", 
+        cyanWash:"cyanWash", musicFest:"musicFest", sunsetGeom:"sunsetGeom", midAutumn:"midAutumn", 
+        retroXmas:"retroXmas", softXmas:"softXmas", pastelXmas:"pastelXmas"
+    }[mode];
+    
+    const p = THEMES[baseThemeKey];
+    const id=`ali_${state.seed}_${index}`;
+    
+    let out = getDefs(id, p);
+    out += layoutByMode(mode, w, h, p, rnd, id, index);
+    out += textLayer(mode, w, h, p, index);
     
     return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
-      <title>ALI STUDIO — Amber Volume Design ${String(index+1).padStart(2,"0")}</title>
-      <metadata>Generated locally by ALI STUDIO. Pure Vector Graphics.</metadata>
+      <title>ALI STUDIO 3.0 — ${mode} ${String(index+1).padStart(2,"0")}</title>
       ${out}
     </svg>`;
-  }
-
-  function makeCombinedSvg(){
-    const {w:pw,h:ph}=dims();
-    const count=Number(state.posterCount), cols=Math.min(5,Math.max(1,count)), rows=Math.ceil(count/cols), gap=36;
-    const aw=pw*cols+gap*(cols+1), ah=ph*rows+gap*(rows+1);
-    let out=`<svg xmlns="http://www.w3.org/2000/svg" width="${aw}" height="${ah}" viewBox="0 0 ${aw} ${ah}">
-      <title>ALI STUDIO — Amber Volume Collection</title><rect width="${aw}" height="${ah}" fill="#111"/>`;
-    for(let i=0;i<count;i++){
-      const x=gap+(i%cols)*(pw+gap), y=gap+Math.floor(i/cols)*(ph+gap);
-      const svg=makeSvg(i).replace(/^<svg[^>]*>/,"").replace(/<\/svg>\s*$/i,"");
-      out += `<g id="design_${String(i+1).padStart(2,"0")}" transform="translate(${x} ${y})">${svg}</g>`;
-    }
-    return out+"</svg>";
   }
 
   function download(filename,content,mime="image/svg+xml"){
@@ -279,47 +388,47 @@
     setTimeout(()=>URL.revokeObjectURL(a.href),1000);
   }
 
-  async function copyText(text){
-    try{await navigator.clipboard.writeText(text); alert("SVG copied to clipboard.");}
-    catch{const ta=document.createElement("textarea");ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove();alert("SVG copied to clipboard.");}
+  function updateOutputs(){
+    if($("posterCountVal")) $("posterCountVal").textContent = state.posterCount;
+    if($("densityVal")) $("densityVal").textContent = state.density;
+    if($("collectionCount")) $("collectionCount").textContent = state.posterCount;
+    
+    const dMode = $("designMode");
+    if(dMode && $("workspaceTitle")) {
+        $("workspaceTitle").textContent = (dMode.options[dMode.selectedIndex].text).toUpperCase();
+    }
   }
 
   function readControls(){
-    ["posterCount","density"].forEach(k=>{if($(k))state[k]=Number($(k).value)});
-    ["theme","format","quality","darkColor","lightColor","seed"].forEach(k=>{if($(k))state[k]=$(k).value});
-    state.seed=Number(state.seed)||1;
-  }
-
-  function updateOutputs(){
-    const map={posterCount:["posterCountVal",v=>v],density:["densityVal",v=>v]};
-    Object.entries(map).forEach(([id,[oid,fn]])=>{if($(oid) && $(id)) $(oid).textContent=fn($(id).value)});
-    if($("collectionCount") && $("posterCount")) $("collectionCount").textContent=$("posterCount").value;
+    if($("posterCount")) state.posterCount = Number($("posterCount").value);
+    if($("density")) state.density = Number($("density").value);
+    if($("designMode")) state.designMode = $("designMode").value;
+    if($("seed")) state.seed = Number($("seed").value) || 1;
+    if($("format")) state.format = $("format").value;
+    if($("quality")) state.quality = $("quality").value;
   }
 
   function render(){
     readControls(); updateOutputs(); generated=[];
-    const grid=$("posterGrid"); 
-    if(!grid) return;
+    const grid=$("posterGrid"); if(!grid) return;
     grid.innerHTML="";
-    const tpl=$("posterTemplate");
-    if(!tpl) return;
+    const tpl=$("posterTemplate"); if(!tpl) return;
     
-    let maxCols = Math.min(5, state.posterCount);
+    let maxCols = Math.min(3, state.posterCount);
 
     for(let i=0;i<state.posterCount;i++){
       const node=tpl.content.firstElementChild.cloneNode(true), svg=makeSvg(i);
       generated.push(svg);
       const num = node.querySelector(".poster-number");
-      const mode = node.querySelector(".poster-mode");
+      const modeTxt = node.querySelector(".poster-mode");
       const frame = node.querySelector(".poster-frame");
       const dBtn = node.querySelector(".download-one");
-      const cBtn = node.querySelector(".copy-one");
       
       if(num) num.textContent=`DESIGN ${String(i+1).padStart(2,"0")}`;
-      if(mode) mode.textContent=`VOLUME / ${String((i%5)+1).padStart(2,"0")}`;
+      if(modeTxt) modeTxt.textContent=`VECTOR / ${String((i%3)+1).padStart(2,"0")}`;
       if(frame) frame.innerHTML=svg;
-      if(dBtn) dBtn.addEventListener("click",()=>download(`ali-studio-amber-${String(i+1).padStart(2,"0")}.svg`,svg));
-      if(cBtn) cBtn.addEventListener("click",()=>copyText(svg));
+      if(dBtn) dBtn.addEventListener("click",()=>download(`ali-studio-${state.designMode}-${String(i+1).padStart(2,"0")}.svg`,svg));
+      
       grid.appendChild(node);
     }
     grid.style.gridTemplateColumns=`repeat(${maxCols},minmax(0,1fr))`;
@@ -327,17 +436,14 @@
   }
 
   function applyZoom(){ 
-      const grid = $("posterGrid");
-      if (!grid) return;
+      const grid = $("posterGrid"); if (!grid) return;
       grid.style.transform = `scale(${zoom})`; 
       if($("zoomLabel")) $("zoomLabel").textContent = `${Math.round(zoom*100)}%`; 
-      const originalHeight = grid.offsetHeight;
-      const scaledHeight = originalHeight * zoom;
-      const heightDifference = scaledHeight - originalHeight;
-      grid.style.marginBottom = `${heightDifference > 0 ? heightDifference + 80 : 80}px`;
+      const hDiff = (grid.offsetHeight * zoom) - grid.offsetHeight;
+      grid.style.marginBottom = `${hDiff > 0 ? hDiff + 80 : 80}px`;
   }
 
-  ["posterCount","density","seed","format","quality","darkColor","lightColor"].forEach(id=>{
+  ["posterCount","density","designMode","seed","format","quality"].forEach(id=>{
     let el = $(id);
     if(el){
         el.addEventListener("input",()=>{updateOutputs();render();});
@@ -348,14 +454,28 @@
   if($("regenerate")) $("regenerate").addEventListener("click",render);
   if($("randomize")) {
       $("randomize").addEventListener("click",()=>{
-        if($("seed")) $("seed").value=Math.floor(Math.random()*99999999)+1;
-        if($("density")) $("density").value=5+Math.floor(Math.random()*15);
+        if($("seed")) $("seed").value = Math.floor(Math.random()*99999999)+1;
+        if($("density")) $("density").value = 5+Math.floor(Math.random()*15);
         updateOutputs(); render();
       });
   }
 
-  if($("downloadAll")) $("downloadAll").addEventListener("click",()=>download(`ali-studio-amber-collection.svg`,makeCombinedSvg()));
-  if($("downloadJson")) $("downloadJson").addEventListener("click",()=>download("ali-studio-settings.json",JSON.stringify(state,null,2),"application/json"));
+  if($("downloadAll")) {
+      $("downloadAll").addEventListener("click",()=>{
+          const {w:pw,h:ph}=dims();
+          const count=state.posterCount, cols=Math.min(3,count), rows=Math.ceil(count/cols), gap=40;
+          const aw=pw*cols+gap*(cols+1), ah=ph*rows+gap*(rows+1);
+          let out=`<svg xmlns="http://www.w3.org/2000/svg" width="${aw}" height="${ah}" viewBox="0 0 ${aw} ${ah}"><rect width="${aw}" height="${ah}" fill="#111"/>`;
+          for(let i=0;i<count;i++){
+            const x=gap+(i%cols)*(pw+gap), y=gap+Math.floor(i/cols)*(ph+gap);
+            const svg=makeSvg(i).replace(/^<svg[^>]*>/,"").replace(/<\/svg>\s*$/i,"");
+            out += `<g transform="translate(${x} ${y})">${svg}</g>`;
+          }
+          out += "</svg>";
+          download(`ali-studio-${state.designMode}-collection.svg`, out);
+      });
+  }
+
   if($("zoomIn")) $("zoomIn").addEventListener("click",()=>{zoom=clamp(zoom+.1,.4,1.8);applyZoom();});
   if($("zoomOut")) $("zoomOut").addEventListener("click",()=>{zoom=clamp(zoom-.1,.4,1.8);applyZoom();});
 
