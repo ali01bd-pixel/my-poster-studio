@@ -4,7 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="description" content="ALI STUDIO pure vector generator">
-  <title>ALI STUDIO 3.0 — Master Collection</title>
+  <title>ALI STUDIO 3.0 — Designer Edition</title>
+  <!-- PERMANENTLY FIXED TO style.css -->
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -13,13 +14,13 @@
     <span class="brand-mark">✦</span>
     <span class="brand-copy">
       <span class="brand-name">ALI STUDIO 3.0</span>
-      <span class="brand-sub">Pure Vector Lab</span>
+      <span class="brand-sub">Premium Designer Edition</span>
     </span>
   </div>
   <div class="status-pill">
     <span class="status-dot"></span>
-    <strong id="statusMode">MASTER ENGINE</strong>
-    <span id="statusText">Grid-based composition & pure vectors</span>
+    <strong id="statusMode">STUDIO ENGINE</strong>
+    <span id="statusText">Strict grids & pure vectors</span>
   </div>
   <div class="account">
     <div class="avatar">M</div>
@@ -31,32 +32,38 @@
 <main class="app-shell">
   <aside class="sidebar">
     <section class="hero-card">
-      <div class="eyebrow">CREATE A NEW SET</div>
-      <h1>Vector Master<br><span>generator</span></h1>
-      <p>11 unique aesthetic families built on a strict 12-column grid. Simulated 3D, glows, and halftones using 100% solid vector math. Zero SVG blur filters.</p>
+      <div class="eyebrow">STUDIO WORKSPACE</div>
+      <h1>Premium Vector<br><span>generator</span></h1>
+      <p>6 highly curated, graphic-designer-grade engines. Perfect grids, crisp gradients, zero blur filters.</p>
     </section>
 
     <section class="control-block">
-      <div class="label-row"><label for="posterCount">NUMBER OF DESIGNS</label><output id="posterCountVal">3</output></div>
-      <input id="posterCount" type="range" min="1" max="12" value="3">
+      <div class="label-row"><label for="posterCount">ARTBOARDS</label><output id="posterCountVal">4</output></div>
+      <input id="posterCount" type="range" min="1" max="8" value="4">
     </section>
 
-    <section class="settings-title"><span>SETTINGS</span><span class="settings-badge">LIVE</span></section>
+    <section class="settings-title"><span>COMPOSITION</span><span class="settings-badge">LIVE</span></section>
 
     <section class="control-block">
-      <label for="designMode">DESIGN FAMILY</label>
+      <label for="designMode">STUDIO ENGINE</label>
       <select id="designMode" style="height: 40px; font-size: 11px;">
-        <option value="amberVolume" selected>Amber Volume (Growth & Flow)</option>
-        <option value="midnightIce">Midnight Ice (Structure & Precision)</option>
-        <option value="neonOrbs">Neon Orbs (Energy & Focus)</option>
-        <option value="blueLiquid">Deep Blue Liquid (Calm & Depth)</option>
-        <option value="cyanWash">Cyan Washes (Clarity & Breath)</option>
-        <option value="musicFest">Music Fest Ribbons (Rhythm & Sound)</option>
-        <option value="sunsetGeom">Sunset Geometry (Transition & Contrast)</option>
-        <option value="midAutumn">Mid Autumn Pastel (Tradition & Harmony)</option>
-        <option value="retroXmas">Retro Halftone (Nostalgia & Joy)</option>
-        <option value="softXmas">Soft Globes (Peace & Celebration)</option>
-        <option value="pastelXmas">3D Crystal Folds (Elegance)</option>
+        <option value="amberVolume" selected>01. Amber Volume (3D Geometry)</option>
+        <option value="midnightIce">02. Midnight Ice (Sharp Glass Reflections)</option>
+        <option value="swissGrid">03. Swiss Minimalist (Strict Grid & Solid Blocks)</option>
+        <option value="holoFold">04. Holographic Folds (Iridescent Ribbons)</option>
+        <option value="retroHalftone">05. Retro Halftone (Vector Dot Matrices)</option>
+        <option value="fluidAura">06. Fluid Aura (Smooth Radial Intersections)</option>
+      </select>
+    </section>
+
+    <section class="control-block">
+      <label for="theme">COLOR PALETTE</label>
+      <select id="theme" style="height: 40px; font-size: 11px;">
+        <option value="curated" selected>Auto-Curated for Engine</option>
+        <option value="monochrome">Obsidian Monochrome</option>
+        <option value="crimson">Crimson & Gold</option>
+        <option value="cyber">Cyberpunk Neon</option>
+        <option value="pastel">Editorial Pastel</option>
       </select>
     </section>
 
@@ -75,39 +82,39 @@
         </select>
       </div>
       <div>
-        <label for="quality">QUALITY</label>
+        <label for="quality">RESOLUTION</label>
         <select id="quality">
           <option value="standard">Standard</option>
-          <option value="large" selected>Large</option>
-          <option value="xl">XL</option>
+          <option value="large" selected>Print (Large)</option>
+          <option value="xl">Print (XL)</option>
         </select>
       </div>
     </section>
 
     <section class="control-block">
-      <div class="label-row"><label for="seed">SEED</label><span class="tiny-note">Same seed = repeatable set</span></div>
+      <div class="label-row"><label for="seed">GENERATION SEED</label><span class="tiny-note">Locks randomness</span></div>
       <input id="seed" class="text-input" type="number" value="260831" min="1" step="1">
     </section>
 
     <div class="button-grid">
       <button id="randomize" class="btn secondary">🎲 Randomize</button>
-      <button id="regenerate" class="btn primary">✦ Generate Set</button>
+      <button id="regenerate" class="btn primary">✦ Render Artboards</button>
     </div>
 
     <div class="download-stack">
-      <button id="downloadAll" class="btn download">⇩ DOWNLOAD COLLECTION SVG</button>
+      <button id="downloadAll" class="btn download">⇩ DOWNLOAD SVG BUNDLE</button>
     </div>
   </aside>
 
   <section class="workspace">
     <div class="workspace-head">
       <div>
-        <div class="workspace-kicker">ALI STUDIO 3.0 / GENERATOR</div>
-        <h2 id="workspaceTitle">MASTER COLLECTION</h2>
+        <div class="workspace-kicker">ALI STUDIO 3.0</div>
+        <h2 id="workspaceTitle">AMBER VOLUME</h2>
         <p id="workspaceSubtitle">Intentional composition with perfect solid vectors.</p>
       </div>
       <div class="workspace-actions">
-        <div class="collection-meta"><strong id="collectionCount">3</strong><span>DESIGNS</span></div>
+        <div class="collection-meta"><strong id="collectionCount">4</strong><span>ARTBOARDS</span></div>
         <button id="zoomOut" class="icon-btn" title="Zoom out">−</button>
         <span id="zoomLabel">100%</span>
         <button id="zoomIn" class="icon-btn" title="Zoom in">+</button>
@@ -122,7 +129,7 @@
 <template id="posterTemplate">
   <article class="poster-card">
     <div class="poster-toolbar">
-      <span class="poster-number">DESIGN 01</span>
+      <span class="poster-number">ARTBOARD 01</span>
       <span class="poster-mode">VECTOR / 01</span>
       <div>
         <button class="mini-btn download-one" title="Download SVG">⇩</button>
@@ -133,6 +140,7 @@
   </article>
 </template>
 
+<!-- PERMANENTLY FIXED TO script.js -->
 <script src="script.js"></script>
 </body>
 </html>
